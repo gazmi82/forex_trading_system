@@ -9,30 +9,30 @@
 #         Published every Friday at 3:30 PM EST
 #         Weekly macro positioning, not real-time
 #
+#   Policy rates:
+#         USD via official Fed open-market page target range
+#         EUR via official ECB key-rates webpage (no key required)
+#
 #   Calendar: Forex Factory public JSON (no API key required)
 #         Next high-impact USD / EUR event
 #         https://nfs.faireconomy.media/ff_calendar_thisweek.json
 #
-#   News: Finnhub (primary) → NewsAPI (fallback)
+#   News: Finnhub (primary) → NewsAPI (secondary live source)
 #         Latest FX-relevant headline — requires FINNHUB_API_KEY or NEWS_API_KEY
 #
 #   Risk sentiment: Yahoo Finance SPY intraday
 #         S&P 500 proxy for risk-on / risk-off tone
 #
-# Manual overrides (env vars take priority over auto-fetched):
-#   export DXY_DIRECTION="FALLING"
-#   export DXY_LEVEL="104.20"
-#   export COT_BIAS="BULLISH"
-#   export COT_NET="+18500"
-#   export RETAIL_SENTIMENT="72% SHORT"   ← manual override; auto-fetched from OANDA position book
-#   export FINNHUB_API_KEY="your_finnhub_key"                # enables live headlines (primary)
-#   export NEWS_API_KEY="your_newsapi_key"                   # enables live headlines (fallback)
+# Optional live headline keys:
+#   export FINNHUB_API_KEY="your_finnhub_key"                # primary live headlines
+#   export NEWS_API_KEY="your_newsapi_key"                   # secondary live headlines
 #
 # Install: pip install yfinance
 # =============================================================================
 
 import io
 import csv
+import html
 import logging
 import os
 import re
@@ -56,6 +56,8 @@ _risk_cache:          dict            = {}
 _risk_cache_time:     datetime | None = None
 _sentiment_cache:     dict            = {}
 _sentiment_cache_time: datetime | None = None
+_rates_cache:         dict            = {}
+_rates_cache_time:    datetime | None = None
 
 _DXY_CACHE_MINUTES        = 5
 _CALENDAR_CACHE_MINUTES   = 5
@@ -63,6 +65,7 @@ _NEWS_CACHE_MINUTES       = 10
 _COT_CACHE_HOURS          = 12
 _RISK_CACHE_MINUTES       = 5
 _SENTIMENT_CACHE_MINUTES  = 30
+_RATES_CACHE_HOURS        = 12
 
 
 def _cache_fresh(cached_at: datetime | None, max_age: timedelta) -> bool:
@@ -147,6 +150,185 @@ def _is_high_impact_event(event_name: str, raw_importance) -> bool:
         "powell", "lagarde", "payrolls", "inflation"
     )
     return any(keyword in lowered for keyword in high_impact_keywords)
+
+
+def _format_rate_differential(diff: float) -> str:
+    if diff > 0:
+        return f"+{diff:.2f}% USD favor supports bearish EUR/USD bias"
+    if diff < 0:
+        return f"{diff:.2f}% EUR favor supports bullish EUR/USD bias"
+    return "0.00% rate differential — neutral macro rate bias"
+
+
+def _fetch_fed_target_range() -> dict | None:
+    response = requests.get(
+        "https://www.federalreserve.gov/monetarypolicy/openmarket.htm",
+        timeout=20,
+    )
+    response.raise_for_status()
+
+    text = html.unescape(response.text)
+    text = re.sub(r"(?i)</(p|div|tr|table|h\d|li|br|section|article|td|th)>", "\n", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+
+    match = re.search(
+        r"(\d{4})\s+Date Increase Decrease Level \(%\)\s+"
+        r"([A-Za-z]+)\s+(\d{1,2})(?:\*+)?\s+"
+        r"([0-9.]+|\.\.\.)\s+([0-9.]+|\.\.\.)\s+"
+        r"([0-9.]+(?:-[0-9.]+)?)",
+        text,
+    )
+    if not match:
+        return None
+
+    year = match.group(1)
+    as_of = f"{match.group(2)} {match.group(3)}, {year}"
+    level = match.group(6)
+    if "-" in level:
+        low_str, high_str = level.split("-", 1)
+        lower = round(float(low_str), 2)
+        upper = round(float(high_str), 2)
+    else:
+        lower = upper = round(float(level), 2)
+
+    midpoint = round((lower + upper) / 2, 2)
+    return {
+        "fed_target_lower_rate": lower,
+        "fed_target_upper_rate": upper,
+        "usd_rate": midpoint,
+        "fed_target_lower_rate_as_of": as_of,
+        "fed_target_upper_rate_as_of": as_of,
+        "usd_as_of": as_of,
+    }
+
+    return None
+
+
+def _fetch_ecb_key_rates() -> dict | None:
+    response = requests.get(
+        "https://data.ecb.europa.eu/key-figures/ecb-interest-rates-and-exchange-rates/key-ecb-interest-rates",
+        timeout=20,
+    )
+    response.raise_for_status()
+
+    text = html.unescape(response.text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text)
+
+    patterns = {
+        "ecb_main_refi_rate": r"Main refinancing operations\s+(\d{1,2}\s+\w+\s+\d{4})\s+([0-9]+(?:\.[0-9]+)?)\s*%",
+        "ecb_marginal_lending_rate": r"Marginal lending facility\s+(\d{1,2}\s+\w+\s+\d{4})\s+([0-9]+(?:\.[0-9]+)?)\s*%",
+        "ecb_deposit_rate": r"Deposit facility\s+(\d{1,2}\s+\w+\s+\d{4})\s+([0-9]+(?:\.[0-9]+)?)\s*%",
+    }
+
+    result: dict[str, str | float] = {}
+    for field, pattern in patterns.items():
+        match = re.search(pattern, text, re.IGNORECASE)
+        if not match:
+            return None
+        result[field] = round(float(match.group(2)), 2)
+        result[f"{field}_as_of"] = match.group(1)
+
+    return result
+
+
+def fetch_policy_rates(force_refresh: bool = False) -> dict:
+    """
+    Fetch USD and EUR policy rates from official public sources.
+
+    USD: official Fed open-market page target range
+    EUR: official ECB key-rates webpage
+    """
+    global _rates_cache, _rates_cache_time
+
+    now = datetime.now(timezone.utc)
+    if not force_refresh and _rates_cache and _cache_fresh(
+        _rates_cache_time, timedelta(hours=_RATES_CACHE_HOURS)
+    ):
+        return _rates_cache
+
+    try:
+        print("  📥 Fetching policy rates from Fed and ECB webpages...")
+        fed_rates = _fetch_fed_target_range()
+        ecb_rates = _fetch_ecb_key_rates()
+        result = {
+            "usd_rate": None,
+            "fed_target_lower_rate": None,
+            "fed_target_upper_rate": None,
+            "eur_rate": None,
+            "ecb_main_refi_rate": None,
+            "ecb_marginal_lending_rate": None,
+            "ecb_deposit_rate": None,
+            "fed_target_lower_rate_as_of": None,
+            "fed_target_upper_rate_as_of": None,
+            "ecb_main_refi_rate_as_of": None,
+            "ecb_marginal_lending_rate_as_of": None,
+            "ecb_deposit_rate_as_of": None,
+            "rate_differential_value": None,
+            "rate_differential": None,
+            "usd_as_of": None,
+            "eur_as_of": None,
+            "source": None,
+        }
+
+        if fed_rates:
+            result.update(fed_rates)
+        else:
+            logger.warning("Fed target-range page did not return parseable values")
+
+        if ecb_rates:
+            result.update({
+                "eur_rate": ecb_rates["ecb_deposit_rate"],
+                "ecb_main_refi_rate": ecb_rates["ecb_main_refi_rate"],
+                "ecb_marginal_lending_rate": ecb_rates["ecb_marginal_lending_rate"],
+                "ecb_deposit_rate": ecb_rates["ecb_deposit_rate"],
+                "ecb_main_refi_rate_as_of": ecb_rates["ecb_main_refi_rate_as_of"],
+                "ecb_marginal_lending_rate_as_of": ecb_rates["ecb_marginal_lending_rate_as_of"],
+                "ecb_deposit_rate_as_of": ecb_rates["ecb_deposit_rate_as_of"],
+                "eur_as_of": ecb_rates["ecb_deposit_rate_as_of"],
+            })
+        else:
+            logger.warning("ECB key-rates page did not return parseable values")
+
+        if result["usd_rate"] is not None and result["eur_rate"] is not None:
+            diff = round(result["usd_rate"] - result["eur_rate"], 2)
+            result["rate_differential_value"] = diff
+            result["rate_differential"] = _format_rate_differential(diff)
+
+        source_parts = []
+        if fed_rates:
+            source_parts.append("Fed open-market page")
+        if ecb_rates:
+            source_parts.append("ECB key-rates page")
+        if not source_parts:
+            return {}
+        result["source"] = " + ".join(source_parts) + f" @ {now.strftime('%Y-%m-%d %H:%M UTC')}"
+
+        _rates_cache = result
+        _rates_cache_time = now
+        status_parts = []
+        if result["usd_rate"] is not None:
+            status_parts.append(
+                f"USD {result['usd_rate']:.2f}% "
+                f"({result['fed_target_lower_rate']:.2f}-{result['fed_target_upper_rate']:.2f})"
+            )
+        if result["eur_rate"] is not None:
+            status_parts.append(
+                f"ECB deposit {result['eur_rate']:.2f}% | "
+                f"MRO {result['ecb_main_refi_rate']:.2f}% | "
+                f"MLF {result['ecb_marginal_lending_rate']:.2f}%"
+            )
+        if result["rate_differential_value"] is not None:
+            status_parts.append(f"Diff {result['rate_differential_value']:+.2f}%")
+        print(f"  ✅ Rates: {' | '.join(status_parts)}")
+        return result
+    except requests.exceptions.RequestException as exc:
+        logger.warning(f"Policy rate fetch failed: {exc}")
+        return {}
+    except Exception as exc:
+        logger.warning(f"Policy rate parse failed: {exc}")
+        return {}
 
 
 # =============================================================================
@@ -454,7 +636,7 @@ def fetch_next_calendar_event(force_refresh: bool = False) -> dict:
 def fetch_recent_fx_headline(force_refresh: bool = False) -> dict:
     """
     Fetches the most recent FX-relevant headline.
-    Tries Finnhub first (FINNHUB_API_KEY), falls back to NewsAPI (NEWS_API_KEY).
+    Tries Finnhub first (FINNHUB_API_KEY), then NewsAPI (NEWS_API_KEY).
     Returns empty dict when neither key is present.
     """
     global _news_cache, _news_cache_time
@@ -498,7 +680,7 @@ def fetch_recent_fx_headline(force_refresh: bool = False) -> dict:
         except Exception as exc:
             logger.warning(f"Finnhub news parse failed: {exc}")
 
-    # --- NewsAPI (fallback) ---
+    # --- NewsAPI (secondary live source) ---
     newsapi_key = os.getenv("NEWS_API_KEY", "").strip()
     if not newsapi_key:
         return {}
@@ -710,54 +892,53 @@ def get_auto_fundamentals(
     Builds the fundamental override dict for market_data injection.
 
     Priority for each field:
-      1. Manual env var  (user override, highest trust)
-      2. Auto-fetched    (yfinance / CFTC / FMP / NewsAPI)
-      3. MANUAL_CHECK    (fallback — agent knows data is missing)
-
-    The daily/4H EUR/USD trends are used only as a fallback if DXY fetch fails
-    (EUR/USD and DXY are ~57.6% correlated, inversely).
+      1. Auto-fetched    (rates / yfinance / CFTC / Forex Factory / OANDA / news feeds)
+      2. MANUAL_CHECK    (live source unavailable — user must intervene)
     """
-    # ---- DXY ----
-    dxy_env   = os.getenv("DXY_DIRECTION", "").strip().upper()
-    dxy_level = os.getenv("DXY_LEVEL",     "").strip()
-
-    if dxy_env:
-        dxy_direction = dxy_env
-        dxy_lvl_str   = dxy_level or "MANUAL_CHECK — export DXY_LEVEL=104.20"
+    # ---- Policy rates ----
+    rates = fetch_policy_rates()
+    if rates:
+        usd_rate = rates["usd_rate"]
+        fed_target_lower_rate = rates["fed_target_lower_rate"]
+        fed_target_upper_rate = rates["fed_target_upper_rate"]
+        eur_rate = rates["eur_rate"]
+        ecb_main_refi_rate = rates["ecb_main_refi_rate"]
+        ecb_marginal_lending_rate = rates["ecb_marginal_lending_rate"]
+        ecb_deposit_rate = rates["ecb_deposit_rate"]
+        rate_differential = rates["rate_differential"]
+        rates_source = rates["source"]
     else:
-        dxy = fetch_dxy()
-        if dxy:
-            dxy_direction = dxy["direction"]
-            dxy_lvl_str   = dxy_level or str(dxy["level"])
-        else:
-            # Last resort: derive from EUR/USD trend
-            daily = eur_usd_daily_trend.upper()
-            h4    = eur_usd_h4_trend.upper()
-            if daily == "BULLISH":
-                dxy_direction = "FALLING"
-            elif daily == "BEARISH":
-                dxy_direction = "RISING"
-            else:
-                dxy_direction = "NEUTRAL"
-            dxy_lvl_str = "MANUAL_CHECK — yfinance unavailable"
-            logger.info(f"DXY derived from EUR/USD trend: {dxy_direction}")
+        usd_rate = None
+        fed_target_lower_rate = None
+        fed_target_upper_rate = None
+        eur_rate = None
+        ecb_main_refi_rate = None
+        ecb_marginal_lending_rate = None
+        ecb_deposit_rate = None
+        rate_differential = (
+            "MANUAL_CHECK — live Fed/ECB rate pages unavailable; "
+            "check network access or page layout changes"
+        )
+        rates_source = "unavailable"
+
+    # ---- DXY ----
+    dxy = fetch_dxy()
+    if dxy:
+        dxy_direction = dxy["direction"]
+        dxy_lvl_str = str(dxy["level"])
+    else:
+        dxy_direction = "MANUAL_CHECK — Yahoo Finance DXY unavailable"
+        dxy_lvl_str = "MANUAL_CHECK — verify yfinance/network access"
 
     # ---- COT ----
-    cot_bias_env = os.getenv("COT_BIAS", "").strip().upper()
-    cot_net_env  = os.getenv("COT_NET",  "").strip()
-
-    if cot_bias_env:
-        cot_bias = cot_bias_env
-        cot_net  = cot_net_env or "manual override"
+    cot = fetch_cot_eur()
+    if cot:
+        cot_bias = cot["bias"]
+        cot_net = (f"Asset Mgr: {cot['net_str']} | "
+                   f"Hedge Funds: {cot['lm_str']} (as of {cot['as_of']})")
     else:
-        cot = fetch_cot_eur()
-        if cot:
-            cot_bias = cot["bias"]
-            cot_net  = (f"Asset Mgr: {cot['net_str']} | "
-                        f"Hedge Funds: {cot['lm_str']} (as of {cot['as_of']})")
-        else:
-            cot_bias = "MANUAL_CHECK — export COT_BIAS=BULLISH"
-            cot_net  = "MANUAL_CHECK — cftc.gov every Friday 3:30PM EST"
+        cot_bias = "MANUAL_CHECK — CFTC COT unavailable"
+        cot_net = "MANUAL_CHECK — verify cftc.gov access or Friday report availability"
 
     # ---- Calendar ----
     calendar = fetch_next_calendar_event()
@@ -767,7 +948,7 @@ def get_auto_fundamentals(
         time_to_event = calendar.get("time_to_event")
         news_risk = calendar.get("news_risk", "LOW")
     else:
-        next_event_name = "MANUAL_CHECK — Forex Factory calendar unavailable"
+        next_event_name = "MANUAL_CHECK — Forex Factory calendar unavailable; verify network/endpoint"
         next_news_event = next_event_name
         time_to_event = None
         news_risk = "HIGH"
@@ -777,25 +958,32 @@ def get_auto_fundamentals(
     if news:
         recent_headline = news["headline"]
     else:
-        recent_headline = "MANUAL_CHECK — set NEWS_API_KEY for live headlines"
+        recent_headline = "MANUAL_CHECK — set FINNHUB_API_KEY or NEWS_API_KEY for live headlines"
 
     # ---- Retail sentiment ----
-    sentiment = os.getenv("RETAIL_SENTIMENT", "").strip()
-    if not sentiment:
-        sentiment_data = fetch_retail_sentiment()
-        if sentiment_data:
-            sentiment = sentiment_data["sentiment"]
-        else:
-            sentiment = "MANUAL_CHECK — export RETAIL_SENTIMENT='72% SHORT' (myfxbook.com/community/outlook)"
+    sentiment_data = fetch_retail_sentiment()
+    if sentiment_data:
+        sentiment = sentiment_data["sentiment"]
+    else:
+        sentiment = "MANUAL_CHECK — OANDA position book unavailable; verify OANDA_API_KEY/access"
 
     # ---- Risk sentiment ----
     risk = fetch_risk_sentiment()
     if risk:
         risk_sentiment = risk["risk_sentiment"]
     else:
-        risk_sentiment = "MANUAL_CHECK — SPY proxy unavailable"
+        risk_sentiment = "MANUAL_CHECK — SPY proxy unavailable; verify yfinance/network"
 
     return {
+        "usd_rate":         usd_rate,
+        "fed_target_lower_rate": fed_target_lower_rate,
+        "fed_target_upper_rate": fed_target_upper_rate,
+        "eur_rate":         eur_rate,
+        "ecb_main_refi_rate": ecb_main_refi_rate,
+        "ecb_marginal_lending_rate": ecb_marginal_lending_rate,
+        "ecb_deposit_rate": ecb_deposit_rate,
+        "rate_differential": rate_differential,
+        "rates_source":     rates_source,
         "dxy_direction":    dxy_direction,
         "dxy_level":        dxy_lvl_str,
         "cot_bias":         cot_bias,
@@ -819,6 +1007,16 @@ if __name__ == "__main__":
     print("=" * 60)
     print("FUNDAMENTALS FETCHER TEST")
     print("=" * 60)
+
+    print("\n--- Policy Rates (Fed + ECB webpages) ---")
+    rates = fetch_policy_rates(force_refresh=True)
+    if rates:
+        print(f"  USD rate:   {rates['usd_rate']}")
+        print(f"  EUR rate:   {rates['eur_rate']}")
+        print(f"  Diff:       {rates['rate_differential']}")
+        print(f"  Source:     {rates['source']}")
+    else:
+        print("  Failed — check access to Fed/ECB pages")
 
     print("\n--- DXY (yfinance) ---")
     dxy = fetch_dxy(force_refresh=True)

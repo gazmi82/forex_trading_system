@@ -519,7 +519,7 @@ class MarketDataBuilder:
     ) -> dict:
         """
         Fetches all live data and builds the complete market_data dict.
-        This replaces the static example data in main.py.
+        Fails closed if required live data cannot be fetched.
         """
         print(f"\n📡 Fetching live data for {pair}...")
 
@@ -674,25 +674,13 @@ class MarketDataBuilder:
         """
         Returns fundamental context.
         DXY is fetched intraday, COT is weekly macro positioning,
-        FMP provides the next high-impact calendar event,
-        NewsAPI provides the latest FX headline when NEWS_API_KEY is set,
+        Forex Factory provides the next high-impact calendar event,
+        Finnhub/NewsAPI provide the latest FX headline when configured,
         and SPY is used as a live risk-on/risk-off proxy.
-        Manual env vars take priority over auto-fetched values:
-
-            export DXY_DIRECTION="FALLING"        # override auto DXY
-            export DXY_LEVEL="104.20"             # override auto DXY level
-            export COT_BIAS="BULLISH"             # override auto COT
-            export COT_NET="+18500"               # override auto COT net
-            export RETAIL_SENTIMENT="72% SHORT"   # myfxbook.com/community/outlook
-            export USD_RATE="4.50"                # Fed Funds Rate (after FOMC)
-            export EUR_RATE="3.65"                # ECB Rate (after ECB meeting)
+        Missing feeds are surfaced as MANUAL_CHECK warnings in the payload;
+        they are not replaced with static example values.
         """
         from fundamentals_fetcher import get_auto_fundamentals
-
-        usd_rate = float(os.getenv("USD_RATE", "4.50"))
-        eur_rate = float(os.getenv("EUR_RATE", "3.65"))
-        diff     = round(usd_rate - eur_rate, 2)
-        diff_str = f"+{diff}% USD favor" if diff > 0 else f"{diff}% EUR favor"
 
         daily_trend = (ohlcv or {}).get("daily_trend", "NEUTRAL")
         h4_trend    = (ohlcv or {}).get("h4_trend",    "NEUTRAL")
@@ -700,15 +688,21 @@ class MarketDataBuilder:
         auto = get_auto_fundamentals(daily_trend, h4_trend)
 
         return {
-            "usd_rate":          usd_rate,
-            "pair_rate":         eur_rate,
-            "rate_differential": diff_str,
+            "usd_rate":          auto["usd_rate"],
+            "fed_target_lower_rate": auto["fed_target_lower_rate"],
+            "fed_target_upper_rate": auto["fed_target_upper_rate"],
+            "pair_rate":         auto["eur_rate"],
+            "ecb_main_refi_rate": auto["ecb_main_refi_rate"],
+            "ecb_marginal_lending_rate": auto["ecb_marginal_lending_rate"],
+            "ecb_deposit_rate":  auto["ecb_deposit_rate"],
+            "rate_differential": auto["rate_differential"],
             "dxy_direction":     auto["dxy_direction"],
             "dxy_level":         auto["dxy_level"],
             "cot_net":           auto["cot_net"],
             "cot_bias":          auto["cot_bias"],
             "retail_sentiment":  auto["retail_sentiment"],
             "risk_sentiment":    auto["risk_sentiment"],
+            "rates_source":      auto["rates_source"],
             "next_event_name":   auto["next_event_name"],
             "next_news_event":   auto["next_news_event"],
             "time_to_event":     auto["time_to_event"],
@@ -731,13 +725,13 @@ class MarketDataBuilder:
 
 
 # =============================================================================
-# UPDATED MAIN LOOP — Replaces static data with live OANDA data
+# UPDATED MAIN LOOP — live OANDA data only
 # =============================================================================
 
 def create_live_market_data_function():
     """
-    Returns a function that fetches live data from OANDA.
-    Drop-in replacement for get_example_market_data() in main.py
+        Returns a function that fetches live data from OANDA.
+    Returns None with actionable warnings when credentials or connection fail.
     """
     api_key    = os.getenv("OANDA_API_KEY")
     account_id = os.getenv("OANDA_ACCOUNT_ID")

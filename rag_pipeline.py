@@ -193,20 +193,12 @@ class VectorStore:
     Stores document chunks as numerical embeddings for semantic search.
     """
 
-    def __init__(self, persist_dir: str, collection_name: str, embedding_model: str):
-        chromadb = _get_chromadb()
-        SentenceTransformer = _get_embedder()
-
+    def __init__(self, client, collection_name: str, embedder):
         self.collection_name = collection_name
-        self.persist_dir = persist_dir
-
-        # Load local embedding model (FREE, no API calls)
-        # Downloads ~90MB on first run, cached forever after
-        print(f"  Loading embedding model: {embedding_model}")
-        self.embedder = SentenceTransformer(embedding_model)
+        self.client = client
+        self.embedder = embedder
 
         # Initialize persistent ChromaDB client
-        self.client = chromadb.PersistentClient(path=persist_dir)
         self.collection = self.client.get_or_create_collection(
             name=collection_name,
             metadata={"hnsw:space": "cosine"}   # Cosine similarity
@@ -307,6 +299,9 @@ class RAGPipeline:
     """
 
     def __init__(self, config: dict, chroma_dir: str):
+        chromadb = _get_chromadb()
+        SentenceTransformer = _get_embedder()
+
         self.config = config
         self.chroma_dir = chroma_dir
         self.processor = DocumentProcessor()
@@ -315,14 +310,21 @@ class RAGPipeline:
             overlap=config["chunk_overlap"]
         )
 
+        # Load one embedding model and one Chroma client per process.
+        # Reusing them across collections avoids repeated model downloads/checks.
+        embedding_model = config["embedding_model"]
+        print(f"\n📚 Initializing RAG Pipeline...")
+        print(f"  Loading embedding model: {embedding_model}")
+        self.embedder = SentenceTransformer(embedding_model)
+        self.client = chromadb.PersistentClient(path=chroma_dir)
+
         # One vector store per knowledge category
-        print("\n📚 Initializing RAG Pipeline...")
         self.stores: dict[str, VectorStore] = {}
         for category, collection_name in config["collections"].items():
             self.stores[category] = VectorStore(
-                persist_dir=chroma_dir,
                 collection_name=collection_name,
-                embedding_model=config["embedding_model"]
+                client=self.client,
+                embedder=self.embedder,
             )
 
         print(f"✅ RAG Pipeline ready with {len(self.stores)} knowledge categories\n")
@@ -346,6 +348,7 @@ class RAGPipeline:
 
         supported = [".pdf", ".txt", ".md", ".docx"]
         files = [f for f in directory.iterdir() if f.suffix.lower() in supported]
+        files = self._prefer_clean_text(files)
 
         if not files:
             print(f"  ℹ️  No documents found in {directory}")
@@ -390,6 +393,34 @@ class RAGPipeline:
               f"{results['total_chunks']} chunks added, "
               f"{results['errors']} errors\n")
         return results
+
+    def _prefer_clean_text(self, files: list[Path]) -> list[Path]:
+        """
+        Prefer cleaned text artifacts over same-stem PDFs to avoid duplicate
+        indexing after PDF→Markdown conversion.
+        """
+        priority = {
+            ".md": 0,
+            ".txt": 1,
+            ".text": 1,
+            ".docx": 2,
+            ".pdf": 3,
+        }
+        preferred: dict[str, Path] = {}
+
+        for file_path in sorted(files):
+            key = file_path.stem.lower()
+            current = preferred.get(key)
+            if current is None:
+                preferred[key] = file_path
+                continue
+
+            current_rank = priority.get(current.suffix.lower(), 99)
+            candidate_rank = priority.get(file_path.suffix.lower(), 99)
+            if candidate_rank < current_rank:
+                preferred[key] = file_path
+
+        return sorted(preferred.values())
 
     def ingest_text(self, text: str, source_name: str, category: str) -> int:
         """

@@ -23,6 +23,7 @@ trading_system/
 ├── main.py               ← Entry point — run this
 ├── config.py             ← All settings (pairs, risk, RAG config)
 ├── rag_pipeline.py       ← RAG: ingest PDFs, embed, store, retrieve
+├── pdf_to_markdown.py    ← Convert PDFs into cleaned Markdown for RAG
 ├── agent_runner.py       ← Agent: Option 1 + Option 2 + Claude API
 ├── fundamentals_fetcher.py ← Live fundamentals: DXY, COT, calendar, headlines
 ├── requirements.txt      ← All dependencies
@@ -58,13 +59,8 @@ export OANDA_API_KEY="your_oanda_key_here"
 export OANDA_ACCOUNT_ID="your_account_id_here"
 
 # Optional, but recommended for live fundamentals
+export FINNHUB_API_KEY="your_finnhub_key_here"
 export NEWS_API_KEY="your_newsapi_key_here"
-export FMP_API_KEY="your_fmp_key_here"
-
-# Optional manual overrides
-export RETAIL_SENTIMENT="72% SHORT"
-export USD_RATE="4.50"
-export EUR_RATE="3.65"
 ```
 
 Or create a `.env` file:
@@ -72,21 +68,21 @@ Or create a `.env` file:
 ANTHROPIC_API_KEY=your_anthropic_key_here
 OANDA_API_KEY=your_oanda_key_here
 OANDA_ACCOUNT_ID=your_account_id_here
+FINNHUB_API_KEY=your_finnhub_key_here
 NEWS_API_KEY=your_newsapi_key_here
-FMP_API_KEY=your_fmp_key_here
-RETAIL_SENTIMENT=72% SHORT
-USD_RATE=4.50
-EUR_RATE=3.65
 ```
 
 Notes:
-- `FMP_API_KEY` enables the live economic calendar feed.
+- USD target range is fetched from the official Fed open-market page.
+- EUR policy rates are fetched from the official ECB key-rates page with no key required.
+- The bot exposes ECB main refi, marginal lending, and deposit rates; the deposit rate is used for the EUR benchmark in `rate_differential`.
 - DXY is auto-fetched intraday from Yahoo Finance.
 - COT is auto-fetched from CFTC.gov, but it is still a weekly report, not real-time.
-- Retail sentiment is still manual unless you add your own provider integration.
+- Retail sentiment is sourced only from the OANDA EUR/USD position book.
+- The system fails closed when live broker data is unavailable; it does not synthesize example market data.
 
 ### Step 3 — Add Your Documents
-Drop PDF files into the appropriate folders:
+Drop source documents into the appropriate folders:
 
 ```
 documents/books/
@@ -102,13 +98,27 @@ documents/research/
   └── ssrn_eur_usd_momentum.pdf        ← ssrn.com (FREE)
 ```
 
-### Step 4 — Ingest Documents into RAG
+### Step 4 — Convert PDFs to Markdown
+Recommended for cleaner RAG input:
+```bash
+# Convert all PDFs under documents/* into same-folder .md files
+python pdf_to_markdown.py --all
+
+# Use OCR fallback for weak/scanned PDFs
+python pdf_to_markdown.py --all --ocr-fallback
+```
+
+Notes:
+- Converted `.md` files are written next to the source PDF.
+- Ingest now prefers a same-stem `.md` over the raw `.pdf`, so you can keep both without double-indexing.
+
+### Step 5 — Ingest Documents into RAG
 ```bash
 python main.py --mode ingest
 ```
 This embeds all your documents locally. ONE-TIME cost ~$0 (uses free local model).
 
-### Step 5 — Run Analysis
+### Step 6 — Run Analysis
 ```bash
 # Test single analysis
 python main.py --mode test
@@ -147,8 +157,8 @@ Every 30 minutes:
    - Live market data (price, indicators, account state)
    - Live fundamentals:
      - DXY intraday signal via Yahoo Finance
-     - next high-impact US / Euro Area event via Financial Modeling Prep
-     - latest FX headline via NewsAPI when configured
+     - next high-impact US / Euro Area event via Forex Factory
+     - latest FX headline via Finnhub or NewsAPI when configured
      - weekly COT positioning via CFTC.gov
    - Agent feedback memory (last 15 trade outcomes)
 
@@ -199,7 +209,7 @@ Start with these — all completely free and legal:
 | ChromaDB vector store | $0 (runs locally) |
 | Claude API (~30 analyses/day) | ~$15–20/month |
 | OANDA demo account | $0 |
-| FMP economic calendar (free tier) | $0 |
+| Forex Factory calendar feed | $0 |
 | NewsAPI | optional |
 | **Total monthly** | **~$15–20/month** |
 
@@ -227,12 +237,16 @@ After 12 months of consistent profitability on demo:
 The current fundamentals stack is mixed live + delayed:
 
 - `DXY`: intraday auto-fetch from Yahoo Finance (`DX-Y.NYB`)
-- `Calendar`: live next high-impact US / Euro Area event from Financial Modeling Prep
-- `Headlines`: live FX headline from NewsAPI when `NEWS_API_KEY` is set
+- `Calendar`: live next high-impact US / Euro Area event from Forex Factory
+- `Headlines`: live FX headline from Finnhub or NewsAPI when configured
 - `COT`: auto-fetch from CFTC.gov, but updated weekly
-- `Retail sentiment`: still manual via `RETAIL_SENTIMENT`
+- `Retail sentiment`: sourced only from the OANDA EUR/USD position book
 
 This means the system now has live broker data plus partially live fundamentals, but it is not yet a fully streaming macro stack.
+
+Deferred infrastructure work:
+- Economic calendar, news feed, and USD/EUR policy-rate fetching should later be migrated to solid documented provider endpoints.
+- Public JSON feeds and webpage scraping are acceptable for now, but they are not the long-term target for production-grade reliability.
 
 ---
 

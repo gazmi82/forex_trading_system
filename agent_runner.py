@@ -351,12 +351,30 @@ class ForexAnalystAgent:
         # STEP 6: Log everything
         self._log_analysis(pair, market_data, rag_context, signal, retrieved_chunks)
 
+        runtime_issue = self._get_runtime_issue(signal)
+        if runtime_issue:
+            print(f"\n  ❌ Claude analysis failure: {runtime_issue}")
+            print("  ⚠️  Using fallback neutral signal")
+
         direction = signal.get("signal", {}).get("direction", "NEUTRAL")
         confidence = signal.get("signal", {}).get("confidence", 0)
         score = signal.get("confluence_score", 0)
-        print(f"\n  📊 Signal: {direction} | Confidence: {confidence}% | Score: {score}/100")
+        label = "Fallback Signal" if runtime_issue else "Signal"
+        print(f"\n  📊 {label}: {direction} | Confidence: {confidence}% | Score: {score}/100")
 
         return signal
+
+    def _get_runtime_issue(self, signal: dict) -> str:
+        """Returns a user-facing runtime failure message when analysis fell back."""
+        if signal.get("error"):
+            return str(signal["error"])
+
+        reason = signal.get("do_not_trade_reason", "")
+        if reason.startswith("API error"):
+            return reason
+        if reason.startswith("JSON parse error"):
+            return reason
+        return ""
 
     # -------------------------------------------------------------------------
     # PROMPT BUILDER — Combines RAG context + live market data
@@ -442,8 +460,12 @@ Support:            {ind.get('support_levels')}
 Round Numbers:      {ind.get('round_numbers')}
 
 FUNDAMENTAL:
-USD Rate:           {fund.get('usd_rate')}%
-Pair Rate:          {fund.get('pair_rate')}%
+Fed Target Lower:   {fund.get('fed_target_lower_rate')}%
+Fed Target Upper:   {fund.get('fed_target_upper_rate')}%
+USD Midpoint Rate:  {fund.get('usd_rate')}%
+ECB Deposit Rate:   {fund.get('ecb_deposit_rate', fund.get('pair_rate'))}%
+ECB Main Refi:      {fund.get('ecb_main_refi_rate')}%
+ECB Marginal Lend:  {fund.get('ecb_marginal_lending_rate')}%
 Rate Differential:  {fund.get('rate_differential')}
 DXY Direction:      {fund.get('dxy_direction')} @ {fund.get('dxy_level')}
 COT Net Position:   {fund.get('cot_net')}
@@ -553,6 +575,20 @@ INSTRUCTIONS:
         fund    = market_data.get("fundamental", {})
         sig     = signal.get("signal", {})
         overrides = []
+
+        runtime_issue = self._get_runtime_issue(signal)
+        if runtime_issue:
+            sig["direction"] = "NEUTRAL"
+            if signal.get("error"):
+                overrides.append("BLOCKED: Claude API unavailable")
+            else:
+                overrides.append("BLOCKED: Claude response parsing failed")
+            if market_data.get("demo_mode", True):
+                signal["demo_mode"] = True
+            signal["validator_overrides"] = overrides
+            signal["signal"] = sig
+            logger.warning(f"Signal overridden: {overrides}")
+            return signal
 
         # Rule 0: Kill zones only
         session = fund.get("active_session", signal.get("session", ""))

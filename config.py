@@ -40,18 +40,7 @@ for d in [BOOKS_DIR, RESEARCH_DIR, ICT_DIR, COT_DIR, JOURNAL_DOCS]:
 
 ANTHROPIC_API_KEY    = os.getenv("ANTHROPIC_API_KEY", "")
 NEWS_API_KEY         = os.getenv("NEWS_API_KEY", "")        # Optional: newsapi.org
-FMP_API_KEY          = os.getenv("FMP_API_KEY", "")         # Optional: financialmodelingprep.com
-
-# Manual fundamental overrides — only needed when you want to override auto data
-# Sources:
-#   DXY:       tradingview.com → search "DXY"
-#   COT:       cftc.gov → Commitments of Traders → Legacy Futures Only → EUR
-#   Sentiment: myfxbook.com/community/outlook → EUR/USD
-DXY_DIRECTION        = os.getenv("DXY_DIRECTION", "")      # RISING | FALLING | NEUTRAL
-DXY_LEVEL            = os.getenv("DXY_LEVEL", "")          # e.g. "104.20"
-COT_BIAS             = os.getenv("COT_BIAS", "")           # BULLISH | BEARISH | NEUTRAL
-COT_NET              = os.getenv("COT_NET", "")            # e.g. "+18500 (net EUR contracts)"
-RETAIL_SENTIMENT     = os.getenv("RETAIL_SENTIMENT", "")   # e.g. "72% SHORT"
+FINNHUB_API_KEY      = os.getenv("FINNHUB_API_KEY", "")     # Optional: finnhub.io
 
 # =============================================================================
 # RAG PIPELINE SETTINGS
@@ -172,12 +161,12 @@ LOG_CONFIG = {
 # SAFETY CHECKS
 # =============================================================================
 
-def validate_config():
-    """Run on startup to catch missing config before trading begins."""
+def validate_config(require_anthropic: bool = True):
+    """Run on startup to catch missing config before runtime begins."""
     errors = []
     live_allowed_from = date(2027, 3, 10)
 
-    if not ANTHROPIC_API_KEY:
+    if require_anthropic and not ANTHROPIC_API_KEY:
         errors.append("ANTHROPIC_API_KEY not set in environment variables")
 
     if TRADING_CONFIG["demo_mode"] is False:
@@ -191,7 +180,7 @@ def validate_config():
             errors.append("OANDA_ACCOUNT_ID required for live trading")
 
     if errors:
-        print("\n⚠️  CONFIG ERRORS:")
+        print("\n❌ CONFIG ERRORS:")
         for e in errors:
             print(f"   ❌ {e}")
         print("\nSet environment variables before running.\n")
@@ -202,17 +191,12 @@ def validate_config():
     print(f"   Pairs:    {TRADING_CONFIG['active_pairs']}")
     print(f"   Max Risk: {TRADING_CONFIG['max_risk_per_trade']*100}% per trade")
 
-    # Show how fundamentals will be sourced at runtime
-    dxy = DXY_DIRECTION or None
-    cot = COT_BIAS      or None
-    sen = RETAIL_SENTIMENT or None
-    if dxy or cot or sen:
-        print(f"   DXY:      {dxy or '—'}  |  COT: {cot or '—'}  |  Sentiment: {sen or '—'}")
-    else:
-        print("   ℹ️  Manual overrides not set — auto-fetch will be used for DXY, COT, and calendar")
-        print("      Retail sentiment is still manual; live headlines require NEWS_API_KEY")
-        if not FMP_API_KEY:
-            print("      FMP calendar feed is disabled; set FMP_API_KEY for live macro events")
+    print("   ℹ️  Live data only — no static market-data fallback is enabled")
+    print("      DXY: Yahoo Finance | COT: CFTC | Calendar: Forex Factory")
+    print("      Rates: Fed open-market page + ECB key-rates page")
+    print("      Retail sentiment: OANDA EUR/USD position book")
+    if not FINNHUB_API_KEY and not NEWS_API_KEY:
+        print("      Headlines disabled — set FINNHUB_API_KEY or NEWS_API_KEY")
     return True
 
 

@@ -83,8 +83,8 @@ main.py
 └── fundamentals_fetcher.py
     ├── DXY intraday signal via Yahoo Finance
     ├── COT positioning via CFTC.gov (weekly, delayed)
-    ├── Next high-impact event via Financial Modeling Prep
-    └── Latest FX headline via NewsAPI when configured
+    ├── Next high-impact event via Forex Factory
+    └── Latest FX headline via Finnhub or NewsAPI when configured
 ```
 
 ---
@@ -159,21 +159,18 @@ source venv/bin/activate
 # OANDA_ACCOUNT_ID=101-001-38764497-001
 
 # Optional live fundamentals
-# FMP_API_KEY
+# FINNHUB_API_KEY
 # NEWS_API_KEY
-
-# Optional manual overrides
-# RETAIL_SENTIMENT="72% SHORT"
-# USD_RATE="4.50"
-# EUR_RATE="3.65"
 ```
 
 Fundamentals status:
 - DXY is auto-fetched intraday from Yahoo Finance
 - COT is auto-fetched from CFTC.gov, but remains weekly macro data
-- Financial Modeling Prep provides the next high-impact US / Euro Area event
-- NewsAPI provides the latest FX headline when configured
-- Retail sentiment is still manual
+- Forex Factory provides the next high-impact USD / EUR event
+- Finnhub or NewsAPI provide the latest FX headline when configured
+- USD target range is fetched from the official Fed open-market page and ECB key rates are fetched from the official ECB key-rates page
+- ECB main refi, marginal lending, and deposit rates are exposed; deposit remains the EUR benchmark for the rate differential
+- Retail sentiment auto-fetches from the OANDA EUR/USD position book when available
 
 ---
 
@@ -368,14 +365,14 @@ OANDA demo account successfully created — switching from Capital.com to OANDA 
 - Detects ICT concepts (Order Blocks, FVGs, P/D zones, liquidity sweeps)
 - Identifies market structure (HH/HL/LH/LL) across all timeframes
 - Reads account balance, equity, open positions from OANDA
-- Replaces static `get_example_market_data()` in main.py with live data
+- Fails closed when live broker data is unavailable
 
 **Live fundamentals layered on top:**
 - DXY intraday signal from Yahoo Finance (`DX-Y.NYB`)
-- next high-impact US / Euro Area event from Financial Modeling Prep
-- latest FX headline from NewsAPI when `NEWS_API_KEY` is set
+- next high-impact USD / EUR event from Forex Factory
+- latest FX headline from Finnhub or NewsAPI when configured
 - COT positioning from CFTC.gov for delayed weekly macro bias
-- retail sentiment remains manual until a provider is added
+- retail sentiment is sourced only from the OANDA EUR/USD position book
 
 **Auth:** Bearer token — OANDA API key in Authorization header
 
@@ -396,8 +393,8 @@ python main.py --mode test
 python main.py --mode demo
 ```
 
-**Fallback behavior:** If OANDA credentials are not set, system automatically falls
-back to `get_example_market_data()` — no errors, just static test data.
+**Failure behavior:** If OANDA credentials are not set or live market data fails,
+the system stops and prints actionable warnings. It does not substitute static data.
 
 ---
 
@@ -441,9 +438,12 @@ MONTH 2-3:
   13. ⬜ Build Trade Executor agent (third Claude call)
       → Determines optimal entry timing within entry zone
       → Manages partial closes at TP1
+  14. ⬜ Harden live fundamentals infrastructure
+      → Replace public JSON feeds / webpage scraping for calendar, news, and USD/EUR rate data
+      → Move those feeds onto solid documented endpoints in a later phase
 
 MONTH 6+:
-  14. ⬜ Connect OANDA order execution API
+  15. ⬜ Connect OANDA order execution API
       → Auto-place trades on demo account
       → Still demo, but real fills + real spreads
 ```
@@ -525,7 +525,7 @@ When working on this project in VS Code, follow these rules:
 1. **Never change hard risk rules** — 1% max, 1:2 RR, 2% daily limit are sacred
 2. **Never set demo_mode = False** — only change after March 2027
 3. **Always test with --mode test before --mode demo**
-4. **All new features must have a fallback** — if OANDA fails, use example data
+4. **All new features must fail closed on missing live data** — print actionable warnings, never use example market data
 5. **Never delete logs/** — every signal is training data
 6. **Never delete chroma_db/** — rebuilding takes 30+ minutes
 7. **Always activate venv first** — `source venv/bin/activate`

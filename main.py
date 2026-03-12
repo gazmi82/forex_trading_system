@@ -2,10 +2,7 @@
 # main.py — Updated with Live OANDA Data Integration
 #
 # HOW TO RUN:
-#   Demo with example data (no credentials needed):
-#     python main.py --mode test
-#
-#   Demo with LIVE OANDA data:
+#   Test with LIVE OANDA data:
 #     export OANDA_API_KEY="your-api-key"
 #     export OANDA_ACCOUNT_ID="101-001-38764497-001"
 #     python main.py --mode test
@@ -16,6 +13,9 @@
 #
 #   Show knowledge base stats:
 #     python main.py --mode stats
+#
+#   Check live broker + fundamentals without Claude:
+#     python main.py --mode check
 #
 #   Test Capital.com connection only (legacy/backup):
 #     python main.py --mode capital
@@ -34,7 +34,34 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]
 )
+
+# Keep third-party model download chatter out of the console.
+# Real failures still surface through our own exception handling.
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+logging.getLogger("huggingface_hub").setLevel(logging.WARNING)
+logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
+
 logger = logging.getLogger(__name__)
+
+
+def print_signal_runtime_issue(signal: dict):
+    """Print Claude/runtime failures explicitly instead of as normal no-trades."""
+    reason = signal.get("do_not_trade_reason", "")
+    if signal.get("error"):
+        print(f"  ❌ Claude API failure: {reason or signal['error']}")
+    elif reason.startswith("JSON parse error"):
+        print(f"  ❌ Claude response parse failure: {reason}")
+
+
+def print_live_data_warning(reason: str):
+    """Fail closed when live market data is unavailable."""
+    print("\n❌ Live EUR/USD market data unavailable.")
+    print(f"   Reason: {reason}")
+    print("   Action:")
+    print("   export OANDA_API_KEY='your-api-key'")
+    print("   export OANDA_ACCOUNT_ID='101-001-38764497-001'")
+    print("   Then rerun the command.")
 
 
 def setup_anthropic_client():
@@ -42,87 +69,12 @@ def setup_anthropic_client():
         import anthropic
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
-            print("⚠️  ANTHROPIC_API_KEY not set.")
+            print("❌ ANTHROPIC_API_KEY not set.")
             return None
         return anthropic.Anthropic(api_key=api_key)
     except ImportError:
-        print("⚠️  anthropic not installed. Run: pip install anthropic")
+        print("❌ anthropic not installed. Run: pip install anthropic")
         return None
-
-
-def get_example_market_data() -> dict:
-    """Static example data — used when OANDA is not connected."""
-    return {
-        "pair":       "EUR/USD",
-        "price":      1.08560,
-        "demo_mode":  True,
-        "ohlcv": {
-            "day_open":          1.08400,
-            "week_open":         1.07900,
-            "month_open":        1.07500,
-            "prev_day_high":     1.08720,
-            "prev_day_low":      1.08150,
-            "prev_week_high":    1.09100,
-            "prev_week_low":     1.07600,
-            "weekly_structure":  "HH + HL — Bullish",
-            "daily_structure":   "HL forming — Bullish pullback",
-            "h4_structure":      "MSS occurred — Bullish",
-            "h1_structure":      "Consolidating at OB zone",
-            "m15_structure":     "Pullback inside bullish OTE",
-            "weekly_trend":      "BULLISH",
-            "daily_trend":       "BULLISH",
-            "h4_trend":          "BULLISH",
-            "h1_trend":          "NEUTRAL",
-            "m15_trend":         "BULLISH",
-        },
-        "indicators": {
-            "ema20_4h":                  1.08340,
-            "ema50_4h":                  1.08100,
-            "ema200_daily":              1.07200,
-            "rsi_4h":                    48.5,
-            "rsi_1h":                    42.3,
-            "adx_4h":                    27.8,
-            "atr_4h":                    0.00420,
-            "market_regime":             "TRENDING",
-            "bullish_ob":                "1.0845-1.0855 (4H, valid)",
-            "bearish_ob":                "1.0920-1.0932 (4H, valid)",
-            "bullish_fvg":               "1.0848-1.0861 (1H, unfilled)",
-            "bearish_fvg":               "None identified",
-            "recent_liquidity_sweep":    "SSL swept at 1.0815 (2h ago)",
-            "premium_discount_zone":     "DISCOUNT (42% of weekly range)",
-            "ote_zone":                  [1.0822, 1.0834],
-            "resistance_levels":         [1.0920, 1.0980, 1.1050],
-            "support_levels":            [1.0820, 1.0760, 1.0700],
-            "round_numbers":             [1.0900, 1.0800],
-        },
-        "fundamental": {
-            "usd_rate":          4.50,
-            "pair_rate":         3.65,
-            "rate_differential": "+0.85% USD favor",
-            "dxy_direction":     "FALLING",
-            "dxy_level":         103.45,
-            "cot_net":           "+12,450 contracts (Commercials net long EUR)",
-            "cot_bias":          "BULLISH EUR",
-            "retail_sentiment":  "68% SHORT (contrarian bullish signal)",
-            "risk_sentiment":    "RISK_ON",
-            "next_event_name":   "ECB President Speech",
-            "next_news_event":   "ECB President Speech",
-            "time_to_event":     "3 hours 20 minutes",
-            "news_risk":         "MEDIUM",
-            "recent_headline":   "EUR PMI beats expectations at 52.3 vs 50.1",
-            "active_session":    "NY Kill Zone",
-            "kill_zone_active":  "YES — NY Kill Zone (8-10 AM EST)",
-            "trade_window_active": True,
-        },
-        "portfolio": {
-            "equity":            2150,
-            "open_trades":       0,
-            "open_risk_pct":     0.0,
-            "daily_pnl_pct":     0.0,
-            "trades_today":      0,
-            "usd_exposure":      "NONE",
-        }
-    }
 
 
 def setup_oanda(demo_mode: bool = True):
@@ -131,8 +83,12 @@ def setup_oanda(demo_mode: bool = True):
     account_id = os.getenv("OANDA_ACCOUNT_ID")
 
     if not api_key or not account_id:
-        print("⚠️  OANDA credentials not set — using example data.")
-        print("   To connect live: export OANDA_API_KEY='...' OANDA_ACCOUNT_ID='101-001-38764497-001'\n")
+        missing = []
+        if not api_key:
+            missing.append("OANDA_API_KEY")
+        if not account_id:
+            missing.append("OANDA_ACCOUNT_ID")
+        print_live_data_warning(f"Missing environment variables: {', '.join(missing)}")
         return None
 
     try:
@@ -144,8 +100,7 @@ def setup_oanda(demo_mode: bool = True):
         print(f"✅ OANDA live data connected (account: {account_id})\n")
         return builder
     except Exception as e:
-        print(f"⚠️  OANDA connection failed: {e}")
-        print("   Falling back to example data\n")
+        print_live_data_warning(f"OANDA connection failed: {e}")
         return None
 
 
@@ -181,7 +136,6 @@ def setup_capital():
         return builder
     except Exception as e:
         print(f"⚠️  Capital.com connection failed: {e}")
-        print("   Falling back to example data\n")
         return None
 
 
@@ -240,16 +194,19 @@ def run_test_analysis(agent, pipeline, oanda_builder=None, executor=None):
     print("\n" + "="*60)
     print("🤖 TEST ANALYSIS MODE")
     print("="*60)
-    if oanda_builder:
-        print("Using LIVE OANDA data...")
-        market_data = oanda_builder.build_market_data("EUR_USD")
-    else:
-        print("Using example data (set OANDA credentials for live data)")
-        market_data = get_example_market_data()
+    if not oanda_builder:
+        print_live_data_warning("Test mode requires a live OANDA connection")
+        return False
+    print("Using LIVE OANDA data...")
+    market_data = oanda_builder.build_market_data("EUR_USD")
     if agent is None:
-        print("\n⚠️  No Anthropic API key")
-        return
+        print("\n❌ No Anthropic client available for analysis.")
+        print("   Action:")
+        print("   export ANTHROPIC_API_KEY='your-api-key'")
+        print("   Then rerun the command.")
+        return False
     signal = agent.analyze(market_data)
+    print_signal_runtime_issue(signal)
     print("\n" + "="*60)
     print("📊 FULL SIGNAL:")
     print("="*60)
@@ -268,6 +225,41 @@ def run_test_analysis(agent, pipeline, oanda_builder=None, executor=None):
             print(f"✅ Executed: {exec_result}")
         else:
             print(f"⏸  Not executed: {exec_result['reason']}")
+    return True
+
+
+def run_live_data_check(oanda_builder=None):
+    print("\n" + "="*60)
+    print("🩺 LIVE DATA CHECK MODE")
+    print("="*60)
+    if not oanda_builder:
+        print_live_data_warning("Check mode requires a live OANDA connection")
+        return False
+
+    print("Using LIVE OANDA data without Claude...")
+    market_data = oanda_builder.build_market_data("EUR_USD")
+    fundamental = market_data.get("fundamental", {})
+    portfolio = market_data.get("portfolio", {})
+
+    print("\n✅ Live market_data snapshot built successfully")
+    print(f"  Price:      {market_data.get('price')}")
+    print(f"  Spread:     {market_data.get('spread')} pips")
+    print(f"  Session:    {fundamental.get('active_session')}")
+    print(f"  4H Trend:   {market_data.get('ohlcv', {}).get('h4_trend')}")
+    print(f"  Daily Trend:{market_data.get('ohlcv', {}).get('daily_trend')}")
+    print(f"  Equity:     ${portfolio.get('equity', 0):,.2f}")
+    print(f"  DXY:        {fundamental.get('dxy_direction')} | {fundamental.get('dxy_level')}")
+    print(f"  Rates:      {fundamental.get('rate_differential')}")
+    print(f"  Calendar:   {fundamental.get('next_news_event')} | {fundamental.get('time_to_event')}")
+    print(f"  Headlines:  {fundamental.get('recent_headline')}")
+    print(f"  Retail:     {fundamental.get('retail_sentiment')}")
+
+    output_file = Path("logs") / f"live_data_check_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
+    output_file.parent.mkdir(exist_ok=True)
+    with open(output_file, "w") as f:
+        json.dump(market_data, f, indent=2)
+    print(f"\n✅ Snapshot saved to: {output_file}")
+    return True
 
 
 def run_demo_loop(agent, pipeline, oanda_builder=None, executor=None):  # noqa: C901
@@ -275,9 +267,7 @@ def run_demo_loop(agent, pipeline, oanda_builder=None, executor=None):  # noqa: 
     print("🔄 DEMO LOOP MODE")
     print("="*60)
     if not oanda_builder:
-        print("❌ Demo loop requires live OANDA data. Set credentials first:")
-        print("   export OANDA_API_KEY='your-token'")
-        print("   export OANDA_ACCOUNT_ID='101-001-38764497-001'")
+        print_live_data_warning("Demo loop requires a live OANDA connection")
         return
     print("✅ Using LIVE OANDA data — real EUR/USD prices")
     if executor:
@@ -309,15 +299,14 @@ def run_demo_loop(agent, pipeline, oanda_builder=None, executor=None):  # noqa: 
                 try:
                     market_data = oanda_builder.build_market_data("EUR_USD")
                 except Exception as e:
-                    print(f"⚠️  OANDA error: {e} — skipping analysis (no fallback in demo loop)")
+                    print_live_data_warning(f"OANDA market-data fetch failed: {e}")
                     time.sleep(60)
                     continue
-            else:
-                market_data = get_example_market_data()
 
             # 3. Generate signal
             if agent:
                 signal     = agent.analyze(market_data)
+                print_signal_runtime_issue(signal)
                 direction  = signal.get("signal", {}).get("direction", "NEUTRAL")
                 confidence = signal.get("signal", {}).get("confidence", 0)
                 score      = signal.get("confluence_score", 0)
@@ -349,7 +338,7 @@ def run_demo_loop(agent, pipeline, oanda_builder=None, executor=None):  # noqa: 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["ingest","stats","test","demo","capital"], default="test")
+    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","capital"], default="test")
     parser.add_argument("--dry-run", action="store_true",
                         help="Run --mode test without placing any orders on OANDA")
     args = parser.parse_args()
@@ -359,40 +348,54 @@ def main():
     print("="*60)
 
     from config import RAG_CONFIG, CHROMA_DIR, DOCUMENTS_DIR, LOGS_DIR, AGENT_CONFIG, TRADING_CONFIG, validate_config
-    if not validate_config():
+    require_anthropic = args.mode in {"test", "demo"}
+    if not validate_config(require_anthropic=require_anthropic):
         sys.exit(1)
 
     if args.mode == "capital":
         run_capital_test()
         return
 
-    from rag_pipeline import RAGPipeline
-    pipeline = RAGPipeline(config=RAG_CONFIG, chroma_dir=str(CHROMA_DIR))
+    pipeline = None
+    if args.mode in {"ingest", "stats", "test", "demo"}:
+        from rag_pipeline import RAGPipeline
+        pipeline = RAGPipeline(config=RAG_CONFIG, chroma_dir=str(CHROMA_DIR))
 
-    client = setup_anthropic_client()
     agent  = None
-    if client:
-        from agent_runner import ForexAnalystAgent
-        agent = ForexAnalystAgent(
-            rag_pipeline=pipeline,
-            anthropic_client=client,
-            config=AGENT_CONFIG,
-            log_dir=LOGS_DIR
-        )
-        print("✅ Forex Analyst Agent ready")
+    if require_anthropic:
+        client = setup_anthropic_client()
+        if client:
+            from agent_runner import ForexAnalystAgent
+            agent = ForexAnalystAgent(
+                rag_pipeline=pipeline,
+                anthropic_client=client,
+                config=AGENT_CONFIG,
+                log_dir=LOGS_DIR
+            )
+            print("✅ Forex Analyst Agent ready")
 
-    oanda_builder = setup_oanda(demo_mode=TRADING_CONFIG["demo_mode"])
-
-    # Setup executor (requires live OANDA connection)
-    oanda_client  = oanda_builder.client if oanda_builder else None
-    executor      = setup_executor(oanda_client, TRADING_CONFIG, LOGS_DIR)
+    oanda_builder = None
+    executor = None
+    if args.mode in {"test", "demo", "check"}:
+        oanda_builder = setup_oanda(demo_mode=TRADING_CONFIG["demo_mode"])
+        if oanda_builder is None:
+            sys.exit(1)
+        if args.mode in {"test", "demo"}:
+            oanda_client = oanda_builder.client
+            executor = setup_executor(oanda_client, TRADING_CONFIG, LOGS_DIR)
 
     if   args.mode == "ingest": run_ingest(pipeline, DOCUMENTS_DIR)
     elif args.mode == "stats":  run_stats(pipeline)
+    elif args.mode == "check":
+        ok = run_live_data_check(oanda_builder)
+        if ok is False:
+            sys.exit(1)
     elif args.mode == "test":
         # --dry-run: analyse signal but never place orders
-        run_test_analysis(agent, pipeline, oanda_builder,
-                          executor=None if args.dry_run else executor)
+        ok = run_test_analysis(agent, pipeline, oanda_builder,
+                               executor=None if args.dry_run else executor)
+        if ok is False:
+            sys.exit(1)
     elif args.mode == "demo":   run_demo_loop(agent, pipeline, oanda_builder, executor)
 
 
