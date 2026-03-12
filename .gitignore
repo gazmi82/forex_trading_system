@@ -1,0 +1,37 @@
+# =============================================================================
+# .gitignore — Forex Trading System
+# =============================================================================
+
+# Virtual environment (rebuild with: pip install -r requirements.txt)
+venv/
+.venv/
+env/
+
+# ChromaDB vector store (rebuild with: python main.py --mode ingest)
+chroma_db/
+
+# API keys and secrets — NEVER commit these
+.env
+*.env
+secrets.txt
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# Logs (optional: comment out if you want logs in version control)
+# logs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/settings.json
+.idea/

@@ -1,0 +1,100 @@
+{
+  "timestamp": "2026-03-12T13:40:00Z",
+  "pair": "EUR/USD",
+  "timeframe": "4H",
+  "session": "NY Kill Zone",
+  "macro_bias": {
+    "weekly": "NEUTRAL",
+    "daily": "BEARISH",
+    "h4": "BEARISH",
+    "alignment": "MIXED"
+  },
+  "ict_analysis": {
+    "order_block": {
+      "present": true,
+      "type": "BEARISH",
+      "level": 1.16238,
+      "valid": true
+    },
+    "fair_value_gap": {
+      "present": true,
+      "type": "BEARISH",
+      "upper": 1.15454,
+      "lower": 1.15404
+    },
+    "liquidity": {
+      "recent_sweep": true,
+      "swept_level": 1.15629,
+      "direction": "BUY_SIDE"
+    },
+    "premium_discount": "DISCOUNT",
+    "ote_zone": [
+      1.16095,
+      1.16353
+    ]
+  },
+  "technical_analysis": {
+    "ema_bias": "BEARISH",
+    "rsi_14": 35.77,
+    "rsi_signal": "OVERSOLD",
+    "adx_14": 23.03,
+    "market_regime": "RANGING",
+    "key_levels": {
+      "resistance": [
+        1.1578,
+        1.1583,
+        1.1929
+      ],
+      "support": [
+        1.1507,
+        1.153,
+        1.15
+      ]
+    }
+  },
+  "fundamental": {
+    "rate_differential": "+0.85% USD favor supports bearish bias",
+    "dxy_direction": "NEUTRAL",
+    "cot_bias": "BULLISH",
+    "next_news_event": "USD Core PCE Price Index m/m in 22h 50m",
+    "news_risk": "LOW"
+  },
+  "confluence_score": 55,
+  "signal_strength": "NEUTRAL",
+  "signal": {
+    "direction": "NEUTRAL",
+    "confidence": 55,
+    "entry_zone": [
+      0.0,
+      0.0
+    ],
+    "stop_loss": 0.0,
+    "take_profit_1": 0.0,
+    "take_profit_2": 0.0,
+    "risk_reward": 0.0,
+    "recommended_lot_size": 0.0,
+    "order_type": "LIMIT"
+  },
+  "reasoning": [
+    "Weekly neutral conflicts with Daily/4H bearish structure - mixed alignment requires caution per ICT principles",
+    "RSI oversold at 35.77 in discount zone suggests potential bounce, but ADX at 23.03 indicates ranging market with low directional conviction",
+    "Recent buy-side liquidity sweep at 1.15629 with strong rejection suggests smart money selling, but price already in deep discount zone",
+    "COT bullish bias conflicts with rate differential favoring USD - fundamental contradictions reduce conviction",
+    "Confluence score 55 falls below 65 threshold for moderate trades - system rules require NEUTRAL stance"
+  ],
+  "key_risk": "Mixed timeframe alignment and conflicting fundamental signals create low-conviction environment unsuitable for trading",
+  "knowledge_sources_used": [
+    "The Forex Trading Course - Post-news retracement patterns",
+    "Day Trading And Swing Trading - Inside day breakout setups for ranging markets"
+  ],
+  "trade_management": {
+    "tp1_action": "N/A - No trade signal",
+    "tp2_action": "N/A - No trade signal",
+    "time_stop": "N/A - No trade signal"
+  },
+  "do_not_trade_reason": "Confluence score below 65 threshold, mixed timeframe alignment, and conflicting fundamental signals violate system rules for trade execution",
+  "demo_mode": true,
+  "validator_overrides": [
+    "BLOCKED: Confidence too low (55%)"
+  ]
+}

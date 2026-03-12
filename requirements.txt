@@ -1,0 +1,39 @@
+# =============================================================================
+# requirements.txt
+# Install all dependencies with:
+#   pip install -r requirements.txt
+# =============================================================================
+
+# Anthropic Claude API
+anthropic>=0.20.0
+
+# RAG Pipeline — ALL FREE, run locally
+chromadb>=0.4.0                 # Local vector database
+sentence-transformers>=2.2.0    # Local embedding model (FREE, no API cost)
+pypdf>=3.0.0                    # PDF text extraction
+python-docx>=0.8.11             # DOCX text extraction (optional)
+pytesseract>=0.3.10             # OCR for image-based PDFs (requires tesseract system package)
+pdf2image>=1.16.0               # PDF → images for OCR (requires poppler system package)
+# System dependencies for OCR (install via Homebrew):
+#   brew install tesseract poppler
+
+# Data & Indicators
+pandas>=2.0.0
+numpy>=1.24.0
+ta>=0.3.3                       # Technical indicators (FREE)
+yfinance>=0.2.28                # DXY price feed (FREE, no API key)
+
+# Broker APIs (install what you use)
+oandapyV20>=0.6.3               # OANDA Forex/CFD API
+
+# Scheduling & Async
+APScheduler>=3.10.0             # Run agents on schedule
+asyncio                         # Built into Python 3.7+
+
+# Utilities
+python-dotenv>=1.0.0            # Load .env file for API keys
+requests>=2.31.0                # HTTP requests
+python-dateutil>=2.8.2          # Date parsing
+
+# Logging & Monitoring (optional but recommended)
+streamlit>=1.28.0               # Dashboard UI

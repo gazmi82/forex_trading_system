@@ -1,0 +1,157 @@
+EUR/USD Specific Knowledge — Session Behavior, Core Drivers, and Key Levels
+
+=============================================================================
+THE 5 CORE DRIVERS OF EUR/USD
+=============================================================================
+
+1. FED vs ECB Interest Rate Differential
+   Most powerful driver of EUR/USD direction.
+   Fed hawkish + ECB dovish = EUR/USD falls.
+   Fed dovish + ECB hawkish = EUR/USD rises.
+   Current rate differential drives weeks and months of trend direction.
+   Always identify which central bank is more hawkish before forming a bias.
+
+2. DXY (US Dollar Index)
+   EUR is 57.6% of the DXY basket — the largest single component.
+   DXY rising = EUR/USD falling (near-perfect inverse correlation).
+   DXY falling = EUR/USD rising.
+   Always check DXY direction before any EUR/USD trade.
+   DXY and EUR/USD move in near-perfect inverse correlation at all times.
+
+3. Economic Data Surprises
+   US data: NFP (Non-Farm Payrolls), CPI, GDP, Retail Sales.
+   EU data: PMI (Purchasing Managers Index), German IFO, ECB statements.
+   Stronger US data = USD strengthens = EUR/USD falls.
+   Stronger EU data = EUR strengthens = EUR/USD rises.
+   A data beat does not guarantee a move — the prior expectation matters most.
+
+4. Risk Sentiment
+   Risk-on environment (stocks rising, VIX falling) = EUR/USD tends to rise.
+   Risk-off environment (fear in markets) = USD strengthens = EUR/USD falls.
+   Watch S&P500 direction as a confirmation tool for EUR/USD bias.
+   USD is the primary global safe-haven currency.
+
+5. COT Positioning (Commitments of Traders)
+   EUR futures on CME show institutional long/short bias.
+   Commercials heavily long EUR = bullish signal for EUR/USD.
+   Large speculators extremely short = contrarian bullish signal (crowded short).
+   COT report released every Friday at 3:30PM EST — check weekly.
+   Source: cftc.gov — Disaggregated Futures Only report, EUR futures.
+
+=============================================================================
+EUR/USD SESSION BEHAVIOR (ICT SMART MONEY CONCEPTS)
+=============================================================================
+
+Asian Session (8PM–4AM EST):
+   EUR/USD builds a consolidation range during low liquidity.
+   The Asian high and Asian low define the liquidity on both sides.
+   This range is the primary liquidity target for the London session.
+   Note the Asian high and Asian low every single trading day.
+   Do not trade during Asian session for EUR/USD — observe only.
+
+London Kill Zone (3AM–4AM EST):
+   Most important EUR/USD setup of the entire trading day.
+   Price sweeps the Asian session high OR the Asian session low first.
+   This initial move is a liquidity grab — it hunts retail stop losses.
+   After the sweep of Asian highs or lows, trade the reversal.
+   The true London direction is the opposite of the initial sweep direction.
+   Entry confirmation: price sweeps, then forms a strong rejection candle.
+   Best entry: inside the Order Block left before the liquidity sweep.
+
+NY Kill Zone (8AM–10AM EST):
+   Either continues the London move OR reverses it at a key level.
+   NFP, CPI, and all major US economic data always drops at 8:30AM EST here.
+   Best session for catching momentum continuations after London.
+   NY Open often retests the London session Order Block for entry.
+   During high-impact news, widen stops or wait 15 minutes for volatility.
+
+London Close (10AM–12PM EST):
+   London banks begin taking profits on their London session positions.
+   Often creates a partial reversal of the London move.
+   Good session for counter-trend scalps or exiting positions early.
+   Not ideal for new position entries — liquidity decreasing.
+
+Asian Session Dead Zone (12PM–8PM EST):
+   Avoid trading. Low liquidity. Choppy, directionless price action.
+   Manipulation and stop hunts common without follow-through.
+   Use this time to plan next session trades and review charts.
+
+=============================================================================
+EUR/USD KEY LEVELS TO TRACK EVERY WEEK
+=============================================================================
+
+Weekly Levels (most important — set every Sunday):
+   Previous Week High (PWH) — major resistance target and liquidity pool.
+   Previous Week Low (PWL) — major support target and liquidity pool.
+   Current Week Open — institutional reference price for the week.
+   Price is bullish for the week if above week open, bearish if below.
+
+Daily Levels (set every day at 5PM EST market open):
+   Previous Day High (PDH) — daily resistance and buy-side liquidity.
+   Previous Day Low (PDL) — daily support and sell-side liquidity.
+   Current Day Open — intraday bias reference.
+
+Institutional Round Number Levels (permanent):
+   1.0500 — major psychological support/resistance.
+   1.0600 — major psychological support/resistance.
+   1.0700 — major psychological support/resistance.
+   1.0800 — major psychological support/resistance.
+   1.0900 — major psychological support/resistance.
+   1.1000 — major psychological support/resistance.
+   These round numbers act as price magnets and strong rejection zones.
+   Price frequently stalls, reverses, or accelerates through these levels.
+
+Monthly Levels (check at start of each month):
+   Previous Month High — major buy-side liquidity above.
+   Previous Month Low — major sell-side liquidity below.
+   Current Month Open — monthly bias reference (above = bullish, below = bearish).
+
+=============================================================================
+ICT CONCEPTS SPECIFIC TO EUR/USD
+=============================================================================
+
+Order Blocks:
+   The last opposing candle before a strong impulse move.
+   Bullish OB: last bearish candle before a strong bullish move.
+   Bearish OB: last bullish candle before a strong bearish move.
+   Price frequently returns to the Order Block zone for re-entry.
+   An Order Block is invalidated when price closes through it.
+
+Fair Value Gaps (FVG / Imbalance):
+   A three-candle pattern where candle 1 high and candle 3 low do not overlap.
+   Bullish FVG: buying imbalance — price likely returns to fill the gap.
+   Bearish FVG: selling imbalance — price likely returns to fill the gap.
+   FVGs act as high-probability entry zones when price returns to them.
+
+Premium and Discount Zones:
+   Use a swing high and swing low to define the range.
+   Equilibrium = 50% of the range (Fibonacci 0.5 level).
+   Premium = above equilibrium. Only sell in premium zones.
+   Discount = below equilibrium. Only buy in discount zones.
+   Never buy at the top of a range or sell at the bottom.
+
+Optimal Trade Entry (OTE):
+   The 62–79% Fibonacci retracement zone of any impulse move.
+   Highest probability entry zone for continuation of the trend.
+   Combine OTE with an Order Block for maximum confluence.
+
+Liquidity Sweeps:
+   Price targets equal highs (buy-side liquidity — retail buy stops).
+   Price targets equal lows (sell-side liquidity — retail sell stops).
+   After sweeping liquidity, price reverses sharply in the true direction.
+   A liquidity sweep followed by a strong rejection = high confidence setup.
+
+=============================================================================
+EUR/USD TRADING RULES DERIVED FROM ICT CONCEPTS
+=============================================================================
+
+Rule 1: Always identify higher timeframe bias first (Weekly → Daily → 4H → 1H).
+Rule 2: Only trade in the direction of the Daily and Weekly trend.
+Rule 3: Wait for a liquidity sweep before entering a position.
+Rule 4: Enter only in discount (for longs) or premium (for shorts).
+Rule 5: Enter on Order Blocks or Fair Value Gaps after a sweep.
+Rule 6: London Kill Zone (3–4AM EST) is the highest probability window.
+Rule 7: NY Kill Zone (8–10AM EST) is the second-highest probability window.
+Rule 8: Never trade the Asian session for EUR/USD entries.
+Rule 9: Avoid trading 30 minutes before major news events (NFP, CPI, FOMC, ECB).
+Rule 10: If all timeframes are not aligned, do not take the trade.

@@ -1,0 +1,100 @@
+{
+  "timestamp": "2026-03-11T14:29:00Z",
+  "pair": "EUR/USD",
+  "timeframe": "4H",
+  "session": "London Close",
+  "macro_bias": {
+    "weekly": "NEUTRAL",
+    "daily": "BEARISH",
+    "h4": "BEARISH",
+    "alignment": "MIXED"
+  },
+  "ict_analysis": {
+    "order_block": {
+      "present": true,
+      "type": "BEARISH",
+      "level": 1.16238,
+      "valid": true
+    },
+    "fair_value_gap": {
+      "present": true,
+      "type": "BEARISH",
+      "upper": 1.16299,
+      "lower": 1.16214
+    },
+    "liquidity": {
+      "recent_sweep": true,
+      "swept_level": 1.16409,
+      "direction": "BUY_SIDE"
+    },
+    "premium_discount": "EQUILIBRIUM",
+    "ote_zone": [
+      1.1605,
+      1.1618
+    ]
+  },
+  "technical_analysis": {
+    "ema_bias": "BEARISH",
+    "rsi_14": 58.82,
+    "rsi_signal": "NEUTRAL",
+    "adx_14": 22.77,
+    "market_regime": "RANGING",
+    "key_levels": {
+      "resistance": [
+        1.1835,
+        1.1929,
+        1.2083
+      ],
+      "support": [
+        1.1578,
+        1.153,
+        1.1618
+      ]
+    }
+  },
+  "fundamental": {
+    "rate_differential": "+0.85% USD favor",
+    "dxy_direction": "MANUAL_CHECK",
+    "cot_bias": "MANUAL_CHECK",
+    "next_news_event": "MANUAL_CHECK",
+    "news_risk": "LOW"
+  },
+  "confluence_score": 50,
+  "signal_strength": "NEUTRAL",
+  "signal": {
+    "direction": "NEUTRAL",
+    "confidence": 45,
+    "entry_zone": [
+      0.0,
+      0.0
+    ],
+    "stop_loss": 0.0,
+    "take_profit_1": 0.0,
+    "take_profit_2": 0.0,
+    "risk_reward": 0.0,
+    "recommended_lot_size": 0.0,
+    "order_type": "LIMIT"
+  },
+  "reasoning": [
+    "Market structure shows Daily and 4H bearish alignment but Weekly neutral creates mixed signals",
+    "Recent BSL sweep at 1.16409 with strong rejection suggests institutional selling pressure",
+    "Price at equilibrium (50% range) - neither premium nor discount zone per ICT rules",
+    "ADX at 22.77 indicates ranging market regime - breakout strategies preferred over trend following",
+    "Bearish OB and FVG present but confluence score only 50 - below 65 threshold for entry"
+  ],
+  "key_risk": "Ranging market conditions with mixed timeframe alignment - high probability of choppy price action",
+  "knowledge_sources_used": [
+    "Day Trading And Swing Trading - inside days breakout strategy relevant for ranging conditions",
+    "The Forex Trading Course - post-news retracement concepts applicable after recent liquidity sweep"
+  ],
+  "trade_management": {
+    "tp1_action": "N/A - No trade signal",
+    "tp2_action": "N/A - No trade signal",
+    "time_stop": "N/A - No trade signal"
+  },
+  "do_not_trade_reason": "Confluence score 50 below minimum 65 threshold. Market structure mixed with ranging conditions. Price at equilibrium - wait for clear premium/discount positioning per ICT methodology.",
+  "demo_mode": true,
+  "validator_overrides": [
+    "BLOCKED: Confidence too low (45%)"
+  ]
+}

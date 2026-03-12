@@ -1,0 +1,567 @@
+# CLAUDE.md — Forex Trading System Project Context
+# This file is for Claude Code (VS Code) to stay aligned with all decisions,
+# architecture, and progress made in the main Claude.ai chat session.
+# Last updated: March 11, 2026
+
+---
+
+## PROJECT OVERVIEW
+
+A multi-agent AI forex trading system using Claude API as the intelligence layer
+with rule-based Python execution. Currently in 12-month demo phase.
+
+**Owner:** Gazmir Sulcaj (gsulcaj22@gmail.com)
+**Start Date:** March 10, 2026
+**Demo Period:** 12 months (ends March 10, 2027)
+**Live Trading:** Not before March 2027
+
+---
+
+## LOCKED DECISIONS — DO NOT CHANGE
+
+These decisions were made in the main session and are final:
+
+| Decision | Value |
+|----------|-------|
+| Focus pair | EUR/USD ONLY |
+| Broker | OANDA (demo) → IBKR for futures later |
+| Starting capital | $5,000 (when live) |
+| Demo capital | $100,000 OANDA V20 demo account ✅ ACTIVE |
+| OANDA Account ID | 101-001-38764497-001 |
+| Agent approach | Option 1 (System Prompt) + Option 2 (RAG) combined |
+| Embedding model | all-MiniLM-L6-v2 (local, FREE) |
+| Vector DB | ChromaDB (local, FREE) |
+| Demo mode flag | Always TRUE until March 2027 |
+
+---
+
+## HARD TRADING RULES — NEVER MODIFY
+
+These rules are embedded in the system prompt and must NEVER be changed:
+
+```
+1. Max risk per trade:     1% of account equity
+2. Min Risk:Reward ratio:  1:2 (2.0)
+3. Daily loss limit:       2% — triggers auto-stop of all trading
+4. Confidence threshold:   <65% = NEUTRAL signal always (no trade)
+5. News blackout:          30 min before NFP, CPI, FOMC, ECB decisions
+6. Kill Zones only:        London (3-4 AM EST) + NY (8-10 AM EST)
+7. Demo mode:              TRUE (hardcoded) until month 12
+```
+
+---
+
+## SYSTEM ARCHITECTURE
+
+```
+main.py
+├── RAGPipeline (rag_pipeline.py)
+│   ├── ChromaDB vector store (chroma_db/)
+│   ├── all-MiniLM-L6-v2 embeddings (local)
+│   └── 6 collections: books, research, ict, cot, journal, feedback
+│
+├── ForexAnalystAgent (agent_runner.py)
+│   ├── Option 1: System prompt (embedded trading knowledge)
+│   ├── Option 2: RAG retrieval (contextual chunks per analysis)
+│   └── Claude API → claude-sonnet-4-20250514
+│
+├── OANDAClient (oanda_connector.py)
+│   ├── Live EUR/USD price feed
+│   ├── OHLCV candles (4H, 1H, Daily, Weekly)
+│   └── Account summary + open positions
+│
+├── MarketDataBuilder (oanda_connector.py)
+│   ├── IndicatorCalculator (EMA, RSI, ADX, ATR)
+│   ├── MarketStructureAnalyzer (HH/HL, LH/LL)
+│   └── ICT concepts (Order Blocks, FVGs, P/D zones, Liquidity sweeps)
+│
+├── TradeExecutor (trade_executor.py)
+│   ├── Order validation + sizing
+│   ├── OANDA order placement / monitoring
+│   └── Trade outcome feedback loop
+│
+└── fundamentals_fetcher.py
+    ├── DXY intraday signal via Yahoo Finance
+    ├── COT positioning via CFTC.gov (weekly, delayed)
+    ├── Next high-impact event via Financial Modeling Prep
+    └── Latest FX headline via NewsAPI when configured
+```
+
+---
+
+## FILE STRUCTURE
+
+```
+~/forex_trading_system/
+├── main.py                    ← UPDATED (March 10) — now uses live OANDA data
+├── agent_runner.py            ← Forex Analyst Agent + Claude API integration
+├── rag_pipeline.py            ← RAG pipeline (ChromaDB + embeddings)
+├── oanda_connector.py         ← Live OANDA market + account data
+├── trade_executor.py          ← OANDA execution + monitoring
+├── fundamentals_fetcher.py    ← Live fundamentals layer
+├── capital_connector.py       ← Legacy backup adapter
+├── config.py                  ← Central configuration
+├── requirements.txt           ← Dependencies
+├── README.md                  ← Setup guide
+│
+├── documents/
+│   ├── books/                 ← Trading books (loaded into RAG)
+│   │   ├── DAY TRADING AND SWING TRADING.txt        (160 chunks) ← Kathy Lien
+│   │   ├── day-trading-kathy-lien.pdf               (162 chunks) ← duplicate OK
+│   │   ├── john_murphy_ocr.txt                      (262 chunks) ← John Murphy (OCR)
+│   │   ├── the_forex_trading_course.pdf             (123 chunks) ← Abe Cofnas
+│   │   └── trading_in_the_zone_ocr.txt              (157 chunks) ← Mark Douglas (OCR)
+│   ├── research/              ← Free BIS/Fed/SSRN papers (empty — add soon)
+│   ├── ict/                   ← ICT YouTube transcripts (empty — add soon)
+│   ├── cot/                   ← COT report data (empty — add soon)
+│   └── journal/               ← Trade journal entries (empty — populated by system)
+│
+├── chroma_db/                 ← ChromaDB vector store (864 chunks total)
+├── logs/                      ← All signal JSON files saved here
+└── venv/                      ← Python virtual environment
+```
+
+---
+
+## KNOWLEDGE BASE STATUS (as of March 10, 2026)
+
+```
+✅ books          864 chunks total
+   ├── Kathy Lien (TXT)           160 chunks — Forex/EUR/USD sessions
+   ├── Kathy Lien (PDF)           162 chunks — duplicate, OK
+   ├── John Murphy (OCR)          262 chunks — Classical TA
+   ├── The Forex Trading Course   123 chunks — Strategy/COT
+   └── Trading in the Zone (OCR)  157 chunks — Psychology/discipline
+
+⚠️  research        0 chunks  ← ADD: bis.org/research PDFs
+⚠️  ict             0 chunks  ← ADD: ICT YouTube transcripts
+⚠️  cot             0 chunks  ← ADD: CFTC COT reports
+⚠️  journal         0 chunks  ← Populated automatically over time
+⚠️  feedback        0 chunks  ← Populated automatically over time
+```
+
+**Target by Month 3:** 2,500+ chunks
+
+---
+
+## ENVIRONMENT SETUP
+
+```bash
+# Navigate to project
+cd ~/forex_trading_system
+
+# Activate virtual environment (ALWAYS do this first)
+source venv/bin/activate
+
+# Required
+# ANTHROPIC_API_KEY
+# OANDA_API_KEY
+# OANDA_ACCOUNT_ID=101-001-38764497-001
+
+# Optional live fundamentals
+# FMP_API_KEY
+# NEWS_API_KEY
+
+# Optional manual overrides
+# RETAIL_SENTIMENT="72% SHORT"
+# USD_RATE="4.50"
+# EUR_RATE="3.65"
+```
+
+Fundamentals status:
+- DXY is auto-fetched intraday from Yahoo Finance
+- COT is auto-fetched from CFTC.gov, but remains weekly macro data
+- Financial Modeling Prep provides the next high-impact US / Euro Area event
+- NewsAPI provides the latest FX headline when configured
+- Retail sentiment is still manual
+
+---
+
+## RUN COMMANDS
+
+```bash
+# Test single analysis
+python main.py --mode test
+
+# Test single analysis without placing any orders
+python main.py --mode test --dry-run
+
+# Test Capital.com connection only
+python main.py --mode capital
+
+# Ingest new documents into RAG
+python main.py --mode ingest
+
+# Show knowledge base statistics
+python main.py --mode stats
+
+# Start 30-minute demo loop
+python main.py --mode demo
+```
+
+---
+
+## DEPENDENCIES
+
+```
+# Python packages (all installed in venv)
+anthropic          # Claude API
+chromadb           # Vector database
+sentence-transformers  # all-MiniLM-L6-v2 embeddings
+pypdf              # PDF text extraction
+pytesseract        # OCR for image-based PDFs
+pdf2image          # PDF → images for OCR
+pandas             # Data manipulation
+ta                 # Technical indicators (replaces pandas-ta — Python 3.11 fix)
+requests           # OANDA REST API calls
+yfinance           # Intraday DXY signal
+pikepdf            # PDF decryption (tried, Murphy still encrypted)
+
+# System tools (installed via Homebrew)
+poppler            # Required by pdf2image
+tesseract          # Required by pytesseract
+
+# Python version
+Python 3.11.4
+```
+
+---
+
+## SIGNAL OUTPUT FORMAT
+
+Every analysis produces a JSON signal with this structure:
+
+```json
+{
+  "timestamp": "ISO-8601",
+  "pair": "EUR/USD",
+  "timeframe": "4H",
+  "session": "NY Kill Zone",
+  "macro_bias": {
+    "weekly": "BULLISH|BEARISH|NEUTRAL",
+    "daily": "BULLISH|BEARISH|NEUTRAL",
+    "h4": "BULLISH|BEARISH|NEUTRAL",
+    "alignment": "ALIGNED|MIXED|OPPOSED"
+  },
+  "ict_analysis": {
+    "order_block": { "present": bool, "type": str, "level": float, "valid": bool },
+    "fair_value_gap": { "present": bool, "type": str, "upper": float, "lower": float },
+    "liquidity": { "recent_sweep": bool, "swept_level": float, "direction": str },
+    "premium_discount": "PREMIUM|DISCOUNT|EQUILIBRIUM",
+    "ote_zone": [float, float]
+  },
+  "technical_analysis": {
+    "ema_bias": "BULLISH|BEARISH|NEUTRAL",
+    "rsi_14": float,
+    "rsi_signal": "OVERSOLD|OVERBOUGHT|NEUTRAL",
+    "adx_14": float,
+    "market_regime": "TRENDING|RANGING|HIGH_VOLATILITY",
+    "key_levels": { "resistance": [float], "support": [float] }
+  },
+  "fundamental": {
+    "rate_differential": str,
+    "dxy_direction": "RISING|FALLING|NEUTRAL",
+    "cot_bias": "BULLISH|BEARISH|NEUTRAL",
+    "next_news_event": str,
+    "news_risk": "HIGH|MEDIUM|LOW"
+  },
+  "confluence_score": 0-100,
+  "signal_strength": "STRONG|MODERATE|NEUTRAL",
+  "signal": {
+    "direction": "BUY|SELL|NEUTRAL",
+    "confidence": 0-100,
+    "entry_zone": [float, float],
+    "stop_loss": float,
+    "take_profit_1": float,
+    "take_profit_2": float,
+    "risk_reward": float,
+    "recommended_lot_size": float,
+    "order_type": "LIMIT|MARKET|STOP"
+  },
+  "reasoning": ["string array of reasoning points"],
+  "key_risk": "string",
+  "knowledge_sources_used": ["Book Title — relevant concept"],
+  "trade_management": {
+    "tp1_action": "Close 50% at TP1, move SL to entry",
+    "tp2_action": "Trail remaining 50%",
+    "time_stop": "Close if -0.5R after 8 hours"
+  },
+  "do_not_trade_reason": null or "string",
+  "demo_mode": true
+}
+```
+
+---
+
+## SIGNAL QUALITY BENCHMARKS
+
+```
+Confluence Score:
+  85-100 = STRONG signal  → consider trading
+  65-84  = MODERATE       → trade with caution
+  <65    = NEUTRAL        → DO NOT TRADE
+
+Confidence:
+  >75%   = High quality
+  65-75% = Acceptable
+  <65%   = Skip
+
+Risk:Reward:
+  >3.0   = Excellent
+  2.0-3.0 = Good (minimum accepted)
+  <2.0   = Reject trade
+```
+
+---
+
+## EUR/USD SPECIFIC KNOWLEDGE EMBEDDED IN AGENT
+
+The following concepts are in the system prompt (Option 1):
+
+```
+Sessions & Kill Zones:
+  - Asian: 8PM-4AM EST — builds range, observe only
+  - London Kill Zone: 3AM-4AM EST — sweeps Asian high/low, prime entry
+  - NY Kill Zone: 8AM-10AM EST — continuation or reversal
+
+Key Drivers of EUR/USD:
+  1. Fed vs ECB interest rate differential
+  2. DXY direction (inverse correlation — EUR is 57.6% of DXY)
+  3. Economic data surprises (NFP, CPI, PMI, IFO)
+  4. Risk sentiment (S&P500 as proxy)
+  5. COT positioning (CFTC Commitments of Traders)
+
+ICT Concepts Applied:
+  - Order Blocks (OB) — institutional entry zones
+  - Fair Value Gaps (FVG) — price imbalances to fill
+  - Liquidity sweeps — stop hunts before real moves
+  - Premium/Discount — only buy in discount, sell in premium
+  - OTE (Optimal Trade Entry) — 62-79% Fibonacci retracement
+
+Key Weekly Levels to Always Track:
+  - Previous Week High (PWH) + Previous Week Low (PWL)
+  - Previous Day High (PDH) + Previous Day Low (PDL)
+  - Round numbers: 1.0500, 1.0600, 1.0700, 1.0800, 1.0900, 1.1000
+  - Current week/day open price
+```
+
+---
+
+## OANDA CONNECTOR (March 11, 2026) ✅ ACTIVE
+
+OANDA demo account successfully created — switching from Capital.com to OANDA as primary broker.
+
+**Account Status:** LIVE DEMO ✅
+- Account ID: `101-001-38764497-001`
+- Account Type: V20 (OANDA's modern REST API)
+- Balance: $100,000.00 USD
+- NAV: $100,000.00
+- Unrealized P/L: $0.00
+- Activated: March 11, 2026
+
+**Connector file:** `oanda_connector.py` (already built and ready)
+
+**What it does:**
+- Fetches real-time EUR/USD bid/ask/mid/spread
+- Downloads OHLCV candles for 4H, 1H, Daily, Weekly timeframes
+- Calculates all indicators (EMA, RSI, ADX, ATR) from real data
+- Detects ICT concepts (Order Blocks, FVGs, P/D zones, liquidity sweeps)
+- Identifies market structure (HH/HL/LH/LL) across all timeframes
+- Reads account balance, equity, open positions from OANDA
+- Replaces static `get_example_market_data()` in main.py with live data
+
+**Live fundamentals layered on top:**
+- DXY intraday signal from Yahoo Finance (`DX-Y.NYB`)
+- next high-impact US / Euro Area event from Financial Modeling Prep
+- latest FX headline from NewsAPI when `NEWS_API_KEY` is set
+- COT positioning from CFTC.gov for delayed weekly macro bias
+- retail sentiment remains manual until a provider is added
+
+**Auth:** Bearer token — OANDA API key in Authorization header
+
+**Instrument name:** `EUR_USD` (OANDA format, not `EURUSD`)
+
+**To activate:**
+```bash
+# 1. OANDA demo account created ✅ (March 11, 2026)
+# 2. Generate API key: My Account → Manage API Access → Generate
+# 3. Set in terminal (add to ~/.zshrc for persistence):
+export OANDA_API_KEY="your-api-key"
+export OANDA_ACCOUNT_ID="101-001-38764497-001"
+
+# 4. Test connection:
+python main.py --mode test
+
+# 5. Run live demo:
+python main.py --mode demo
+```
+
+**Fallback behavior:** If OANDA credentials are not set, system automatically falls
+back to `get_example_market_data()` — no errors, just static test data.
+
+---
+
+## CAPITAL.COM CONNECTOR (March 10, 2026) — SUPERSEDED
+
+Capital.com connector was built first but OANDA demo account was successfully created
+on March 11, 2026. OANDA is now the primary broker for the demo phase.
+
+**Status:** `capital_connector.py` kept as backup — do not delete.
+**Active connector:** `oanda_connector.py`
+
+---
+
+## NEXT STEPS (Priority Order)
+
+```
+IMMEDIATE (this week):
+  1. ✅ Build capital_connector.py         — DONE March 10
+  2. ✅ Build oanda_connector.py           — DONE March 10
+  3. ✅ Create OANDA demo account          — DONE March 11 ($100k)
+  4. ✅ Ingest research papers (21/23)     — DONE March 11 (388 chunks)
+  5. ⬜ Generate OANDA API key
+     → oanda.com → My Account → Manage API Access → Generate
+  6. ⬜ Set env vars: OANDA_API_KEY + OANDA_ACCOUNT_ID=101-001-38764497-001
+  7. ⬜ Test live connection: python main.py --mode test
+  8. ⬜ Confirm live EUR/USD price flowing into agent
+
+SHORT TERM (weeks 2-4):
+  9. ⬜ Ingest 2 missing research PDFs (run --mode ingest)
+     → Deep learning forex prediction.pdf
+     → Triennial Central Bank Survey — Foreign exchange turnover.pdf
+  10. ⬜ Add ICT YouTube transcripts to documents/ict/
+  11. ⬜ Build performance dashboard (Streamlit)
+      → Visual chart of all signals over time
+      → Win/loss tracking per signal
+
+MONTH 2-3:
+  12. ⬜ Build Risk Manager agent (second Claude call)
+      → Reviews every signal before logging
+      → Can reject or modify signal
+  13. ⬜ Build Trade Executor agent (third Claude call)
+      → Determines optimal entry timing within entry zone
+      → Manages partial closes at TP1
+
+MONTH 6+:
+  14. ⬜ Connect OANDA order execution API
+      → Auto-place trades on demo account
+      → Still demo, but real fills + real spreads
+```
+
+---
+
+## 5-YEAR PROFIT PROJECTIONS ($5,000 start)
+
+| Year | Start | Net Profit | Return | End Capital |
+|------|-------|-----------|--------|-------------|
+| 1 | $5,000 | +$3,000 | +60% | $8,000 |
+| 2 | $8,000 | +$6,150 | +77% | $14,150 |
+| 3 | $14,150 | +$13,500 | +95% | $27,650 |
+| 4 | $27,650 | +$28,000 | +101% | $55,650 |
+| 5 | $55,650 | +$63,000 | +113% | $118,650 |
+
+Conservative: $67,000 | Moderate (most likely): $118,650 | Optimistic: $310,000
+$100k milestone target: ~Month 59 (Year 5 Q3)
+
+---
+
+## KNOWN ISSUES & FIXES APPLIED
+
+```
+Issue: pandas-ta not compatible with Python 3.11
+Fix:   Replaced with 'ta==0.11.0' library
+Status: ✅ Resolved
+
+Issue: 3 of 4 books had encrypted PDFs (Murphy, Kathy Lien PDF, Trading in Zone)
+Fix:   OCR with tesseract + pdf2image + poppler
+Status: ✅ All 4 books loaded (864 chunks)
+
+Issue: Trading in Zone OCR killed by memory (all 237 pages at once)
+Fix:   Process in 20-page batches at dpi=150
+Status: ✅ Resolved — 157 chunks loaded
+
+Issue: total_chunks KeyError in rag_pipeline.py
+Fix:   Changed to result.get("total_chunks", 0)
+Status: ✅ Resolved
+
+Issue: API key from wrong workspace (Claude Code workspace, not Individual Org)
+Fix:   Created new key in Default workspace under Gazmir's Individual Org
+Status: ✅ Resolved
+```
+
+---
+
+## READING LIST (Books Already Downloaded)
+
+```
+✅ Day Trading and Swing Trading the Currency Market — Kathy Lien
+   Status: LOADED (160+162 chunks)
+   Key value: EUR/USD session behavior, fundamental drivers
+
+✅ Trading in the Zone — Mark Douglas
+   Status: LOADED (157 chunks)
+   Key value: Psychology, discipline, consistency rules
+
+✅ Technical Analysis of the Financial Markets — John Murphy
+   Status: LOADED (262 chunks — OCR)
+   Key value: Classical TA, moving averages, chart patterns
+
+✅ The Forex Trading Course — Abe Cofnas
+   Status: LOADED (123 chunks)
+   Key value: Strategy rules, COT analysis
+
+⬜ Quantitative Trading — Ernest Chan (get month 6)
+⬜ Algorithmic Trading — Ernest Chan (get month 7)
+⬜ The Zurich Axioms — Max Gunther (get month 3)
+⬜ Antifragile — Nassim Taleb (get month 4)
+```
+
+---
+
+## CLAUDE CODE INSTRUCTIONS
+
+When working on this project in VS Code, follow these rules:
+
+1. **Never change hard risk rules** — 1% max, 1:2 RR, 2% daily limit are sacred
+2. **Never set demo_mode = False** — only change after March 2027
+3. **Always test with --mode test before --mode demo**
+4. **All new features must have a fallback** — if OANDA fails, use example data
+5. **Never delete logs/** — every signal is training data
+6. **Never delete chroma_db/** — rebuilding takes 30+ minutes
+7. **Always activate venv first** — `source venv/bin/activate`
+8. **Config changes go in config.py only** — not hardcoded in other files
+9. **New documents go in documents/[category]/** then run --mode ingest
+10. **Keep oanda_connector.py separate** — never merge into main.py
+
+---
+
+## API COSTS REFERENCE
+
+```
+Claude API (claude-sonnet-4-20250514):
+  Input:  $3.00 per million tokens
+  Output: $15.00 per million tokens
+  
+Per analysis (approx):
+  ~2,000 tokens input + ~500 tokens output
+  Cost: ~$0.01-0.02 per analysis
+  
+Demo loop (every 30 min, 24h):
+  48 analyses/day × $0.02 = ~$0.96/day
+  Monthly: ~$29/month
+  
+With $10 credit: ~10 days of continuous demo
+Recommended: Add $20-50 to platform.claude.com billing
+```
+
+---
+
+## CONTACT & ACCOUNTS
+
+```
+Claude API:   platform.claude.com — Gazmir's Individual Org — Default workspace
+OANDA:        oanda.com — demo account ACTIVE ✅ (101-001-38764497-001, $100k)
+              → API key still needed: My Account → Manage API Access
+Capital.com:  capital.com — superseded by OANDA, connector kept as backup
+GitHub:       (not set up yet — recommended for version control)
+```

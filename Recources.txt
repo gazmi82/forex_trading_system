@@ -1,0 +1,159 @@
+📄 Research Papers — Ingestion Status
+Last updated: March 11, 2026
+Collection total: 388 chunks across 21 papers (2 missing)
+
+INGESTED ✅ (in ChromaDB research collection):
+→ ✅ Algorithmic forex trading.pdf
+→ ✅ Algorithmic forex trading2.pdf
+→ ✅ Algorithmic trading strategy1.pdf
+→ ✅ Algorithmic trading strategy2.pdf
+→ ✅ Carry trades and currency crashes.pdf
+→ ✅ Currency mean reversion.pdf
+→ ✅ Deep learning forex prediction2.pdf
+→ ✅ Deep learning forex prediction3.pdf
+→ ✅ EUR:USD momentum strategy.pdf
+→ ✅ Exchange Rate Predictability.pdf
+→ ✅ Exchange rates and fundamentals.pdf
+→ ✅ FX carry trade.pdf
+→ ✅ Forex order flow and exchange rates.pdf
+→ ✅ Forex trend following.pdf
+→ ✅ LSTM currency trading.pdf
+→ ✅ OTC interest rate derivatives turnover in April 2022.pdf
+→ ✅ Reinforcement learning forex1.pdf
+→ ✅ Reinforcement learning forex2.pdf
+→ ✅ Reinforcement learning forex3.pdf
+→ ✅ The foreign exchange market.pdf
+→ ✅ The microstructure of currency markets.pdf
+
+NOT YET INGESTED ❌ (file exists in documents/research/ but missing from DB):
+→ ❌ Deep learning forex prediction.pdf        ← run --mode ingest to add
+→ ❌ Triennial Central Bank Survey — Foreign exchange turnover.pdf  ← run --mode ingest to add
+
+TO DOWNLOAD & ADD (not yet in folder):
+BIS (Bank for International Settlements) — bis.org/research
+→ "High-frequency trading in the foreign exchange market"
+→ "Central bank communication and exchange rates"
+Federal Reserve — federalreserve.gov/pubs
+→ "Currency momentum strategies"
+→ "Central bank communication and exchange rates"
+SSRN — ssrn.com (Free) / ArXiv — arxiv.org (Free)
+→ Any new EUR/USD or FX microstructure papers
+
+Books — Ingestion Status
+Last updated: March 11, 2026
+Collection total: 5,709 chunks (books collection)
+
+INGESTED ✅:
+📚 ✅ Day Trading and Swing Trading the Currency Market — Kathy Lien (TXT, 160 chunks)
+📚 ✅ Day Trading and Swing Trading the Currency Market — Kathy Lien (PDF, 162 chunks)
+📚 ✅ Technical Analysis of the Financial Markets — John Murphy (OCR TXT, 262 chunks)
+📚 ✅ The Forex Trading Course — Abe Cofnas (PDF, 123 chunks)
+📚 ✅ Trading in the Zone — Mark Douglas (OCR TXT, 157 chunks)
+📚 ✅ Trading Price Action Trends — Al Brooks (OCR)
+📚 ✅ The New Market Wizards — Jack Schwager (OCR)
+📚 ✅ Incerto Bundle (Black Swan, Antifragile, Fooled by Randomness) — Nassim Taleb (OCR)
+📚 ✅ Reminiscences of a Stock Operator — Edwin Lefèvre (PDF)
+📚 ✅ The Zurich Axioms — Max Gunther (PDF)
+📚 ✅ Quantitative Trading — Ernest Chan (PDF)
+📚 ✅ Algorithmic Trading — Ernest Chan (PDF)
+📚 ✅ Machine Trading — Ernest Chan (PDF)
+📚 ✅ Currency Trading for Dummies (PDF)
+
+NOT YET INGESTED / TO ACQUIRE ❌:
+📚 ❌ Advances in Financial Machine Learning — Lopez de Prado  (Month 7)
+📚 ❌ Intermarket Analysis — John Murphy                       (Month 8)
+📚 ❌ The Alchemy of Finance — George Soros                   (Month 9)
+📚 ❌ Python for Finance — Yves Hilpisch                      (Month 10)
+
+Where to Get Missing Books
+📚 Project Gutenberg    gutenberg.org  → public domain titles
+📚 Open Library        openlibrary.org → borrow digital free with account
+📚 Internet Archive    archive.org     → large trading book collection
+📚 Amazon Kindle       ~$10–15/book   → all titles available
+
+Your 12-Month Reading Plan
+Month 1:   Trading in the Zone + Kathy Lien              ✅ done
+Month 2:   John Murphy TA Bible + Market Wizards          ✅ done
+Month 3:   Al Brooks Trends + Zurich Axioms               ✅ done
+Month 4:   Reminiscences + New Market Wizards             ✅ done
+Month 5:   Nassim Taleb trilogy (Black Swan, Antifragile) ✅ done
+Month 6:   Ernest Chan trilogy (Quant, Algo, Machine)     ✅ done
+Month 7:   Advances in Financial ML (Lopez de Prado)      ❌ acquire
+Month 8:   Intermarket Analysis + Currency for Dummies    ⚠️  Dummies ✅, Murphy ❌
+Month 9:   Soros Alchemy of Finance                       ❌ acquire
+Month 10:  Python for Finance                             ❌ acquire
+Month 11:  Re-read Trading in the Zone
+Month 12:  Re-read Market Wizards (extract new agent rules)
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+
+The 5 Core Drivers of EUR/USD
+1. FED vs ECB Interest Rate Differential
+   Most powerful driver of EUR/USD direction
+   Fed hawkish + ECB dovish = EUR/USD falls
+   Fed dovish + ECB hawkish = EUR/USD rises
+   Current differential drives weeks/months of trend
+
+2. DXY (US Dollar Index)
+   EUR is 57.6% of the DXY basket
+   DXY rising = EUR/USD falling (almost always)
+   Always check DXY before any EUR/USD trade
+   They move in near-perfect inverse correlation
+
+3. Economic Data Surprises
+   US: NFP, CPI, GDP, Retail Sales
+   EU: PMI, German IFO, ECB statements
+   Stronger US data = USD strengthens = EUR/USD falls
+   Stronger EU data = EUR strengthens = EUR/USD rises
+
+4. Risk Sentiment
+   Risk-on (stocks rising) = EUR/USD tends to rise
+   Risk-off (fear in markets) = USD strengthens = falls
+   Watch S&P500 direction as a confirmation tool
+
+5. COT Positioning
+   EUR futures on CME show institutional bias
+   Commercials heavily long EUR = bullish signal
+   Released every Friday 3:30PM EST — check weekly
+EUR/USD Session Behavior (ICT)
+Asian Session (8PM–4AM EST):
+  → EUR/USD builds a range (high and low)
+  → This range is the liquidity target for London
+  → Note the Asian high and Asian low every day
+
+London Kill Zone (3AM–4AM EST):
+  → Price sweeps Asian session high OR low first
+  → This is the liquidity grab before the real move
+  → After the sweep → trade the reversal
+  → Most powerful EUR/USD setup of the day
+
+NY Kill Zone (8AM–10AM EST):
+  → Either continues London move OR reverses it
+  → NFP and CPI always drop at 8:30AM here
+  → Best session for catching momentum continuations
+
+London Close (10AM–12PM EST):
+  → Profit taking by London banks
+  → Often reverses the London move partially
+  → Good for counter-trend scalps
+EUR/USD Key Levels to Always Track
+Track these every single week:
+
+Weekly levels:
+→ Previous week high (PWH)
+→ Previous week low (PWL)
+→ Current week open
+
+Daily levels:
+→ Previous day high (PDH)
+→ Previous day low (PDL)
+→ Current day open
+
+Institutional levels:
+→ Round numbers: 1.0500, 1.0600, 1.0700, 1.0800, 1.0900, 1.1000
+→ These act as magnets and rejection zones
+
+Monthly levels:
+→ Previous month high/low
+→ Current month open price
