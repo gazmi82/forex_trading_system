@@ -567,6 +567,7 @@ def fetch_next_calendar_event(force_refresh: bool = False) -> dict:
 
     print("  📥 Fetching economic calendar from Forex Factory...")
     for url in urls:
+        before_count = len(candidates)
         try:
             response = requests.get(url, timeout=15)
             response.raise_for_status()
@@ -597,6 +598,12 @@ def fetch_next_calendar_event(force_refresh: bool = False) -> dict:
                 "event":      item.get("title", "Unknown event").strip(),
                 "event_time": event_time,
             })
+
+        # Stop once a calendar payload already yielded at least one usable
+        # upcoming high-impact USD/EUR event. This avoids noisy warnings from
+        # the secondary next-week endpoint when the current-week feed was enough.
+        if len(candidates) > before_count:
+            break
 
     if not candidates:
         result = {

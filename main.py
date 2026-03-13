@@ -28,6 +28,7 @@ import logging
 import argparse
 from pathlib import Path
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,6 +44,9 @@ logging.getLogger("huggingface_hub").setLevel(logging.WARNING)
 logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
+
+ENTRY_ANALYSIS_INTERVAL_SECONDS = 600
+MONITOR_ONLY_INTERVAL_SECONDS = 1800
 
 
 def print_signal_runtime_issue(signal: dict):
@@ -62,6 +66,35 @@ def print_live_data_warning(reason: str):
     print("   export OANDA_API_KEY='your-api-key'")
     print("   export OANDA_ACCOUNT_ID='101-001-38764497-001'")
     print("   Then rerun the command.")
+
+
+def write_signal_log(signal: dict, prefix: str = "signal") -> Path:
+    """Persist any analysis result, including fallback/API-failure payloads."""
+    output_file = Path("logs") / f"{prefix}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
+    output_file.parent.mkdir(exist_ok=True)
+    with open(output_file, "w") as f:
+        json.dump(signal, f, indent=2)
+    return output_file
+
+
+def get_demo_loop_schedule(market_data: dict) -> tuple[bool, str, int, str]:
+    """
+    Use the live session classifier from market_data as the single source of truth
+    for whether new-entry analysis is allowed.
+    """
+    fundamental = market_data.get("fundamental", {})
+    session = fundamental.get("active_session", "Unknown")
+    trade_window_active = bool(fundamental.get("trade_window_active"))
+    now_ny = datetime.now(ZoneInfo("America/New_York"))
+    weekday_name = now_ny.strftime("%A")
+
+    if now_ny.weekday() >= 5:
+        return False, session, MONITOR_ONLY_INTERVAL_SECONDS, f"Weekend block ({weekday_name})"
+
+    if trade_window_active:
+        return True, session, ENTRY_ANALYSIS_INTERVAL_SECONDS, "Allowed trade window"
+
+    return False, session, MONITOR_ONLY_INTERVAL_SECONDS, "Outside allowed trade window"
 
 
 def setup_anthropic_client():
@@ -190,7 +223,7 @@ def run_capital_test():
     print(f"  Account:    ${data['portfolio']['equity']:,.2f}")
 
 
-def run_test_analysis(agent, pipeline, oanda_builder=None, executor=None):
+def run_test_analysis(agent, pipeline, oanda_builder=None, executor=None, force_outside_session: bool = False):
     print("\n" + "="*60)
     print("🤖 TEST ANALYSIS MODE")
     print("="*60)
@@ -199,6 +232,14 @@ def run_test_analysis(agent, pipeline, oanda_builder=None, executor=None):
         return False
     print("Using LIVE OANDA data...")
     market_data = oanda_builder.build_market_data("EUR_USD")
+    run_entry_analysis, session, _, schedule_reason = get_demo_loop_schedule(market_data)
+    print(f"  Session: {session}")
+    if not run_entry_analysis and not force_outside_session:
+        print(f"\n⏸ Test analysis skipped — {schedule_reason} ({session}).")
+        print("   Use --force-outside-session to run a manual one-off test anyway.")
+        return False
+    if not run_entry_analysis and force_outside_session:
+        print(f"\n⚠️  Running test analysis despite {schedule_reason.lower()} ({session}) by explicit override.")
     if agent is None:
         print("\n❌ No Anthropic client available for analysis.")
         print("   Action:")
@@ -211,10 +252,7 @@ def run_test_analysis(agent, pipeline, oanda_builder=None, executor=None):
     print("📊 FULL SIGNAL:")
     print("="*60)
     print(json.dumps(signal, indent=2))
-    output_file = Path("logs") / f"test_signal_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
-    output_file.parent.mkdir(exist_ok=True)
-    with open(output_file, "w") as f:
-        json.dump(signal, f, indent=2)
+    output_file = write_signal_log(signal, prefix="test_signal")
     print(f"\n✅ Signal saved to: {output_file}")
 
     # Execute if signal qualifies and executor is available
@@ -274,14 +312,17 @@ def run_demo_loop(agent, pipeline, oanda_builder=None, executor=None):  # noqa: 
         print("✅ Trade Executor active — will place orders on OANDA demo")
     else:
         print("⚠️  No executor — signals logged only (no orders placed)")
-    print("\nRunning every 30 minutes. Press Ctrl+C to stop.\n")
+    print("\nEntry analysis follows live session windows from market_data.")
+    print("Allowed windows run every 10 minutes; outside them, monitor-only runs every 30 minutes.")
+    print("Press Ctrl+C to stop.\n")
     import time
     analysis_count = 0
+    entry_analysis_count = 0
     while True:
         try:
             analysis_count += 1
             now = datetime.utcnow().strftime("%H:%M:%S")
-            print(f"\n[{now}] Analysis #{analysis_count}")
+            print(f"\n[{now}] Loop #{analysis_count}")
 
             # 1. Monitor open trades first (TP1, time stop, etc.)
             if executor:
@@ -303,33 +344,45 @@ def run_demo_loop(agent, pipeline, oanda_builder=None, executor=None):  # noqa: 
                     time.sleep(60)
                     continue
 
-            # 3. Generate signal
-            if agent:
+            # 3. Use live session label as the only scheduler input
+            run_entry_analysis, session, sleep_seconds, schedule_reason = get_demo_loop_schedule(market_data)
+            price = market_data.get("price", "N/A")
+            print(f"  Price:   {price}")
+            print(f"  Session: {session}")
+
+            # 4. Generate signal only during allowed trade windows
+            if agent and run_entry_analysis:
+                entry_analysis_count += 1
+                print(f"  ▶ Entry analysis active — {session}")
                 signal     = agent.analyze(market_data)
                 print_signal_runtime_issue(signal)
                 direction  = signal.get("signal", {}).get("direction", "NEUTRAL")
                 confidence = signal.get("signal", {}).get("confidence", 0)
                 score      = signal.get("confluence_score", 0)
-                price      = market_data.get("price", "N/A")
-                session    = market_data.get("fundamental", {}).get("active_session", "")
-                print(f"  Price:   {price}")
-                print(f"  Session: {session}")
                 print(f"  Signal:  {direction} | {confidence}% | Score: {score}/100")
 
-                log_file = Path("logs") / f"signal_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
-                with open(log_file, "w") as f:
-                    json.dump(signal, f, indent=2)
+                log_file = write_signal_log(signal, prefix="signal")
+                print(f"  📝 Logged analysis to: {log_file}")
 
                 # 4. Execute if qualifies
                 if executor and direction != "NEUTRAL":
                     exec_result = executor.execute_signal(signal)
                     if not exec_result["executed"]:
                         print(f"  ⏸  Not executed: {exec_result['reason']}")
+            else:
+                print(f"  ⏸ Entry analysis skipped — {schedule_reason} ({session})")
 
-            print(f"\n  Next analysis in 30 minutes...")
-            time.sleep(1800)
+            next_minutes = sleep_seconds // 60
+            if run_entry_analysis:
+                print(f"\n  Next entry analysis in {next_minutes} minutes...")
+            else:
+                print(f"\n  Next monitor-only cycle in {next_minutes} minutes...")
+            time.sleep(sleep_seconds)
         except KeyboardInterrupt:
-            print(f"\n\n⏹  Demo loop stopped. Total: {analysis_count} analyses")
+            print(
+                f"\n\n⏹  Demo loop stopped. "
+                f"Total loops: {analysis_count} | Entry analyses: {entry_analysis_count}"
+            )
             break
         except Exception as e:
             logger.error(f"Loop error: {e}")
@@ -341,6 +394,8 @@ def main():
     parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","capital"], default="test")
     parser.add_argument("--dry-run", action="store_true",
                         help="Run --mode test without placing any orders on OANDA")
+    parser.add_argument("--force-outside-session", action="store_true",
+                        help="Allow --mode test to run outside kill-zone entry windows")
     args = parser.parse_args()
 
     print("\n" + "="*60)
@@ -393,7 +448,8 @@ def main():
     elif args.mode == "test":
         # --dry-run: analyse signal but never place orders
         ok = run_test_analysis(agent, pipeline, oanda_builder,
-                               executor=None if args.dry_run else executor)
+                               executor=None if args.dry_run else executor,
+                               force_outside_session=args.force_outside_session)
         if ok is False:
             sys.exit(1)
     elif args.mode == "demo":   run_demo_loop(agent, pipeline, oanda_builder, executor)
