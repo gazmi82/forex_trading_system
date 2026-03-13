@@ -133,6 +133,44 @@ python main.py --mode stats
 python main.py --mode demo
 ```
 
+### Step 7 — Run the REST API
+First frontend version is exposed through FastAPI:
+
+```bash
+uvicorn api_server:app --reload
+```
+
+If the frontend is deployed outside localhost, allow extra origins with:
+
+```bash
+export FRONTEND_ORIGINS="https://your-frontend.example.com,https://another.example.com"
+```
+
+Lovable frontend domains under `https://*.lovable.app` are allowed by default.
+
+Key first-version endpoints:
+
+```text
+GET  /api/health
+GET  /api/live/snapshot
+GET  /api/market/candles
+GET  /api/status/scheduler
+GET  /api/diagnostics/feeds
+GET  /api/signals/latest
+GET  /api/trades/open
+GET  /api/trades/closed
+GET  /api/trades/history
+GET  /api/decisions/latest
+GET  /api/dashboard/summary
+```
+
+Notes:
+- `/api/live/snapshot?refresh=true` builds a fresh OANDA + fundamentals snapshot.
+- `/api/market/candles?pair=EUR_USD&granularity=M15&count=200` returns frontend-ready OHLCV candles.
+- `/api/status/scheduler` uses the same Monday-Friday and kill-zone gate as the runtime.
+- `/api/signals/latest` returns the latest saved `signal_*.json`.
+- `/api/dashboard/summary` is the easiest first frontend endpoint because it combines scheduler, live snapshot, diagnostics, latest signal, and open trades.
+
 ---
 
 ## How It Works at Runtime

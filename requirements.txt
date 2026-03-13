@@ -30,6 +30,10 @@ oandapyV20>=0.6.3               # OANDA Forex/CFD API
 APScheduler>=3.10.0             # Run agents on schedule
 asyncio                         # Built into Python 3.7+
 
+# REST API
+fastapi>=0.115.0                # Backend API for frontend client
+uvicorn>=0.30.0                 # ASGI server for FastAPI
+
 # Utilities
 python-dotenv>=1.0.0            # Load .env file for API keys
 requests>=2.31.0                # HTTP requests
