@@ -70,10 +70,17 @@ def print_live_data_warning(reason: str):
 
 def write_signal_log(signal: dict, prefix: str = "signal") -> Path:
     """Persist any analysis result, including fallback/API-failure payloads."""
-    output_file = Path("logs") / f"{prefix}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
+    timestamp = datetime.utcnow()
+    timestamp_slug = timestamp.strftime('%Y%m%d_%H%M%S')
+    output_file = Path("logs") / f"{prefix}_{timestamp_slug}.json"
     output_file.parent.mkdir(exist_ok=True)
+
+    payload = dict(signal)
+    payload["logged_at_utc"] = timestamp.isoformat() + "Z"
+    payload["log_filename"] = output_file.name
+
     with open(output_file, "w") as f:
-        json.dump(signal, f, indent=2)
+        json.dump(payload, f, indent=2)
     return output_file
 
 

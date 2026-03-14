@@ -17,6 +17,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+from config import FEEDBACK_DIR
+
 logger = logging.getLogger(__name__)
 
 
@@ -287,10 +289,12 @@ class ForexAnalystAgent:
         self.client = anthropic_client
         self.config = config
         self.log_dir = log_dir
+        self.feedback_dir = FEEDBACK_DIR
         self.feedback_memory = []   # Rolling memory of last N trade feedbacks
 
         # Ensure log directory exists
         log_dir.mkdir(parents=True, exist_ok=True)
+        self.feedback_dir.mkdir(parents=True, exist_ok=True)
 
         logger.info("ForexAnalystAgent initialized")
 
@@ -700,11 +704,14 @@ INSTRUCTIONS:
         2. RAG feedback store (searchable long-term memory)
         3. Log file (permanent record)
         """
+        trade_record = dict(trade_record)
         pair      = trade_record.get("pair", "")
         direction = trade_record.get("direction", "")
         outcome   = trade_record.get("outcome", "")
         pnl_r     = trade_record.get("pnl_r", 0)
         date      = trade_record.get("date", datetime.utcnow().strftime("%Y-%m-%d"))
+        lesson    = self._extract_lesson(trade_record)
+        trade_record["lesson"] = lesson
 
         # Build feedback text for RAG ingestion
         feedback_text = self._generate_feedback_text(trade_record)
@@ -720,7 +727,7 @@ INSTRUCTIONS:
             "outcome":   outcome,
             "pnl_r":     pnl_r,
             "session":   trade_record.get("session", ""),
-            "lesson":    self._extract_lesson(trade_record),
+            "lesson":    lesson,
         })
 
         # Keep only last N entries in memory
@@ -728,9 +735,14 @@ INSTRUCTIONS:
         if len(self.feedback_memory) > limit:
             self.feedback_memory = self.feedback_memory[-limit:]
 
+        feedback_file = self._write_feedback_markdown(trade_record, feedback_text)
+
         # Log to file
         self._log_trade_outcome(trade_record)
-        logger.info(f"Trade outcome recorded: {pair} {direction} → {outcome} ({pnl_r}R)")
+        logger.info(
+            f"Trade outcome recorded: {pair} {direction} → {outcome} ({pnl_r}R) | "
+            f"Feedback note: {feedback_file.name}"
+        )
 
     def _generate_feedback_text(self, trade_record: dict) -> str:
         """Creates a detailed feedback document for RAG storage."""
@@ -763,6 +775,45 @@ LESSON LEARNED:
 WHAT TO DO DIFFERENTLY ON {trade_record.get('pair')} NEXT TIME:
 {trade_record.get('improvement', 'Not recorded')}
 """
+
+    def _write_feedback_markdown(self, trade_record: dict, feedback_text: str) -> Path:
+        """Persist a readable markdown feedback note for the operator."""
+        timestamp = datetime.utcnow()
+        timestamp_slug = timestamp.strftime("%Y%m%d_%H%M%S")
+        pair_slug = self._slugify(trade_record.get("pair", "eur-usd"))
+        outcome_slug = self._slugify(trade_record.get("outcome", "unknown"))
+        session_slug = self._slugify(trade_record.get("session", "unknown-session"))
+        filename = f"feedback_{timestamp_slug}_{pair_slug}_{session_slug}_{outcome_slug}.md"
+        output_path = self.feedback_dir / filename
+
+        markdown = (
+            f"# Trade Review — {trade_record.get('pair', 'Unknown Pair')} "
+            f"{trade_record.get('direction', '')}\n\n"
+            f"- Logged At (UTC): {timestamp.isoformat()}Z\n"
+            f"- Trade Date: {trade_record.get('date', '')}\n"
+            f"- Outcome: {trade_record.get('outcome', '')}\n"
+            f"- Session: {trade_record.get('session', '')}\n"
+            f"- PnL (R): {trade_record.get('pnl_r', '')}\n"
+            f"- PnL (USD): {trade_record.get('pnl_usd', '')}\n"
+            f"- Duration Hours: {trade_record.get('duration_hours', '')}\n"
+            f"- Confluence Score: {trade_record.get('confluence_score', '')}\n\n"
+            f"## Lesson\n\n"
+            f"{trade_record.get('lesson', 'Not recorded')}\n\n"
+            f"## Structured Review\n\n"
+            f"{feedback_text.strip()}\n"
+        )
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(markdown)
+
+        return output_path
+
+    @staticmethod
+    def _slugify(value: str) -> str:
+        text = (value or "").strip().lower()
+        text = re.sub(r"[^a-z0-9]+", "-", text)
+        text = re.sub(r"-{2,}", "-", text).strip("-")
+        return text or "unknown"
 
     def _extract_lesson(self, trade_record: dict) -> str:
         """Extracts a short lesson from the trade record."""

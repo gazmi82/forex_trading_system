@@ -1,7 +1,7 @@
 # CLAUDE.md — Forex Trading System Project Context
 # This file is for Claude Code (VS Code) to stay aligned with all decisions,
 # architecture, and progress made in the main Claude.ai chat session.
-# Last updated: March 11, 2026
+# Last updated: March 14, 2026
 
 ---
 
@@ -111,13 +111,14 @@ main.py
 │   │   ├── john_murphy_ocr.txt                      (262 chunks) ← John Murphy (OCR)
 │   │   ├── the_forex_trading_course.pdf             (123 chunks) ← Abe Cofnas
 │   │   └── trading_in_the_zone_ocr.txt              (157 chunks) ← Mark Douglas (OCR)
-│   ├── research/              ← Free BIS/Fed/SSRN papers (empty — add soon)
-│   ├── ict/                   ← ICT YouTube transcripts (empty — add soon)
-│   ├── cot/                   ← COT report data (empty — add soon)
-│   └── journal/               ← Trade journal entries (empty — populated by system)
+│   ├── research/              ← Free BIS/Fed/SSRN papers
+│   ├── ict/                   ← ICT transcripts / EUR/USD notes
+│   ├── cot/                   ← Manual COT report notes
+│   └── journal/               ← Manual trade journal entries
 │
 ├── chroma_db/                 ← ChromaDB vector store (864 chunks total)
-├── logs/                      ← All signal JSON files saved here
+├── logs/                      ← Signals, closed trades, decision logs
+├── feedback/                  ← Auto-generated markdown trade review notes
 └── venv/                      ← Python virtual environment
 ```
 
@@ -136,8 +137,8 @@ main.py
 ⚠️  research        0 chunks  ← ADD: bis.org/research PDFs
 ⚠️  ict             0 chunks  ← ADD: ICT YouTube transcripts
 ⚠️  cot             0 chunks  ← ADD: CFTC COT reports
-⚠️  journal         0 chunks  ← Populated automatically over time
-⚠️  feedback        0 chunks  ← Populated automatically over time
+⚠️  journal         0 chunks  ← Manual operator notes
+⚠️  feedback        0 chunks  ← Populated automatically by closed trades
 ```
 
 **Target by Month 3:** 2,500+ chunks
@@ -171,6 +172,9 @@ Fundamentals status:
 - USD target range is fetched from the official Fed open-market page and ECB key rates are fetched from the official ECB key-rates page
 - ECB main refi, marginal lending, and deposit rates are exposed; deposit remains the EUR benchmark for the rate differential
 - Retail sentiment auto-fetches from the OANDA EUR/USD position book when available
+- Closed trades now generate both:
+  - structured feedback stored directly into the feedback RAG collection
+  - readable markdown review notes in `feedback/`
 
 ---
 

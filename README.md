@@ -33,11 +33,12 @@ trading_system/
 │   ├── ict/              ← ICT transcripts (TXT files)
 │   ├── research/         ← BIS, Fed, SSRN papers (PDFs)
 │   ├── cot/              ← COT notes
-│   └── journal/          ← Your trading journal entries
+│   └── journal/          ← Your manual trading journal entries
 │
 ├── chroma_db/            ← Vector database (auto-created, do not edit)
 ├── logs/                 ← Trade logs, agent decisions (auto-created)
-└── journal/              ← Feedback memory (auto-created)
+├── journal/              ← Reserved top-level journal directory
+└── feedback/             ← Auto-generated markdown trade review notes
 ```
 
 ---
@@ -216,10 +217,14 @@ Every 30 minutes:
    Everything logged to:
    - logs/agent_decisions.jsonl (full analysis log)
    - logs/trades.csv (trade outcomes)
+   - logs/closed_trades.jsonl (structured closed-trade records)
+   - logs/signal_*.json / logs/test_signal_*.json (signal payloads, including Claude failures)
 
 6. FEEDBACK LOOP
    After each trade closes, outcome is stored back into RAG.
    Agent builds a memory of its own successes and failures.
+   A readable markdown trade review is also written to:
+   - feedback/feedback_YYYYMMDD_HHMMSS_pair_session_outcome.md
 ```
 
 ---
