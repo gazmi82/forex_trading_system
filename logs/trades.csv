@@ -1,1 +1,2 @@
 timestamp,order_id,trade_id,instrument,direction,units,entry_price,stop_loss,tp1,tp2,status,pnl,notes
+2026-03-14,EUR_USD,SELL,1.145,,1.148,1.139,10000,LOSS,-1.0,-100.0,2.5,NY Kill Zone,72,Manual test lesson: avoid late entries after displacement.
