@@ -637,6 +637,15 @@ class MarketDataBuilder:
         now_utc  = datetime.now(timezone.utc)
         now_et   = now_utc.astimezone(zoneinfo.ZoneInfo("America/New_York"))
         hour_est = now_et.hour   # Correct for both EST (UTC-5) and EDT (UTC-4)
+        weekday_name = now_et.strftime("%A")
+
+        if now_et.weekday() >= 5:
+            return {
+                "active_session": "Weekend",
+                "kill_zone_active": f"NO — Weekend market closed ({weekday_name})",
+                "hour_est": hour_est,
+                "trade_window_active": False,
+            }
 
         if 3 <= hour_est < 4:
             session = "London Kill Zone"

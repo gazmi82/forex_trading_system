@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
@@ -16,7 +16,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel
 
 from config import LOGS_DIR, TRADING_CONFIG
-from main import get_demo_loop_schedule, write_signal_log
+from main import get_demo_loop_schedule_state, get_next_entry_window_start_ny, write_signal_log
 from oanda_connector import MarketDataBuilder, OANDAClient
 
 
@@ -51,6 +51,9 @@ class SchedulerStatusResponse(BaseModel):
     next_poll_seconds: int
     next_entry_window_start_ny: str | None
     trade_window_active: bool
+    runtime_mode: Literal["ENTRY_ANALYSIS", "MONITOR_ONLY", "MONITOR_OPEN_TRADES", "WEEKEND_BLOCK"]
+    trade_management_active: bool
+    open_trades_count: int
 
 
 class LogEnvelope(BaseModel):
@@ -274,39 +277,24 @@ def _feed_diagnostics(snapshot: dict[str, Any]) -> dict[str, Any]:
         },
     }
 
-
-def _next_entry_window_start_ny(now_ny: datetime, analysis_allowed_now: bool) -> str | None:
-    if analysis_allowed_now:
-        return None
-
-    candidate = now_ny.replace(second=0, microsecond=0)
-    for day_offset in range(0, 8):
-        day = candidate + timedelta(days=day_offset)
-        if day.weekday() >= 5:
-            continue
-        for hour in (3, 8):
-            slot = day.replace(hour=hour, minute=0)
-            if slot > now_ny:
-                return slot.isoformat()
-    return None
-
-
 def _scheduler_status(snapshot: dict[str, Any]) -> SchedulerStatusResponse:
-    run_entry_analysis, session, sleep_seconds, schedule_reason = get_demo_loop_schedule(snapshot)
     now_utc = _utc_now()
     now_ny = _ny_now()
-    fund = snapshot.get("fundamental", {})
+    schedule = get_demo_loop_schedule_state(snapshot, now_ny=now_ny)
 
     return SchedulerStatusResponse(
         utc_time=now_utc.isoformat(),
         new_york_time=now_ny.isoformat(),
         weekday=now_ny.strftime("%A"),
-        session=session,
-        analysis_allowed_now=run_entry_analysis,
-        schedule_reason=schedule_reason,
-        next_poll_seconds=sleep_seconds,
-        next_entry_window_start_ny=_next_entry_window_start_ny(now_ny, run_entry_analysis),
-        trade_window_active=bool(fund.get("trade_window_active")),
+        session=schedule["session"],
+        analysis_allowed_now=schedule["analysis_allowed_now"],
+        schedule_reason=schedule["schedule_reason"],
+        next_poll_seconds=schedule["next_poll_seconds"],
+        next_entry_window_start_ny=get_next_entry_window_start_ny(now_ny, schedule["analysis_allowed_now"]),
+        trade_window_active=schedule["trade_window_active"],
+        runtime_mode=schedule["runtime_mode"],
+        trade_management_active=schedule["trade_management_active"],
+        open_trades_count=schedule["open_trades_count"],
     )
 
 
