@@ -173,7 +173,13 @@ Notes:
 - `/api/dashboard/summary` is the easiest first frontend endpoint because it combines scheduler, live snapshot, diagnostics, latest signal, and open trades.
 
 ### Step 8 — Publish the API Over HTTPS
-The API already exposes the frontend contract. To make it publicly reachable:
+The API already exposes the frontend contract. It is now deployed publicly on Render at:
+
+```text
+https://forex-trading-system.onrender.com
+```
+
+For local startup or manual verification:
 
 ```bash
 python3 api_server.py
@@ -183,12 +189,23 @@ Production env vars:
 
 ```text
 APP_ENV=production
-PUBLIC_API_BASE_URL=https://your-public-backend-url
+PUBLIC_API_BASE_URL=https://forex-trading-system.onrender.com
 FRONTEND_ORIGINS=https://style-whisperer-87.lovable.app
-API_TRUSTED_HOSTS=your-public-backend-url-hostname
+API_TRUSTED_HOSTS=forex-trading-system.onrender.com
 ```
 
-This repo includes [`render.yaml`](/Users/gazmirsulcaj/forex_trading_system/render.yaml) for a Render deployment and [`PUBLIC_API_DEPLOYMENT.md`](/Users/gazmirsulcaj/forex_trading_system/PUBLIC_API_DEPLOYMENT.md) for the full handoff checklist.
+Frontend integration uses:
+
+```text
+VITE_API_BASE_URL=https://forex-trading-system.onrender.com
+```
+
+Important:
+- local frontend development may still use `http://127.0.0.1:8000`
+- the hosted Lovable frontend must not use `127.0.0.1`
+- if the hosted frontend console shows requests to `127.0.0.1`, the frontend env var was not applied or the app was not redeployed
+
+This repo includes [`render.yaml`](/Users/gazmirsulcaj/forex_trading_system/render.yaml) for Render deployment and [`PUBLIC_API_DEPLOYMENT.md`](/Users/gazmirsulcaj/forex_trading_system/PUBLIC_API_DEPLOYMENT.md) for backend deployment checks. The frontend public API handoff has been exported locally to `/Users/gazmirsulcaj/Downloads/FRONTEND_PUBLIC_API_INTEGRATION.md`.
 
 ---
 
