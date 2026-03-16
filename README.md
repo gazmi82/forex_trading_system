@@ -147,7 +147,7 @@ If the frontend is deployed outside localhost, allow extra origins with:
 export FRONTEND_ORIGINS="https://your-frontend.example.com,https://another.example.com"
 ```
 
-Lovable frontend domains under `https://*.lovable.app` are allowed by default.
+The deployed frontend `https://style-whisperer-87.lovable.app` is allowed by default. Add any additional frontend hosts through `FRONTEND_ORIGINS`.
 
 Key first-version endpoints:
 
@@ -171,6 +171,24 @@ Notes:
 - `/api/status/scheduler` uses the same Monday-Friday and kill-zone gate as the runtime.
 - `/api/signals/latest` returns the latest saved `signal_*.json`.
 - `/api/dashboard/summary` is the easiest first frontend endpoint because it combines scheduler, live snapshot, diagnostics, latest signal, and open trades.
+
+### Step 8 — Publish the API Over HTTPS
+The API already exposes the frontend contract. To make it publicly reachable:
+
+```bash
+python3 api_server.py
+```
+
+Production env vars:
+
+```text
+APP_ENV=production
+PUBLIC_API_BASE_URL=https://your-public-backend-url
+FRONTEND_ORIGINS=https://style-whisperer-87.lovable.app
+API_TRUSTED_HOSTS=your-public-backend-url-hostname
+```
+
+This repo includes [`render.yaml`](/Users/gazmirsulcaj/forex_trading_system/render.yaml) for a Render deployment and [`PUBLIC_API_DEPLOYMENT.md`](/Users/gazmirsulcaj/forex_trading_system/PUBLIC_API_DEPLOYMENT.md) for the full handoff checklist.
 
 ---
 

@@ -7,10 +7,12 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel
 
 from config import LOGS_DIR, TRADING_CONFIG
@@ -23,15 +25,19 @@ DEFAULT_CORS_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://style-whisperer-87.lovable.app",
 ]
 
 
 class HealthResponse(BaseModel):
     status: str
     service: str
+    environment: str
     utc_time: str
+    public_api_base_url: str | None
     oanda_configured: bool
     anthropic_configured: bool
+    allowed_origins: list[str]
     log_files: dict[str, int]
 
 
@@ -53,25 +59,67 @@ class LogEnvelope(BaseModel):
     data: dict[str, Any]
 
 
+def _split_csv_env(name: str) -> list[str]:
+    value = os.getenv(name, "")
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
 def _cors_origins() -> list[str]:
-    extra_origins = os.getenv("FRONTEND_ORIGINS", "")
-    configured = [origin.strip() for origin in extra_origins.split(",") if origin.strip()]
-    return DEFAULT_CORS_ORIGINS + configured
+    configured = _split_csv_env("FRONTEND_ORIGINS")
+    origins: list[str] = []
+    for origin in DEFAULT_CORS_ORIGINS + configured:
+        if origin not in origins:
+            origins.append(origin)
+    return origins
+
+
+def _public_api_base_url() -> str | None:
+    candidates = [
+        os.getenv("PUBLIC_API_BASE_URL", "").strip(),
+        os.getenv("RENDER_EXTERNAL_URL", "").strip(),
+    ]
+    external_host = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
+    if external_host:
+        candidates.append(f"https://{external_host}")
+
+    for candidate in candidates:
+        if candidate:
+            return candidate.rstrip("/")
+    return None
+
+
+def _trusted_hosts() -> list[str]:
+    configured = _split_csv_env("API_TRUSTED_HOSTS")
+    if configured:
+        return configured
+
+    hosts = {"localhost", "127.0.0.1"}
+    public_base_url = _public_api_base_url()
+    if public_base_url:
+        parsed = urlparse(public_base_url)
+        if parsed.hostname:
+            hosts.add(parsed.hostname)
+    return sorted(hosts)
 
 
 app = FastAPI(
     title="Forex Trading System API",
     version="0.1.0",
     description="Read-only REST API for the first frontend version.",
+    root_path=os.getenv("API_ROOT_PATH", "").strip(),
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins(),
-    allow_origin_regex=r"https://.*\.lovable\.app",
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+)
+
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=_trusted_hosts(),
 )
 
 
@@ -275,9 +323,12 @@ def health() -> HealthResponse:
     return HealthResponse(
         status="ok",
         service="forex-trading-system-api",
+        environment=os.getenv("APP_ENV", "development"),
         utc_time=_utc_now().isoformat(),
+        public_api_base_url=_public_api_base_url(),
         oanda_configured=bool(os.getenv("OANDA_API_KEY")) and bool(os.getenv("OANDA_ACCOUNT_ID")),
         anthropic_configured=bool(os.getenv("ANTHROPIC_API_KEY")),
+        allowed_origins=_cors_origins(),
         log_files={
             "signals": len(list(LOGS_DIR.glob("signal_*.json"))),
             "test_signals": len(list(LOGS_DIR.glob("test_signal_*.json"))),
@@ -416,3 +467,15 @@ def log_test_failure(signal: dict[str, Any]) -> dict[str, str]:
     """
     output = write_signal_log(signal, prefix="signal")
     return {"logged_to": str(output)}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "api_server:app",
+        host=os.getenv("API_HOST", "0.0.0.0"),
+        port=int(os.getenv("PORT", os.getenv("API_PORT", "8000"))),
+        proxy_headers=True,
+        forwarded_allow_ips=os.getenv("FORWARDED_ALLOW_IPS", "*"),
+    )
