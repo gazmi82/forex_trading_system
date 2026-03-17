@@ -56,17 +56,10 @@ class IndicatorCalculator:
 
     @staticmethod
     def _adx(df: pd.DataFrame, period: int = 14) -> float:
-        high, low, close = df["high"], df["low"], df["close"]
-        tr = pd.concat(
-            [
-                high - low,
-                (high - close.shift()).abs(),
-                (low - close.shift()).abs(),
-            ],
-            axis=1,
-        ).max(axis=1)
-
-        dm_plus = (high.diff()).clip(lower=0)
+        tr = IndicatorCalculator._true_range(df)
+        high = df["high"]
+        low = df["low"]
+        dm_plus = high.diff().clip(lower=0)
         dm_minus = (-low.diff()).clip(lower=0)
 
         tr_smooth = tr.rolling(period).mean()
@@ -82,8 +75,16 @@ class IndicatorCalculator:
 
     @staticmethod
     def _atr(df: pd.DataFrame, period: int = 14) -> float:
-        high, low, close = df["high"], df["low"], df["close"]
-        tr = pd.concat(
+        tr = IndicatorCalculator._true_range(df)
+        atr = tr.rolling(period).mean()
+        return round(atr.iloc[-1], 5)
+
+    @staticmethod
+    def _true_range(df: pd.DataFrame) -> pd.Series:
+        high = df["high"]
+        low = df["low"]
+        close = df["close"]
+        return pd.concat(
             [
                 high - low,
                 (high - close.shift()).abs(),
@@ -91,8 +92,6 @@ class IndicatorCalculator:
             ],
             axis=1,
         ).max(axis=1)
-        atr = tr.rolling(period).mean()
-        return round(atr.iloc[-1], 5)
 
     @staticmethod
     def _regime(adx: float, atr: float, price: float) -> str:
@@ -103,22 +102,30 @@ class IndicatorCalculator:
 
     @staticmethod
     def _resistance(df: pd.DataFrame, lookback: int = 50) -> list:
-        highs = df["high"].tail(lookback)
-        levels = []
-        for i in range(2, len(highs) - 2):
-            if highs.iloc[i] == highs.iloc[i - 2:i + 3].max():
-                levels.append(round(highs.iloc[i], 4))
-        levels = sorted(set(levels), reverse=True)
-        return levels[:3]
+        return IndicatorCalculator._swing_levels(
+            df["high"].tail(lookback),
+            selector=max,
+            reverse=True,
+        )
 
     @staticmethod
     def _support(df: pd.DataFrame, lookback: int = 50) -> list:
-        lows = df["low"].tail(lookback)
+        return IndicatorCalculator._swing_levels(
+            df["low"].tail(lookback),
+            selector=min,
+            reverse=False,
+        )
+
+    @staticmethod
+    def _swing_levels(series: pd.Series, *, selector, reverse: bool) -> list:
         levels = []
-        for i in range(2, len(lows) - 2):
-            if lows.iloc[i] == lows.iloc[i - 2:i + 3].min():
-                levels.append(round(lows.iloc[i], 4))
+        for i in range(2, len(series) - 2):
+            window = series.iloc[i - 2:i + 3]
+            if series.iloc[i] == selector(window):
+                levels.append(round(series.iloc[i], 4))
         levels = sorted(set(levels))
+        if reverse:
+            levels.reverse()
         return levels[:3]
 
     @staticmethod

@@ -205,8 +205,6 @@ def _fetch_fed_target_range() -> dict | None:
         "usd_as_of": as_of,
     }
 
-    return None
-
 
 def _fetch_ecb_key_rates() -> dict | None:
     response = requests.get(

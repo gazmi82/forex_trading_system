@@ -25,7 +25,6 @@ import logging
 import argparse
 from pathlib import Path
 from datetime import datetime
-from typing import Any
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,7 +41,7 @@ logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
-from app.analysis.scheduler import get_demo_loop_schedule, get_demo_loop_schedule_state
+from app.analysis.scheduler import get_demo_loop_schedule
 from app.logs.signal_logs import write_signal_log
 
 

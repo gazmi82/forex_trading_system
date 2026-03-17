@@ -123,7 +123,6 @@ TRADING_CONFIG = {
     "tp1_close_percent":    0.50,       # Close 50% at TP1
     "tp2_trail":            True,       # Trail remaining position to TP2
     "time_stop_hours":      8,          # Close if -0.5R after N hours
-    "min_rr_ratio":         2.0,        # Minimum Risk:Reward to take trade
 
     # Session filter (EST times)
     "trade_sessions": {
@@ -137,7 +136,7 @@ TRADING_CONFIG = {
 
     # Signal thresholds (mirrored from AGENT_CONFIG for executor access)
     "min_confidence":       65,         # Below this → never execute
-    "min_rr_ratio":         2.0,        # Below this → never execute
+    "min_rr_ratio":         2.0,        # Shared minimum R:R for analysis and execution
 
     # Demo mode
     "demo_mode":            True,       # ALWAYS start True, change after 12 months

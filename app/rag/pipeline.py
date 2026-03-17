@@ -10,9 +10,7 @@
 # Install: pip install chromadb sentence-transformers pypdf2 python-docx
 # =============================================================================
 
-import os
 import re
-import json
 import hashlib
 import logging
 from pathlib import Path
