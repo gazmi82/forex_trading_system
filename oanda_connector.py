@@ -16,6 +16,7 @@
 import os
 import time
 import logging
+from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 import numpy as np
 from datetime import datetime, timezone
@@ -523,24 +524,28 @@ class MarketDataBuilder:
         """
         print(f"\n📡 Fetching live data for {pair}...")
 
-        # Fetch candles for all timeframes
-        print("  Fetching 4H candles...")
-        df_4h    = self.client.get_candles(pair, "H4",  count=200)
+        print("  Fetching candles, price, and account state in parallel...")
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = {
+                "df_4h": executor.submit(self.client.get_candles, pair, "H4", count=200),
+                "df_1h": executor.submit(self.client.get_candles, pair, "H1", count=200),
+                "df_15m": executor.submit(self.client.get_candles, pair, "M15", count=200),
+                "df_daily": executor.submit(self.client.get_candles, pair, "D", count=200),
+                "df_weekly": executor.submit(self.client.get_candles, pair, "W", count=52),
+                "price_data": executor.submit(self.client.get_current_price, pair),
+                "account": executor.submit(self.client.get_account_summary),
+                "open_trades": executor.submit(self.client.get_open_trades),
+            }
 
-        print("  Fetching 1H candles...")
-        df_1h    = self.client.get_candles(pair, "H1",  count=200)
+            df_4h = futures["df_4h"].result()
+            df_1h = futures["df_1h"].result()
+            df_15m = futures["df_15m"].result()
+            df_daily = futures["df_daily"].result()
+            df_weekly = futures["df_weekly"].result()
+            price_data = futures["price_data"].result()
+            account = futures["account"].result()
+            open_trades = futures["open_trades"].result()
 
-        print("  Fetching 15M candles...")
-        df_15m   = self.client.get_candles(pair, "M15", count=200)
-
-        print("  Fetching Daily candles...")
-        df_daily = self.client.get_candles(pair, "D",   count=200)
-
-        print("  Fetching Weekly candles...")
-        df_weekly = self.client.get_candles(pair, "W",  count=52)
-
-        # Current price
-        price_data = self.client.get_current_price(pair)
         current_price = price_data["mid"]
         print(f"  Current price: {current_price} (spread: {price_data['spread_pips']} pips)")
 
@@ -584,12 +589,10 @@ class MarketDataBuilder:
         # Session detection
         session_info = self._get_session_info()
 
-        # Fundamental data — DXY, calendar, and news are live-fetched where available
+        # Fundamental fan-out is parallelized inside get_auto_fundamentals().
         fundamental = self._get_fundamental_data(session_info, ohlcv)
 
         # Portfolio state from OANDA
-        account = self.client.get_account_summary()
-        open_trades = self.client.get_open_trades()
         equity = account_equity or account["equity"]
 
         open_risk_pct = 0.0

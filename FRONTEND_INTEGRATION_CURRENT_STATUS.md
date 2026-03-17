@@ -71,6 +71,9 @@ This is the easiest combined endpoint because it returns:
 - latest signal
 - open trades
 
+`refresh_live=true` now triggers a background refresh and returns the latest
+cached snapshot immediately when one is already available.
+
 ### Scheduler card
 
 Do not use stale dashboard data as the only scheduler source.
@@ -83,6 +86,8 @@ Reason:
 - the scheduler card must show fresh New York time
 - the session must match the current backend state
 - this avoids stale mixed state like `London Session (Sunday)`
+- `refresh=true` now means background refresh + immediate cached response, not
+  a blocking full rebuild
 
 Recommended polling:
 

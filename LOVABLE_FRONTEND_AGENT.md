@@ -910,6 +910,9 @@ Use this for:
 
 Provide one consolidated payload for the dashboard screen.
 
+When `refresh_live=true`, the backend now triggers a background refresh and
+returns the latest cached snapshot immediately when one is available.
+
 ### Response
 
 ```ts

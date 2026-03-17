@@ -37,6 +37,7 @@ import logging
 import os
 import re
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -904,8 +905,34 @@ def get_auto_fundamentals(
       1. Auto-fetched    (rates / yfinance / CFTC / Forex Factory / OANDA / news feeds)
       2. MANUAL_CHECK    (live source unavailable — user must intervene)
     """
+    def _resolve_future(name: str, future) -> dict:
+        try:
+            result = future.result()
+        except Exception as exc:
+            logger.warning(f"{name} fetch raised unexpectedly: {exc}")
+            return {}
+        return result or {}
+
+    with ThreadPoolExecutor(max_workers=7) as executor:
+        futures = {
+            "rates": executor.submit(fetch_policy_rates),
+            "dxy": executor.submit(fetch_dxy),
+            "cot": executor.submit(fetch_cot_eur),
+            "calendar": executor.submit(fetch_next_calendar_event),
+            "news": executor.submit(fetch_recent_fx_headline),
+            "retail_sentiment": executor.submit(fetch_retail_sentiment),
+            "risk_sentiment": executor.submit(fetch_risk_sentiment),
+        }
+
+        rates = _resolve_future("policy rates", futures["rates"])
+        dxy = _resolve_future("dxy", futures["dxy"])
+        cot = _resolve_future("cot", futures["cot"])
+        calendar = _resolve_future("calendar", futures["calendar"])
+        news = _resolve_future("news", futures["news"])
+        sentiment_data = _resolve_future("retail sentiment", futures["retail_sentiment"])
+        risk = _resolve_future("risk sentiment", futures["risk_sentiment"])
+
     # ---- Policy rates ----
-    rates = fetch_policy_rates()
     if rates:
         usd_rate = rates["usd_rate"]
         fed_target_lower_rate = rates["fed_target_lower_rate"]
@@ -931,7 +958,6 @@ def get_auto_fundamentals(
         rates_source = "unavailable"
 
     # ---- DXY ----
-    dxy = fetch_dxy()
     if dxy:
         dxy_direction = dxy["direction"]
         dxy_lvl_str = str(dxy["level"])
@@ -940,7 +966,6 @@ def get_auto_fundamentals(
         dxy_lvl_str = "MANUAL_CHECK — verify yfinance/network access"
 
     # ---- COT ----
-    cot = fetch_cot_eur()
     if cot:
         cot_bias = cot["bias"]
         cot_net = (f"Asset Mgr: {cot['net_str']} | "
@@ -950,7 +975,6 @@ def get_auto_fundamentals(
         cot_net = "MANUAL_CHECK — verify cftc.gov access or Friday report availability"
 
     # ---- Calendar ----
-    calendar = fetch_next_calendar_event()
     if calendar:
         next_event_name = calendar.get("next_event_name", "")
         next_news_event = calendar.get("next_news_event", next_event_name)
@@ -963,21 +987,18 @@ def get_auto_fundamentals(
         news_risk = "HIGH"
 
     # ---- News ----
-    news = fetch_recent_fx_headline()
     if news:
         recent_headline = news["headline"]
     else:
         recent_headline = "MANUAL_CHECK — set FINNHUB_API_KEY or NEWS_API_KEY for live headlines"
 
     # ---- Retail sentiment ----
-    sentiment_data = fetch_retail_sentiment()
     if sentiment_data:
         sentiment = sentiment_data["sentiment"]
     else:
         sentiment = "MANUAL_CHECK — OANDA position book unavailable; verify OANDA_API_KEY/access"
 
     # ---- Risk sentiment ----
-    risk = fetch_risk_sentiment()
     if risk:
         risk_sentiment = risk["risk_sentiment"]
     else:

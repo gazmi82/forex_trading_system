@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import csv
 import json
+import logging
 import os
+import threading
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,6 +32,16 @@ DEFAULT_CORS_ORIGINS = [
     "https://style-whisperer-87.lovable.app",
 ]
 SIGNAL_STALE_AFTER_SECONDS = int(os.getenv("SIGNAL_STALE_AFTER_SECONDS", "3600"))
+LIVE_SNAPSHOT_BACKGROUND_REFRESH_SECONDS = int(
+    os.getenv("LIVE_SNAPSHOT_BACKGROUND_REFRESH_SECONDS", "30")
+)
+
+logger = logging.getLogger(__name__)
+_snapshot_cache_lock = threading.Lock()
+_snapshot_refresh_lock = threading.Lock()
+_snapshot_stop_event = threading.Event()
+_snapshot_background_thread: threading.Thread | None = None
+_snapshot_cache_data: dict[str, Any] | None = None
 
 
 class HealthResponse(BaseModel):
@@ -111,11 +124,22 @@ def _trusted_hosts() -> list[str]:
     return sorted(hosts)
 
 
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    _load_snapshot_from_disk_into_cache()
+    _start_snapshot_background_refresh()
+    try:
+        yield
+    finally:
+        _stop_snapshot_background_refresh()
+
+
 app = FastAPI(
     title="Forex Trading System API",
     version="0.1.0",
     description="Read-only REST API for the first frontend version.",
     root_path=os.getenv("API_ROOT_PATH", "").strip(),
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -162,6 +186,10 @@ def _latest_signal_file(kind: Literal["signal", "test_signal"]) -> Path | None:
         return (recorded_at.timestamp(), modified_at.timestamp())
 
     return max(matches, key=_sort_key)
+
+
+def _latest_snapshot_file() -> Path | None:
+    return _latest_file("live_data_check_*.json")
 
 
 def _load_jsonl_tail(path: Path, limit: int) -> list[dict[str, Any]]:
@@ -222,15 +250,113 @@ def _build_live_snapshot(*, persist: bool = False) -> dict[str, Any]:
     return snapshot
 
 
+def _cache_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
+    global _snapshot_cache_data
+    with _snapshot_cache_lock:
+        _snapshot_cache_data = snapshot
+    return snapshot
+
+
+def _cached_snapshot() -> dict[str, Any] | None:
+    with _snapshot_cache_lock:
+        if _snapshot_cache_data is None:
+            return None
+        return dict(_snapshot_cache_data)
+
+
+def _load_snapshot_from_disk_into_cache() -> dict[str, Any] | None:
+    latest = _latest_snapshot_file()
+    if latest is None:
+        return None
+    snapshot = _read_json(latest)
+    return _cache_snapshot(snapshot)
+
+
+def _refresh_snapshot_cache(*, persist: bool = False) -> dict[str, Any] | None:
+    if not _snapshot_refresh_lock.acquire(blocking=False):
+        return None
+
+    try:
+        snapshot = _build_live_snapshot(persist=persist)
+    except Exception as exc:
+        logger.warning(f"Background live snapshot refresh failed: {exc}")
+        return None
+    else:
+        return _cache_snapshot(snapshot)
+    finally:
+        _snapshot_refresh_lock.release()
+
+
+def _start_snapshot_refresh_async(*, persist: bool = False) -> None:
+    if _snapshot_refresh_lock.locked():
+        return
+
+    thread = threading.Thread(
+        target=_refresh_snapshot_cache,
+        kwargs={"persist": persist},
+        daemon=True,
+        name="live-snapshot-refresh",
+    )
+    thread.start()
+
+
+def _snapshot_refresh_loop() -> None:
+    while not _snapshot_stop_event.is_set():
+        _refresh_snapshot_cache(persist=False)
+        _snapshot_stop_event.wait(LIVE_SNAPSHOT_BACKGROUND_REFRESH_SECONDS)
+
+
+def _start_snapshot_background_refresh() -> None:
+    global _snapshot_background_thread
+    if not os.getenv("OANDA_API_KEY", "").strip() or not os.getenv("OANDA_ACCOUNT_ID", "").strip():
+        logger.info("Skipping background live snapshot refresh: OANDA credentials not configured")
+        return
+
+    if _snapshot_background_thread and _snapshot_background_thread.is_alive():
+        return
+
+    _snapshot_stop_event.clear()
+    _snapshot_background_thread = threading.Thread(
+        target=_snapshot_refresh_loop,
+        daemon=True,
+        name="live-snapshot-background",
+    )
+    _snapshot_background_thread.start()
+
+
+def _stop_snapshot_background_refresh() -> None:
+    global _snapshot_background_thread
+    _snapshot_stop_event.set()
+    if _snapshot_background_thread and _snapshot_background_thread.is_alive():
+        _snapshot_background_thread.join(timeout=1)
+    _snapshot_background_thread = None
+
+
 def _get_live_snapshot(*, refresh: bool, persist: bool = False) -> dict[str, Any]:
+    cached = _cached_snapshot()
+
     if refresh:
-        return _build_live_snapshot(persist=persist)
+        if cached is not None:
+            _start_snapshot_refresh_async(persist=persist)
+            return cached
 
-    latest = _latest_file("live_data_check_*.json")
-    if latest is not None:
-        return _read_json(latest)
+        persisted = _load_snapshot_from_disk_into_cache()
+        if persisted is not None:
+            _start_snapshot_refresh_async(persist=persist)
+            return persisted
 
-    return _build_live_snapshot(persist=persist)
+        snapshot = _build_live_snapshot(persist=persist)
+        return _cache_snapshot(snapshot)
+
+    if cached is not None:
+        return cached
+
+    persisted = _load_snapshot_from_disk_into_cache()
+    if persisted is not None:
+        return persisted
+
+    snapshot = _build_live_snapshot(persist=persist)
+    return _cache_snapshot(snapshot)
 
 
 def _serialize_candles(df: Any) -> list[dict[str, Any]]:
@@ -361,8 +487,8 @@ def health() -> HealthResponse:
 
 @app.get("/api/live/snapshot")
 def live_snapshot(
-    refresh: bool = Query(True, description="Build a fresh live snapshot from OANDA and live feeds"),
-    persist: bool = Query(False, description="Persist the refreshed snapshot into logs/live_data_check_*.json"),
+    refresh: bool = Query(True, description="Trigger a background refresh and return the latest available snapshot"),
+    persist: bool = Query(False, description="Persist the next refreshed snapshot into logs/live_data_check_*.json"),
 ) -> dict[str, Any]:
     return _get_live_snapshot(refresh=refresh, persist=persist)
 
@@ -393,7 +519,7 @@ def market_candles(
 
 @app.get("/api/status/scheduler", response_model=SchedulerStatusResponse)
 def scheduler_status(
-    refresh: bool = Query(True, description="Refresh live snapshot before computing scheduler state"),
+    refresh: bool = Query(True, description="Trigger a background snapshot refresh before computing scheduler state"),
 ) -> SchedulerStatusResponse:
     snapshot = _get_live_snapshot(refresh=refresh, persist=False)
     return _scheduler_status(snapshot)
@@ -401,7 +527,7 @@ def scheduler_status(
 
 @app.get("/api/diagnostics/feeds")
 def feed_diagnostics(
-    refresh: bool = Query(False, description="Refresh live snapshot before feed diagnostics"),
+    refresh: bool = Query(False, description="Trigger a background snapshot refresh before feed diagnostics"),
 ) -> dict[str, Any]:
     snapshot = _get_live_snapshot(refresh=refresh, persist=False)
     return {
@@ -465,7 +591,7 @@ def latest_decisions(limit: int = Query(20, ge=1, le=200)) -> dict[str, Any]:
 
 @app.get("/api/dashboard/summary")
 def dashboard_summary(
-    refresh_live: bool = Query(False, description="Refresh live snapshot before composing dashboard summary"),
+    refresh_live: bool = Query(False, description="Trigger a background snapshot refresh before composing dashboard summary"),
 ) -> dict[str, Any]:
     now_utc = _utc_now()
     snapshot = _get_live_snapshot(refresh=refresh_live, persist=False)
