@@ -332,6 +332,16 @@ def _stop_snapshot_background_refresh() -> None:
     _snapshot_background_thread = None
 
 
+def _snapshot_warming_http_error() -> HTTPException:
+    return HTTPException(
+        status_code=503,
+        detail=(
+            "Live snapshot warming up in background. "
+            "Retry shortly; no cached snapshot is available yet."
+        ),
+    )
+
+
 def _get_live_snapshot(*, refresh: bool, persist: bool = False) -> dict[str, Any]:
     cached = _cached_snapshot()
 
@@ -345,8 +355,8 @@ def _get_live_snapshot(*, refresh: bool, persist: bool = False) -> dict[str, Any
             _start_snapshot_refresh_async(persist=persist)
             return persisted
 
-        snapshot = _build_live_snapshot(persist=persist)
-        return _cache_snapshot(snapshot)
+        _start_snapshot_refresh_async(persist=persist)
+        raise _snapshot_warming_http_error()
 
     if cached is not None:
         return cached
@@ -355,8 +365,8 @@ def _get_live_snapshot(*, refresh: bool, persist: bool = False) -> dict[str, Any
     if persisted is not None:
         return persisted
 
-    snapshot = _build_live_snapshot(persist=persist)
-    return _cache_snapshot(snapshot)
+    _start_snapshot_refresh_async(persist=persist)
+    raise _snapshot_warming_http_error()
 
 
 def _serialize_candles(df: Any) -> list[dict[str, Any]]:
