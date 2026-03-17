@@ -134,6 +134,10 @@ The app should look like a control room for a running system, not like a brochur
 
 Current backend file:
 
+- [app/api/server.py](/Users/gazmirsulcaj/forex_trading_system/app/api/server.py)
+
+Public entrypoint wrapper:
+
 - [api_server.py](/Users/gazmirsulcaj/forex_trading_system/api_server.py)
 
 Framework:

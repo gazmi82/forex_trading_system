@@ -20,13 +20,24 @@ finds and injects the most relevant knowledge passages into Claude's context.
 
 ```
 trading_system/
-├── main.py               ← Entry point — run this
-├── config.py             ← All settings (pairs, risk, RAG config)
-├── rag_pipeline.py       ← RAG: ingest PDFs, embed, store, retrieve
+├── main.py               ← Thin CLI entry point — run this
+├── api_server.py         ← Thin FastAPI entry point
+├── config.py             ← Compatibility shim to app/core/config.py
+├── rag_pipeline.py       ← Compatibility shim to app/rag/pipeline.py
 ├── pdf_to_markdown.py    ← Convert PDFs into cleaned Markdown for RAG
-├── agent_runner.py       ← Agent: Option 1 + Option 2 + Claude API
-├── fundamentals_fetcher.py ← Live fundamentals: DXY, COT, calendar, headlines
+├── agent_runner.py       ← Compatibility shim to app/analysis/agent.py
+├── fundamentals_fetcher.py ← Compatibility shim to app/fundamentals/fetcher.py
 ├── requirements.txt      ← All dependencies
+├── app/
+│   ├── analysis/         ← Agent, scheduler, market analysis
+│   ├── api/              ← FastAPI implementation
+│   ├── brokers/          ← OANDA live market/account layer
+│   ├── cli/              ← Main runtime/CLI implementation
+│   ├── core/             ← Shared config/bootstrap helpers
+│   ├── execution/        ← Trade execution + monitoring
+│   ├── fundamentals/     ← DXY/COT/calendar/headlines layer
+│   ├── logs/             ← Signal log helpers
+│   └── rag/              ← RAG pipeline implementation
 │
 ├── documents/            ← DROP YOUR FILES HERE
 │   ├── books/            ← Kathy Lien, Mark Douglas PDFs
@@ -140,6 +151,10 @@ First frontend version is exposed through FastAPI:
 ```bash
 uvicorn api_server:app --reload
 ```
+
+Implementation note:
+- `api_server.py` is the public entrypoint
+- the FastAPI implementation lives in `app/api/server.py`
 
 If the frontend is deployed outside localhost, allow extra origins with:
 
@@ -297,7 +312,7 @@ Start with these — all completely free and legal:
 
 The system is configured for 12-month demo trading:
 
-- `demo_mode = True` in config.py (never change this until month 12)
+- `demo_mode = True` in `app/core/config.py` (root `config.py` is only a compatibility shim)
 - All trades are simulated — no real money
 - Full logging active from day 1
 - Feedback loop builds agent memory over time

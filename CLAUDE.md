@@ -55,32 +55,32 @@ These rules are embedded in the system prompt and must NEVER be changed:
 
 ```
 main.py
-├── RAGPipeline (rag_pipeline.py)
+├── RAGPipeline (app/rag/pipeline.py)
 │   ├── ChromaDB vector store (chroma_db/)
 │   ├── all-MiniLM-L6-v2 embeddings (local)
 │   └── 6 collections: books, research, ict, cot, journal, feedback
 │
-├── ForexAnalystAgent (agent_runner.py)
+├── ForexAnalystAgent (app/analysis/agent.py)
 │   ├── Option 1: System prompt (embedded trading knowledge)
 │   ├── Option 2: RAG retrieval (contextual chunks per analysis)
 │   └── Claude API → claude-sonnet-4-20250514
 │
-├── OANDAClient (oanda_connector.py)
+├── OANDAClient (app/brokers/oanda.py)
 │   ├── Live EUR/USD price feed
 │   ├── OHLCV candles (4H, 1H, Daily, Weekly)
 │   └── Account summary + open positions
 │
-├── MarketDataBuilder (oanda_connector.py)
+├── MarketDataBuilder (app/brokers/oanda.py)
 │   ├── IndicatorCalculator (EMA, RSI, ADX, ATR)
 │   ├── MarketStructureAnalyzer (HH/HL, LH/LL)
 │   └── ICT concepts (Order Blocks, FVGs, P/D zones, Liquidity sweeps)
 │
-├── TradeExecutor (trade_executor.py)
+├── TradeExecutor (app/execution/trade_executor.py)
 │   ├── Order validation + sizing
 │   ├── OANDA order placement / monitoring
 │   └── Trade outcome feedback loop
 │
-└── fundamentals_fetcher.py
+└── app/fundamentals/fetcher.py
     ├── DXY intraday signal via Yahoo Finance
     ├── COT positioning via CFTC.gov (weekly, delayed)
     ├── Next high-impact event via Forex Factory
@@ -93,16 +93,26 @@ main.py
 
 ```
 ~/forex_trading_system/
-├── main.py                    ← UPDATED (March 10) — now uses live OANDA data
-├── agent_runner.py            ← Forex Analyst Agent + Claude API integration
-├── rag_pipeline.py            ← RAG pipeline (ChromaDB + embeddings)
-├── oanda_connector.py         ← Live OANDA market + account data
-├── trade_executor.py          ← OANDA execution + monitoring
-├── fundamentals_fetcher.py    ← Live fundamentals layer
-├── capital_connector.py       ← Legacy backup adapter
-├── config.py                  ← Central configuration
+├── main.py                    ← Thin CLI entrypoint
+├── api_server.py              ← Thin FastAPI entrypoint
+├── config.py                  ← Compatibility shim to app/core/config.py
+├── agent_runner.py            ← Compatibility shim to app/analysis/agent.py
+├── rag_pipeline.py            ← Compatibility shim to app/rag/pipeline.py
+├── oanda_connector.py         ← Compatibility shim to app/brokers/oanda.py
+├── trade_executor.py          ← Compatibility shim to app/execution/trade_executor.py
+├── fundamentals_fetcher.py    ← Compatibility shim to app/fundamentals/fetcher.py
 ├── requirements.txt           ← Dependencies
 ├── README.md                  ← Setup guide
+├── app/
+│   ├── analysis/              ← Agent, scheduler, market analysis
+│   ├── api/                   ← FastAPI implementation
+│   ├── brokers/               ← OANDA market/account data
+│   ├── cli/                   ← Runtime CLI implementation
+│   ├── core/                  ← Shared config/bootstrap helpers
+│   ├── execution/             ← Order execution + monitoring
+│   ├── fundamentals/          ← Live fundamentals layer
+│   ├── logs/                  ← Signal log helpers
+│   └── rag/                   ← RAG pipeline implementation
 │
 ├── documents/
 │   ├── books/                 ← Trading books (loaded into RAG)
@@ -186,9 +196,6 @@ python main.py --mode test
 
 # Test single analysis without placing any orders
 python main.py --mode test --dry-run
-
-# Test Capital.com connection only
-python main.py --mode capital
 
 # Ingest new documents into RAG
 python main.py --mode ingest
@@ -350,7 +357,7 @@ Key Weekly Levels to Always Track:
 
 ## OANDA CONNECTOR (March 11, 2026) ✅ ACTIVE
 
-OANDA demo account successfully created — switching from Capital.com to OANDA as primary broker.
+OANDA demo account successfully created and set as the primary broker.
 
 **Account Status:** LIVE DEMO ✅
 - Account ID: `101-001-38764497-001`
@@ -360,7 +367,7 @@ OANDA demo account successfully created — switching from Capital.com to OANDA 
 - Unrealized P/L: $0.00
 - Activated: March 11, 2026
 
-**Connector file:** `oanda_connector.py` (already built and ready)
+**Connector file:** `app/brokers/oanda.py` (`oanda_connector.py` is now a compatibility shim)
 
 **What it does:**
 - Fetches real-time EUR/USD bid/ask/mid/spread
@@ -402,22 +409,11 @@ the system stops and prints actionable warnings. It does not substitute static d
 
 ---
 
-## CAPITAL.COM CONNECTOR (March 10, 2026) — SUPERSEDED
-
-Capital.com connector was built first but OANDA demo account was successfully created
-on March 11, 2026. OANDA is now the primary broker for the demo phase.
-
-**Status:** `capital_connector.py` kept as backup — do not delete.
-**Active connector:** `oanda_connector.py`
-
----
-
 ## NEXT STEPS (Priority Order)
 
 ```
 IMMEDIATE (this week):
-  1. ✅ Build capital_connector.py         — DONE March 10
-  2. ✅ Build oanda_connector.py           — DONE March 10
+  2. ✅ Build OANDA broker layer           — DONE March 10
   3. ✅ Create OANDA demo account          — DONE March 11 ($100k)
   4. ✅ Ingest research papers (21/23)     — DONE March 11 (388 chunks)
   5. ⬜ Generate OANDA API key
@@ -484,7 +480,7 @@ Issue: Trading in Zone OCR killed by memory (all 237 pages at once)
 Fix:   Process in 20-page batches at dpi=150
 Status: ✅ Resolved — 157 chunks loaded
 
-Issue: total_chunks KeyError in rag_pipeline.py
+Issue: total_chunks KeyError in the RAG pipeline
 Fix:   Changed to result.get("total_chunks", 0)
 Status: ✅ Resolved
 
@@ -533,9 +529,9 @@ When working on this project in VS Code, follow these rules:
 5. **Never delete logs/** — every signal is training data
 6. **Never delete chroma_db/** — rebuilding takes 30+ minutes
 7. **Always activate venv first** — `source venv/bin/activate`
-8. **Config changes go in config.py only** — not hardcoded in other files
+8. **Config changes go in app/core/config.py only** — not hardcoded in other files
 9. **New documents go in documents/[category]/** then run --mode ingest
-10. **Keep oanda_connector.py separate** — never merge into main.py
+10. **Keep the OANDA broker layer separate** — never merge `app/brokers/oanda.py` into the CLI entrypoint
 
 ---
 
@@ -566,6 +562,5 @@ Recommended: Add $20-50 to platform.claude.com billing
 Claude API:   platform.claude.com — Gazmir's Individual Org — Default workspace
 OANDA:        oanda.com — demo account ACTIVE ✅ (101-001-38764497-001, $100k)
               → API key still needed: My Account → Manage API Access
-Capital.com:  capital.com — superseded by OANDA, connector kept as backup
 GitHub:       (not set up yet — recommended for version control)
 ```

@@ -7,13 +7,28 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from signal_log_utils import build_signal_log_metadata, infer_recorded_at, parse_utc_datetime
+from app.logs.signal_logs import (
+    build_signal_log_metadata as packaged_build_signal_log_metadata,
+    infer_recorded_at as packaged_infer_recorded_at,
+    write_signal_log as packaged_write_signal_log,
+)
+from signal_log_utils import (
+    build_signal_log_metadata,
+    infer_recorded_at,
+    parse_utc_datetime,
+    write_signal_log,
+)
 
 
 UTC = ZoneInfo("UTC")
 
 
 class SignalLogUtilsTests(unittest.TestCase):
+    def test_root_signal_log_utils_reexports_packaged_helpers(self):
+        self.assertIs(build_signal_log_metadata, packaged_build_signal_log_metadata)
+        self.assertIs(infer_recorded_at, packaged_infer_recorded_at)
+        self.assertIs(write_signal_log, packaged_write_signal_log)
+
     def test_parse_utc_datetime_accepts_z_suffix(self):
         parsed = parse_utc_datetime("2026-03-12T12:04:00Z")
         self.assertEqual(parsed, datetime(2026, 3, 12, 12, 4, tzinfo=UTC))
@@ -59,6 +74,16 @@ class SignalLogUtilsTests(unittest.TestCase):
 
         self.assertFalse(metadata["is_stale"])
         self.assertEqual(metadata["status"], "FAILED")
+
+    def test_write_signal_log_persists_metadata(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output = write_signal_log({"signal": {"confidence": 35}}, log_dir=Path(tmpdir))
+            payload = json.loads(output.read_text())
+
+        self.assertTrue(output.name.startswith("signal_"))
+        self.assertEqual(payload["signal"]["confidence"], 35)
+        self.assertIn("logged_at_utc", payload)
+        self.assertEqual(payload["log_filename"], output.name)
 
 
 if __name__ == "__main__":

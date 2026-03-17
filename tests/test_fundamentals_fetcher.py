@@ -3,17 +3,21 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from fundamentals_fetcher import get_auto_fundamentals
+from app.fundamentals.fetcher import get_auto_fundamentals
+from fundamentals_fetcher import get_auto_fundamentals as root_get_auto_fundamentals
 
 
 class FundamentalsFetcherTests(unittest.TestCase):
-    @patch("fundamentals_fetcher.fetch_risk_sentiment")
-    @patch("fundamentals_fetcher.fetch_retail_sentiment")
-    @patch("fundamentals_fetcher.fetch_recent_fx_headline")
-    @patch("fundamentals_fetcher.fetch_next_calendar_event")
-    @patch("fundamentals_fetcher.fetch_cot_eur")
-    @patch("fundamentals_fetcher.fetch_dxy")
-    @patch("fundamentals_fetcher.fetch_policy_rates")
+    def test_root_fundamentals_fetcher_reexports_packaged_helper(self):
+        self.assertIs(root_get_auto_fundamentals, get_auto_fundamentals)
+
+    @patch("app.fundamentals.fetcher.fetch_risk_sentiment")
+    @patch("app.fundamentals.fetcher.fetch_retail_sentiment")
+    @patch("app.fundamentals.fetcher.fetch_recent_fx_headline")
+    @patch("app.fundamentals.fetcher.fetch_next_calendar_event")
+    @patch("app.fundamentals.fetcher.fetch_cot_eur")
+    @patch("app.fundamentals.fetcher.fetch_dxy")
+    @patch("app.fundamentals.fetcher.fetch_policy_rates")
     def test_get_auto_fundamentals_maps_live_values(
         self,
         mock_rates,
@@ -59,13 +63,13 @@ class FundamentalsFetcherTests(unittest.TestCase):
         self.assertEqual(result["retail_sentiment"], "62% SHORT, 38% LONG")
         self.assertEqual(result["risk_sentiment"], "RISK_OFF")
 
-    @patch("fundamentals_fetcher.fetch_risk_sentiment", return_value={})
-    @patch("fundamentals_fetcher.fetch_retail_sentiment", return_value={})
-    @patch("fundamentals_fetcher.fetch_recent_fx_headline", return_value={})
-    @patch("fundamentals_fetcher.fetch_next_calendar_event", return_value={})
-    @patch("fundamentals_fetcher.fetch_cot_eur", return_value={})
-    @patch("fundamentals_fetcher.fetch_dxy", return_value={})
-    @patch("fundamentals_fetcher.fetch_policy_rates", return_value={})
+    @patch("app.fundamentals.fetcher.fetch_risk_sentiment", return_value={})
+    @patch("app.fundamentals.fetcher.fetch_retail_sentiment", return_value={})
+    @patch("app.fundamentals.fetcher.fetch_recent_fx_headline", return_value={})
+    @patch("app.fundamentals.fetcher.fetch_next_calendar_event", return_value={})
+    @patch("app.fundamentals.fetcher.fetch_cot_eur", return_value={})
+    @patch("app.fundamentals.fetcher.fetch_dxy", return_value={})
+    @patch("app.fundamentals.fetcher.fetch_policy_rates", return_value={})
     def test_get_auto_fundamentals_falls_back_to_manual_check(self, *_mocks):
         result = get_auto_fundamentals()
 

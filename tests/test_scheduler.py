@@ -2,12 +2,16 @@ import unittest
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from main import (
+from app.analysis.scheduler import (
     ENTRY_ANALYSIS_INTERVAL_SECONDS,
     MONITOR_ONLY_INTERVAL_SECONDS,
     OPEN_TRADE_MONITOR_INTERVAL_SECONDS,
     get_next_entry_window_start_ny,
     get_demo_loop_schedule_state,
+)
+from scheduler import (
+    ENTRY_ANALYSIS_INTERVAL_SECONDS as RootEntryAnalysisIntervalSeconds,
+    get_demo_loop_schedule_state as root_get_demo_loop_schedule_state,
 )
 
 
@@ -24,6 +28,13 @@ def _market_data(session: str, trade_window_active: bool, open_trades: int = 0) 
 
 
 class SchedulerStateTests(unittest.TestCase):
+    def test_root_scheduler_reexports_shared_functions(self):
+        self.assertEqual(
+            RootEntryAnalysisIntervalSeconds,
+            ENTRY_ANALYSIS_INTERVAL_SECONDS,
+        )
+        self.assertIs(root_get_demo_loop_schedule_state, get_demo_loop_schedule_state)
+
     def test_midday_low_liquidity_blocks_new_entries(self):
         now_ny = datetime(2026, 3, 16, 12, 21, tzinfo=ZoneInfo("America/New_York"))
         schedule = get_demo_loop_schedule_state(

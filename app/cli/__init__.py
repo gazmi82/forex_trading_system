@@ -25,7 +25,3 @@ __all__ = [
     "setup_executor",
     "setup_oanda",
 ]
-
-
-if __name__ == "__main__":
-    main()
