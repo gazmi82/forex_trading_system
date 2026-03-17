@@ -65,7 +65,9 @@ _NEWS_CACHE_MINUTES       = 10
 _COT_CACHE_HOURS          = 12
 _RISK_CACHE_MINUTES       = 5
 _SENTIMENT_CACHE_MINUTES  = 30
-_RATES_CACHE_HOURS        = 12
+# Policy rates change infrequently, but 2h keeps the dashboard fresher while
+# still avoiding unnecessary scraping on every loop.
+_RATES_CACHE_HOURS        = int(os.getenv("POLICY_RATES_CACHE_HOURS", "2"))
 
 
 def _cache_fresh(cached_at: datetime | None, max_age: timedelta) -> bool:

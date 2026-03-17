@@ -693,6 +693,10 @@ Return the latest saved signal log envelope.
 type LogEnvelope<T = Record<string, unknown>> = {
   filename: string;
   modified_at: string;
+  recorded_at: string | null;
+  age_seconds: number | null;
+  is_stale: boolean;
+  status: "OK" | "FAILED" | "STALE" | "STALE_FAILED";
   data: T;
 };
 ```
@@ -714,11 +718,14 @@ type LatestSignalFailure = {
 
 ### Frontend rule
 
-If `data.error` exists or `validator_overrides` contains `BLOCKED: Claude API unavailable`, render:
+If `status` is `FAILED` or `STALE_FAILED`, render:
 
 - `Claude Analysis Failed`
 
 Do not render this as a normal neutral signal card.
+
+If `is_stale` is `true`, visibly label the signal as stale and use `recorded_at`
+as the analysis time, not the dashboard fetch time.
 
 ### Suggested React Query config
 

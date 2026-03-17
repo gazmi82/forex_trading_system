@@ -18,6 +18,7 @@ from pydantic import BaseModel
 from config import LOGS_DIR, TRADING_CONFIG
 from main import get_demo_loop_schedule_state, get_next_entry_window_start_ny, write_signal_log
 from oanda_connector import MarketDataBuilder, OANDAClient
+from signal_log_utils import build_signal_log_metadata, infer_recorded_at
 
 
 DEFAULT_CORS_ORIGINS = [
@@ -27,6 +28,7 @@ DEFAULT_CORS_ORIGINS = [
     "http://127.0.0.1:5173",
     "https://style-whisperer-87.lovable.app",
 ]
+SIGNAL_STALE_AFTER_SECONDS = int(os.getenv("SIGNAL_STALE_AFTER_SECONDS", "3600"))
 
 
 class HealthResponse(BaseModel):
@@ -59,6 +61,10 @@ class SchedulerStatusResponse(BaseModel):
 class LogEnvelope(BaseModel):
     filename: str
     modified_at: str
+    recorded_at: str | None
+    age_seconds: int | None
+    is_stale: bool
+    status: Literal["OK", "FAILED", "STALE", "STALE_FAILED"]
     data: dict[str, Any]
 
 
@@ -142,6 +148,20 @@ def _read_json(path: Path) -> dict[str, Any]:
 def _latest_file(pattern: str) -> Path | None:
     matches = sorted(LOGS_DIR.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
     return matches[0] if matches else None
+
+
+def _latest_signal_file(kind: Literal["signal", "test_signal"]) -> Path | None:
+    matches = list(LOGS_DIR.glob(f"{kind}_*.json"))
+    if not matches:
+        return None
+
+    def _sort_key(path: Path) -> tuple[float, float]:
+        data = _read_json(path)
+        modified_at = datetime.fromtimestamp(path.stat().st_mtime, tz=ZoneInfo("UTC"))
+        recorded_at = infer_recorded_at(path, data, modified_at=modified_at) or modified_at
+        return (recorded_at.timestamp(), modified_at.timestamp())
+
+    return max(matches, key=_sort_key)
 
 
 def _load_jsonl_tail(path: Path, limit: int) -> list[dict[str, Any]]:
@@ -298,11 +318,25 @@ def _scheduler_status(snapshot: dict[str, Any]) -> SchedulerStatusResponse:
     )
 
 
-def _log_envelope(path: Path) -> LogEnvelope:
+def _log_envelope(path: Path, *, now_utc: datetime | None = None) -> LogEnvelope:
+    if now_utc is None:
+        now_utc = _utc_now()
+
+    data = _read_json(path)
+    metadata = build_signal_log_metadata(
+        path,
+        data,
+        now_utc=now_utc,
+        stale_after_seconds=SIGNAL_STALE_AFTER_SECONDS,
+    )
     return LogEnvelope(
         filename=path.name,
-        modified_at=datetime.fromtimestamp(path.stat().st_mtime, tz=ZoneInfo("UTC")).isoformat(),
-        data=_read_json(path),
+        modified_at=metadata["modified_at"],
+        recorded_at=metadata["recorded_at"],
+        age_seconds=metadata["age_seconds"],
+        is_stale=metadata["is_stale"],
+        status=metadata["status"],
+        data=data,
     )
 
 
@@ -380,10 +414,10 @@ def feed_diagnostics(
 def latest_signal(
     kind: Literal["signal", "test_signal"] = Query("signal"),
 ) -> LogEnvelope:
-    latest = _latest_file(f"{kind}_*.json")
+    latest = _latest_signal_file(kind)
     if latest is None:
         raise HTTPException(status_code=404, detail=f"No {kind} logs found")
-    return _log_envelope(latest)
+    return _log_envelope(latest, now_utc=_utc_now())
 
 
 @app.get("/api/trades/open")
@@ -433,16 +467,17 @@ def latest_decisions(limit: int = Query(20, ge=1, le=200)) -> dict[str, Any]:
 def dashboard_summary(
     refresh_live: bool = Query(False, description="Refresh live snapshot before composing dashboard summary"),
 ) -> dict[str, Any]:
+    now_utc = _utc_now()
     snapshot = _get_live_snapshot(refresh=refresh_live, persist=False)
-    latest_signal_file = _latest_file("signal_*.json")
+    latest_signal_file = _latest_signal_file("signal")
     open_state = open_trades()
 
     return {
-        "utc_time": _utc_now().isoformat(),
+        "utc_time": now_utc.isoformat(),
         "scheduler": _scheduler_status(snapshot).model_dump(),
         "live_snapshot": snapshot,
         "feed_diagnostics": _feed_diagnostics(snapshot),
-        "latest_signal": _log_envelope(latest_signal_file).model_dump() if latest_signal_file else None,
+        "latest_signal": _log_envelope(latest_signal_file, now_utc=now_utc).model_dump() if latest_signal_file else None,
         "open_trades": open_state,
     }
 

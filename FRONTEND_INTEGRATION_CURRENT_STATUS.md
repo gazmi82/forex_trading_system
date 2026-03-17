@@ -103,6 +103,13 @@ Use:
 - `/api/signals/latest?kind=signal`
 - `/api/decisions/latest?limit=20`
 
+`/api/signals/latest` now includes explicit signal freshness/failure metadata:
+
+- `recorded_at`
+- `age_seconds`
+- `is_stale`
+- `status`
+
 ### Trades page
 
 Use:
