@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
+import app.fundamentals.fetcher as fetcher_module
 from app.fundamentals.fetcher import get_auto_fundamentals
 from fundamentals_fetcher import get_auto_fundamentals as root_get_auto_fundamentals
 
@@ -82,6 +83,40 @@ class FundamentalsFetcherTests(unittest.TestCase):
         self.assertTrue(result["recent_headline"].startswith("MANUAL_CHECK"))
         self.assertTrue(result["retail_sentiment"].startswith("MANUAL_CHECK"))
         self.assertTrue(result["risk_sentiment"].startswith("MANUAL_CHECK"))
+
+    @patch("app.fundamentals.fetcher.requests.get")
+    def test_calendar_fetch_uses_daily_cache(self, mock_get):
+        original_cache = fetcher_module._calendar_cache
+        original_cache_time = fetcher_module._calendar_cache_time
+        try:
+            fetcher_module._calendar_cache = {}
+            fetcher_module._calendar_cache_time = None
+
+            class MockResponse:
+                def raise_for_status(self):
+                    return None
+
+                def json(self):
+                    return [
+                        {
+                            "country": "USD",
+                            "impact": "High",
+                            "title": "CPI",
+                            "date": "2030-03-18T15:00:00Z",
+                        }
+                    ]
+
+            mock_get.return_value = MockResponse()
+
+            first = fetcher_module.fetch_next_calendar_event(force_refresh=False)
+            second = fetcher_module.fetch_next_calendar_event(force_refresh=False)
+
+            self.assertEqual(first["next_event_name"], "USD — CPI")
+            self.assertEqual(second["next_event_name"], "USD — CPI")
+            self.assertEqual(mock_get.call_count, 1)
+        finally:
+            fetcher_module._calendar_cache = original_cache
+            fetcher_module._calendar_cache_time = original_cache_time
 
 
 if __name__ == "__main__":

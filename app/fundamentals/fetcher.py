@@ -61,7 +61,7 @@ _rates_cache:         dict            = {}
 _rates_cache_time:    datetime | None = None
 
 _DXY_CACHE_MINUTES        = 5
-_CALENDAR_CACHE_MINUTES   = 5
+_CALENDAR_CACHE_HOURS     = int(os.getenv("FOREX_FACTORY_CALENDAR_CACHE_HOURS", "24"))
 _NEWS_CACHE_MINUTES       = 10
 _COT_CACHE_HOURS          = 12
 _RISK_CACHE_MINUTES       = 5
@@ -555,7 +555,7 @@ def fetch_next_calendar_event(force_refresh: bool = False) -> dict:
     global _calendar_cache, _calendar_cache_time
 
     if not force_refresh and _calendar_cache and _cache_fresh(
-        _calendar_cache_time, timedelta(minutes=_CALENDAR_CACHE_MINUTES)
+        _calendar_cache_time, timedelta(hours=_CALENDAR_CACHE_HOURS)
     ):
         return _calendar_cache
 
