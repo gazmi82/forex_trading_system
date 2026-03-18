@@ -178,6 +178,8 @@ GET  /api/trades/closed
 GET  /api/trades/history
 GET  /api/decisions/latest
 GET  /api/dashboard/summary
+GET  /api/meta/frontend-contract
+GET  /openapi.json
 ```
 
 Notes:
@@ -186,6 +188,8 @@ Notes:
 - `/api/status/scheduler` uses the same Monday-Friday and kill-zone gate as the runtime.
 - `/api/signals/latest` returns the latest saved `signal_*.json` plus freshness/failure metadata (`recorded_at`, `age_seconds`, `is_stale`, `status`).
 - `/api/dashboard/summary` is the easiest first frontend endpoint because it combines scheduler, live snapshot, diagnostics, latest signal, and open trades, backed by an in-memory live snapshot cache refreshed in the background.
+- `/api/meta/frontend-contract` exposes machine-readable frontend semantics that do not fit cleanly into OpenAPI alone.
+- `/openapi.json` is the generated backend schema for routes and response models.
 
 ### Step 8 — Publish the API Over HTTPS
 The API already exposes the frontend contract. It is now deployed publicly on Render at:

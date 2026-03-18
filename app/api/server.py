@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.analysis.scheduler import get_demo_loop_schedule_state, get_next_entry_window_start_ny
@@ -79,6 +79,124 @@ class LogEnvelope(BaseModel):
     is_stale: bool
     status: Literal["OK", "FAILED", "STALE", "STALE_FAILED"]
     data: dict[str, Any]
+
+
+class CandleResponse(BaseModel):
+    time: str
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: int
+
+
+class MarketCandlesResponse(BaseModel):
+    pair: str
+    granularity: str
+    count: int
+    candles: list[CandleResponse]
+
+
+class FeedDiagnosticItem(BaseModel):
+    available: bool
+    value: Any | None = None
+    source: str | None = None
+    time_to_event: str | None = None
+
+
+class FeedDiagnosticsPayload(BaseModel):
+    oanda_market_data: FeedDiagnosticItem
+    rates: FeedDiagnosticItem
+    dxy: FeedDiagnosticItem
+    cot: FeedDiagnosticItem
+    calendar: FeedDiagnosticItem
+    headlines: FeedDiagnosticItem
+    retail_sentiment: FeedDiagnosticItem
+    risk_sentiment: FeedDiagnosticItem
+
+
+class FeedDiagnosticsResponse(BaseModel):
+    utc_time: str
+    diagnostics: FeedDiagnosticsPayload
+
+
+class ItemListResponse(BaseModel):
+    count: int
+    items: list[dict[str, Any]]
+
+
+class DashboardSummaryResponse(BaseModel):
+    utc_time: str
+    scheduler: SchedulerStatusResponse
+    live_snapshot: dict[str, Any]
+    feed_diagnostics: FeedDiagnosticsPayload
+    latest_signal: LogEnvelope | None
+    open_trades: ItemListResponse
+
+
+class LogWriteResponse(BaseModel):
+    logged_to: str
+
+
+class ContractRoute(BaseModel):
+    name: str
+    method: Literal["GET", "POST"]
+    path: str
+    description: str
+    query_defaults: dict[str, Any] = Field(default_factory=dict)
+    recommended_passive_query: dict[str, Any] | None = None
+    manual_refresh_query: dict[str, Any] | None = None
+
+
+class SnapshotContract(BaseModel):
+    endpoint: str
+    query_parameter: str
+    query_defaults: dict[str, Any]
+    recommended_passive_query: dict[str, Any]
+    manual_refresh_query: dict[str, Any]
+    warmup_status_code: int
+    upstream_failure_status_code: int
+    refresh_behavior: str
+
+
+class DashboardContract(BaseModel):
+    endpoint: str
+    query_parameter: str
+    query_defaults: dict[str, Any]
+    recommended_passive_query: dict[str, Any]
+    manual_refresh_query: dict[str, Any]
+    latest_signal_semantics: str
+
+
+class SignalContract(BaseModel):
+    endpoint: str
+    response_fields: list[str]
+    status_values: list[Literal["OK", "FAILED", "STALE", "STALE_FAILED"]]
+    preferred_timestamp_fields: list[str]
+    failure_indicators: list[str]
+
+
+class SchedulerContract(BaseModel):
+    endpoint: str
+    actionable_when: str
+    blocked_reason_field: str
+    blocked_runtime_modes: list[Literal["MONITOR_ONLY", "MONITOR_OPEN_TRADES", "WEEKEND_BLOCK"]]
+
+
+class FrontendDiscovery(BaseModel):
+    openapi_url: str
+    contract_url: str
+    primary_dashboard_endpoint: str
+
+
+class FrontendContractResponse(BaseModel):
+    generated_at_utc: str
+    discovery: FrontendDiscovery
+    routes: list[ContractRoute]
+    snapshot: SnapshotContract
+    dashboard: DashboardContract
+    signals: SignalContract
+    scheduler: SchedulerContract
 
 
 def _split_csv_env(name: str) -> list[str]:
@@ -477,6 +595,146 @@ def _log_envelope(path: Path, *, now_utc: datetime | None = None) -> LogEnvelope
     )
 
 
+def _frontend_contract(*, now_utc: datetime | None = None) -> FrontendContractResponse:
+    if now_utc is None:
+        now_utc = _utc_now()
+
+    openapi_url = app.openapi_url or "/openapi.json"
+    contract_url = "/api/meta/frontend-contract"
+
+    return FrontendContractResponse(
+        generated_at_utc=now_utc.isoformat(),
+        discovery=FrontendDiscovery(
+            openapi_url=openapi_url,
+            contract_url=contract_url,
+            primary_dashboard_endpoint="/api/dashboard/summary",
+        ),
+        routes=[
+            ContractRoute(
+                name="health",
+                method="GET",
+                path="/api/health",
+                description="Service health and deployment metadata.",
+            ),
+            ContractRoute(
+                name="dashboard_summary",
+                method="GET",
+                path="/api/dashboard/summary",
+                description="Primary dashboard aggregate for scheduler, snapshot, diagnostics, latest signal, and open trades.",
+                query_defaults={"refresh_live": False},
+                recommended_passive_query={"refresh_live": False},
+                manual_refresh_query={"refresh_live": True},
+            ),
+            ContractRoute(
+                name="live_snapshot",
+                method="GET",
+                path="/api/live/snapshot",
+                description="Cached live market snapshot with optional background refresh trigger.",
+                query_defaults={"refresh": True, "persist": False},
+                recommended_passive_query={"refresh": False, "persist": False},
+                manual_refresh_query={"refresh": True, "persist": False},
+            ),
+            ContractRoute(
+                name="market_candles",
+                method="GET",
+                path="/api/market/candles",
+                description="Frontend-ready OHLCV candles for chart bootstrapping.",
+                query_defaults={"pair": "EUR_USD", "granularity": "M15", "count": 200},
+            ),
+            ContractRoute(
+                name="scheduler_status",
+                method="GET",
+                path="/api/status/scheduler",
+                description="Current scheduler gate and next polling cadence.",
+                query_defaults={"refresh": True},
+                recommended_passive_query={"refresh": False},
+                manual_refresh_query={"refresh": True},
+            ),
+            ContractRoute(
+                name="feed_diagnostics",
+                method="GET",
+                path="/api/diagnostics/feeds",
+                description="Normalized per-feed availability and latest values.",
+                query_defaults={"refresh": False},
+            ),
+            ContractRoute(
+                name="latest_signal",
+                method="GET",
+                path="/api/signals/latest",
+                description="Latest saved signal envelope with freshness and failure metadata.",
+                query_defaults={"kind": "signal"},
+            ),
+            ContractRoute(
+                name="open_trades",
+                method="GET",
+                path="/api/trades/open",
+                description="Current open trades tracked by the execution layer.",
+            ),
+            ContractRoute(
+                name="closed_trades",
+                method="GET",
+                path="/api/trades/closed",
+                description="Recent closed trades from the execution layer JSONL log.",
+                query_defaults={"limit": 20},
+            ),
+            ContractRoute(
+                name="trade_history",
+                method="GET",
+                path="/api/trades/history",
+                description="Recent trade history rows from the CSV trade log.",
+                query_defaults={"limit": 50},
+            ),
+            ContractRoute(
+                name="latest_decisions",
+                method="GET",
+                path="/api/decisions/latest",
+                description="Recent agent decision log entries.",
+                query_defaults={"limit": 20},
+            ),
+            ContractRoute(
+                name="log_test_failure",
+                method="POST",
+                path="/api/signals/log-test-failure",
+                description="Persist a provided signal payload using the runtime log format.",
+            ),
+        ],
+        snapshot=SnapshotContract(
+            endpoint="/api/live/snapshot",
+            query_parameter="refresh",
+            query_defaults={"refresh": True, "persist": False},
+            recommended_passive_query={"refresh": False, "persist": False},
+            manual_refresh_query={"refresh": True, "persist": False},
+            warmup_status_code=503,
+            upstream_failure_status_code=502,
+            refresh_behavior=(
+                "When refresh=true, return the latest cached snapshot immediately when available "
+                "and trigger a background refresh. When no cached snapshot exists yet, return 503."
+            ),
+        ),
+        dashboard=DashboardContract(
+            endpoint="/api/dashboard/summary",
+            query_parameter="refresh_live",
+            query_defaults={"refresh_live": False},
+            recommended_passive_query={"refresh_live": False},
+            manual_refresh_query={"refresh_live": True},
+            latest_signal_semantics="latest_signal is informational when scheduler.analysis_allowed_now is false.",
+        ),
+        signals=SignalContract(
+            endpoint="/api/signals/latest",
+            response_fields=["filename", "modified_at", "recorded_at", "age_seconds", "is_stale", "status", "data"],
+            status_values=["OK", "FAILED", "STALE", "STALE_FAILED"],
+            preferred_timestamp_fields=["recorded_at", "data.timestamp"],
+            failure_indicators=["data.error", "data.validator_overrides"],
+        ),
+        scheduler=SchedulerContract(
+            endpoint="/api/status/scheduler",
+            actionable_when="analysis_allowed_now == true",
+            blocked_reason_field="schedule_reason",
+            blocked_runtime_modes=["MONITOR_ONLY", "MONITOR_OPEN_TRADES", "WEEKEND_BLOCK"],
+        ),
+    )
+
+
 @app.get("/api/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     return HealthResponse(
@@ -504,12 +762,12 @@ def live_snapshot(
     return _get_live_snapshot(refresh=refresh, persist=persist)
 
 
-@app.get("/api/market/candles")
+@app.get("/api/market/candles", response_model=MarketCandlesResponse)
 def market_candles(
     pair: Literal["EUR_USD"] = Query("EUR_USD"),
     granularity: Literal["M1", "M5", "M15", "M30", "H1", "H4", "D", "W"] = Query("M15"),
     count: int = Query(200, ge=10, le=1000),
-) -> dict[str, Any]:
+) -> MarketCandlesResponse:
     try:
         builder = _get_oanda_builder()
     except Exception as exc:
@@ -520,12 +778,12 @@ def market_candles(
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Candle fetch failed: {exc}") from exc
 
-    return {
-        "pair": pair,
-        "granularity": granularity,
-        "count": len(df),
-        "candles": _serialize_candles(df),
-    }
+    return MarketCandlesResponse(
+        pair=pair,
+        granularity=granularity,
+        count=len(df),
+        candles=_serialize_candles(df),
+    )
 
 
 @app.get("/api/status/scheduler", response_model=SchedulerStatusResponse)
@@ -536,15 +794,15 @@ def scheduler_status(
     return _scheduler_status(snapshot)
 
 
-@app.get("/api/diagnostics/feeds")
+@app.get("/api/diagnostics/feeds", response_model=FeedDiagnosticsResponse)
 def feed_diagnostics(
     refresh: bool = Query(False, description="Trigger a background snapshot refresh before feed diagnostics"),
-) -> dict[str, Any]:
+) -> FeedDiagnosticsResponse:
     snapshot = _get_live_snapshot(refresh=refresh, persist=False)
-    return {
-        "utc_time": _utc_now().isoformat(),
-        "diagnostics": _feed_diagnostics(snapshot),
-    }
+    return FeedDiagnosticsResponse(
+        utc_time=_utc_now().isoformat(),
+        diagnostics=FeedDiagnosticsPayload.model_validate(_feed_diagnostics(snapshot)),
+    )
 
 
 @app.get("/api/signals/latest", response_model=LogEnvelope)
@@ -557,73 +815,68 @@ def latest_signal(
     return _log_envelope(latest, now_utc=_utc_now())
 
 
-@app.get("/api/trades/open")
-def open_trades() -> dict[str, Any]:
+@app.get("/api/trades/open", response_model=ItemListResponse)
+def open_trades() -> ItemListResponse:
     path = LOGS_DIR / "open_trades.json"
     if not path.exists():
-        return {"count": 0, "items": []}
+        return ItemListResponse(count=0, items=[])
 
     data = _read_json(path)
-    return {
-        "count": len(data),
-        "items": list(data.values()),
-    }
+    return ItemListResponse(count=len(data), items=list(data.values()))
 
 
-@app.get("/api/trades/closed")
-def closed_trades(limit: int = Query(20, ge=1, le=200)) -> dict[str, Any]:
+@app.get("/api/trades/closed", response_model=ItemListResponse)
+def closed_trades(limit: int = Query(20, ge=1, le=200)) -> ItemListResponse:
     path = LOGS_DIR / "closed_trades.jsonl"
     items = _load_jsonl_tail(path, limit=limit)
-    return {
-        "count": len(items),
-        "items": items,
-    }
+    return ItemListResponse(count=len(items), items=items)
 
 
-@app.get("/api/trades/history")
-def trade_history(limit: int = Query(50, ge=1, le=500)) -> dict[str, Any]:
+@app.get("/api/trades/history", response_model=ItemListResponse)
+def trade_history(limit: int = Query(50, ge=1, le=500)) -> ItemListResponse:
     path = LOGS_DIR / "trades.csv"
     items = _load_csv_tail(path, limit=limit)
-    return {
-        "count": len(items),
-        "items": items,
-    }
+    return ItemListResponse(count=len(items), items=items)
 
 
-@app.get("/api/decisions/latest")
-def latest_decisions(limit: int = Query(20, ge=1, le=200)) -> dict[str, Any]:
+@app.get("/api/decisions/latest", response_model=ItemListResponse)
+def latest_decisions(limit: int = Query(20, ge=1, le=200)) -> ItemListResponse:
     path = LOGS_DIR / "agent_decisions.jsonl"
     items = _load_jsonl_tail(path, limit=limit)
-    return {
-        "count": len(items),
-        "items": items,
-    }
+    return ItemListResponse(count=len(items), items=items)
 
 
-@app.get("/api/dashboard/summary")
+@app.get("/api/dashboard/summary", response_model=DashboardSummaryResponse)
 def dashboard_summary(
     refresh_live: bool = Query(False, description="Trigger a background snapshot refresh before composing dashboard summary"),
-) -> dict[str, Any]:
+) -> DashboardSummaryResponse:
     now_utc = _utc_now()
     snapshot = _get_live_snapshot(refresh=refresh_live, persist=False)
     latest_signal_file = _latest_signal_file("signal")
     open_state = open_trades()
+    scheduler = _scheduler_status(snapshot)
+    feed_diagnostics_payload = FeedDiagnosticsPayload.model_validate(_feed_diagnostics(snapshot))
 
-    return {
-        "utc_time": now_utc.isoformat(),
-        "scheduler": _scheduler_status(snapshot).model_dump(),
-        "live_snapshot": snapshot,
-        "feed_diagnostics": _feed_diagnostics(snapshot),
-        "latest_signal": _log_envelope(latest_signal_file, now_utc=now_utc).model_dump() if latest_signal_file else None,
-        "open_trades": open_state,
-    }
+    return DashboardSummaryResponse(
+        utc_time=now_utc.isoformat(),
+        scheduler=scheduler,
+        live_snapshot=snapshot,
+        feed_diagnostics=feed_diagnostics_payload,
+        latest_signal=_log_envelope(latest_signal_file, now_utc=now_utc) if latest_signal_file else None,
+        open_trades=open_state,
+    )
 
 
-@app.post("/api/signals/log-test-failure")
-def log_test_failure(signal: dict[str, Any]) -> dict[str, str]:
+@app.get("/api/meta/frontend-contract", response_model=FrontendContractResponse)
+def frontend_contract() -> FrontendContractResponse:
+    return _frontend_contract(now_utc=_utc_now())
+
+
+@app.post("/api/signals/log-test-failure", response_model=LogWriteResponse)
+def log_test_failure(signal: dict[str, Any]) -> LogWriteResponse:
     """
     Utility endpoint for the frontend/testing layer to persist a signal payload
     exactly the same way the runtime does. Keeps the file format consistent.
     """
     output = write_signal_log(signal, prefix="signal")
-    return {"logged_to": str(output)}
+    return LogWriteResponse(logged_to=str(output))
