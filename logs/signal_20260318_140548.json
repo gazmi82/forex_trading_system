@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-03-18T14:05:00Z",
+  "pair": "EUR/USD",
+  "timeframe": "4H",
+  "session": "London Close",
+  "macro_bias": {
+    "weekly": "BEARISH",
+    "daily": "BEARISH",
+    "h4": "BULLISH",
+    "alignment": "CONFLICTING"
+  },
+  "ict_analysis": {
+    "order_block": {
+      "present": true,
+      "type": "BEARISH",
+      "level": 1.15374,
+      "valid": true
+    },
+    "fair_value_gap": {
+      "present": true,
+      "type": "BEARISH",
+      "upper": 1.15396,
+      "lower": 1.15343
+    },
+    "liquidity": {
+      "recent_sweep": true,
+      "swept_level": 1.15056,
+      "direction": "SELL_SIDE"
+    },
+    "premium_discount": "PREMIUM",
+    "ote_zone": [
+      1.14413,
+      1.14659
+    ]
+  },
+  "technical_analysis": {
+    "ema_bias": "BEARISH",
+    "rsi_14": 68.75,
+    "rsi_signal": "OVERBOUGHT",
+    "adx_14": 30.94,
+    "market_regime": "TRENDING",
+    "key_levels": {
+      "resistance": [
+        1.2083,
+        1.1929,
+        1.1835
+      ],
+      "support": [
+        1.1411,
+        1.1507,
+        1.153
+      ]
+    }
+  },
+  "fundamental": {
+    "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+    "dxy_direction": "NEUTRAL",
+    "cot_bias": "BULLISH",
+    "next_news_event": "USD Federal Funds Rate in 3h 54m",
+    "news_risk": "MEDIUM"
+  },
+  "confluence_score": 45,
+  "signal_strength": "NEUTRAL",
+  "signal": {
+    "direction": "NEUTRAL",
+    "confidence": 45,
+    "entry_zone": [
+      0.0,
+      0.0
+    ],
+    "stop_loss": 0.0,
+    "take_profit_1": 0.0,
+    "take_profit_2": 0.0,
+    "risk_reward": 0.0,
+    "recommended_lot_size": 0.0,
+    "order_type": "LIMIT"
+  },
+  "reasoning": [
+    "Weekly and Daily bearish structure conflicts with 4H bullish structure - mixed alignment reduces conviction",
+    "Price in premium zone (67% of range) - not ideal for buying per ICT discount theory",
+    "Recent SSL sweep at 1.15056 with strong rejection suggests institutional accumulation, but price hasn't reached OTE zone yet",
+    "Rate differential strongly favors USD (+1.62%) but COT shows bullish positioning creating fundamental conflict",
+    "Federal Funds Rate announcement in <4 hours creates medium news risk - violates pre-news trading rule"
+  ],
+  "key_risk": "Major fundamental conflict between rate differential (USD bullish) and COT positioning (EUR bullish), plus imminent Fed rate decision",
+  "knowledge_sources_used": [
+    "The Forex Trading Course - Post-news retracement strategy principles",
+    "Day Trading And Swing Trading - Inside day breakout concepts for range identification"
+  ],
+  "trade_management": {
+    "tp1_action": "N/A - No trade signal",
+    "tp2_action": "N/A - No trade signal",
+    "time_stop": "N/A - No trade signal"
+  },
+  "do_not_trade_reason": "Confluence score 45 below 65 threshold. Major timeframe conflict (Weekly/Daily bearish vs 4H bullish), price in premium zone, and Fed rate decision in <4 hours violates pre-news trading rules.",
+  "demo_mode": true,
+  "validator_overrides": [
+    "BLOCKED: Confidence too low (45%)"
+  ],
+  "logged_at_utc": "2026-03-18T14:05:48.422090Z",
+  "log_filename": "signal_20260318_140548.json"
+}

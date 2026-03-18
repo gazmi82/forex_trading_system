@@ -1,0 +1,19 @@
+{
+  "trade_20260318_144744": {
+    "order_id": "4",
+    "trade_id": null,
+    "instrument": "EUR_USD",
+    "direction": "SELL",
+    "units": 362318,
+    "entry_price": 1.15374,
+    "stop_loss": 1.1565,
+    "tp1": 1.149,
+    "tp2": 1.14413,
+    "risk_reward": 2.1,
+    "tp1_hit": false,
+    "open_time": "2026-03-18T14:47:44.214807+00:00",
+    "confluence": 75,
+    "confidence": 72,
+    "session": "London Close"
+  }
+}
