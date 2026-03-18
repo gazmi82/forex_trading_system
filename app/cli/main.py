@@ -47,7 +47,7 @@ from app.logs.signal_logs import write_signal_log
 
 def print_signal_runtime_issue(signal: dict):
     """Print Claude/runtime failures explicitly instead of as normal no-trades."""
-    reason = signal.get("do_not_trade_reason", "")
+    reason = signal.get("do_not_trade_reason") or ""
     if signal.get("error"):
         print(f"  ❌ Claude API failure: {reason or signal['error']}")
     elif reason.startswith("JSON parse error"):

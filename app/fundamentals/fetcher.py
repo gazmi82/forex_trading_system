@@ -122,7 +122,8 @@ def _relative_minutes(value: str | None) -> int | None:
     return -total_minutes if "ago" in text else total_minutes
 
 
-def _classify_news_risk(event_name: str, time_to_event: str | None) -> str:
+def _classify_news_risk(event_name: str | None, time_to_event: str | None) -> str:
+    event_name = event_name or ""
     if event_name.startswith("CLEAR"):
         return "CLEAR"
     if event_name.startswith("MANUAL_CHECK"):

@@ -333,7 +333,7 @@ class ForexAnalystAgent:
         if signal.get("error"):
             return str(signal["error"])
 
-        reason = signal.get("do_not_trade_reason", "")
+        reason = signal.get("do_not_trade_reason") or ""
         if reason.startswith("API error"):
             return reason
         if reason.startswith("JSON parse error"):
@@ -540,7 +540,7 @@ INSTRUCTIONS:
             sig["direction"] = "NEUTRAL"
             overrides.append(f"BLOCKED: Two consecutive losses already recorded in {session}")
 
-        next_event = fund.get("next_news_event", fund.get("next_event_name", ""))
+        next_event = fund.get("next_news_event") or fund.get("next_event_name") or ""
         if next_event.startswith("MANUAL_CHECK"):
             sig["direction"] = "NEUTRAL"
             overrides.append("BLOCKED: Live economic calendar unavailable")
