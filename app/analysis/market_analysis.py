@@ -251,33 +251,125 @@ class IndicatorCalculator:
 class MarketStructureAnalyzer:
     """Identifies trend structure across multiple timeframes."""
 
+    PIVOT_WINDOW = 2
+    EQUALITY_TOLERANCE_ATR_RATIO = 0.15
+
     @staticmethod
     def analyze(df: pd.DataFrame, timeframe: str) -> dict:
-        if len(df) < 10:
+        if len(df) < (MarketStructureAnalyzer.PIVOT_WINDOW * 2) + 5:
             return {"trend": "NEUTRAL", "structure": "Insufficient data"}
 
-        highs = df["high"]
-        lows = df["low"]
+        highs = df["high"].astype(float)
+        lows = df["low"].astype(float)
 
-        recent_highs = highs.tail(20)
-        recent_lows = lows.tail(20)
+        swing_highs = MarketStructureAnalyzer._find_confirmed_pivots(
+            highs,
+            is_high=True,
+            window=MarketStructureAnalyzer.PIVOT_WINDOW,
+        )
+        swing_lows = MarketStructureAnalyzer._find_confirmed_pivots(
+            lows,
+            is_high=False,
+            window=MarketStructureAnalyzer.PIVOT_WINDOW,
+        )
 
-        hh = recent_highs.iloc[-1] > recent_highs.iloc[-10]
-        hl = recent_lows.iloc[-1] > recent_lows.iloc[-10]
-        lh = recent_highs.iloc[-1] < recent_highs.iloc[-10]
-        ll = recent_lows.iloc[-1] < recent_lows.iloc[-10]
+        if len(swing_highs) < 2 or len(swing_lows) < 2:
+            return {
+                "trend": "NEUTRAL",
+                "structure": f"Transitional — awaiting confirmed swing sequence on {timeframe}",
+            }
 
-        if hh and hl:
+        tolerance = MarketStructureAnalyzer._structure_tolerance(df)
+
+        high_state = MarketStructureAnalyzer._classify_level_change(
+            previous_level=swing_highs[-2][1],
+            current_level=swing_highs[-1][1],
+            tolerance=tolerance,
+            higher_label="HH",
+            lower_label="LH",
+            equal_label="EH",
+        )
+        low_state = MarketStructureAnalyzer._classify_level_change(
+            previous_level=swing_lows[-2][1],
+            current_level=swing_lows[-1][1],
+            tolerance=tolerance,
+            higher_label="HL",
+            lower_label="LL",
+            equal_label="EL",
+        )
+
+        if high_state == "HH" and low_state == "HL":
             trend = "BULLISH"
             structure = f"HH + HL — Bullish {timeframe} structure"
-        elif lh and ll:
+        elif high_state == "LH" and low_state == "LL":
             trend = "BEARISH"
             structure = f"LH + LL — Bearish {timeframe} structure"
-        elif hh and ll:
+        elif high_state == "HH" and low_state == "LL":
             trend = "NEUTRAL"
             structure = f"Mixed — Expanding range {timeframe}"
+        elif high_state == "LH" and low_state == "HL":
+            trend = "NEUTRAL"
+            structure = f"Mixed — Contracting range {timeframe}"
+        elif high_state in {"HH", "EH"} and low_state in {"HL", "EL"}:
+            trend = "NEUTRAL"
+            structure = f"Bullish pressure — awaiting full swing confirmation on {timeframe}"
+        elif high_state in {"LH", "EH"} and low_state in {"LL", "EL"}:
+            trend = "NEUTRAL"
+            structure = f"Bearish pressure — awaiting full swing confirmation on {timeframe}"
         else:
             trend = "NEUTRAL"
             structure = f"Ranging — Equal highs/lows {timeframe}"
 
         return {"trend": trend, "structure": structure}
+
+    @staticmethod
+    def _find_confirmed_pivots(
+        series: pd.Series,
+        *,
+        is_high: bool,
+        window: int,
+    ) -> list[tuple[pd.Timestamp, float]]:
+        pivots: list[tuple[pd.Timestamp, float]] = []
+        if len(series) < (window * 2) + 1:
+            return pivots
+
+        for idx in range(window, len(series) - window):
+            current = float(series.iloc[idx])
+            left = series.iloc[idx - window:idx]
+            right = series.iloc[idx + 1:idx + window + 1]
+
+            if is_high:
+                if current > float(left.max()) and current >= float(right.max()):
+                    pivots.append((series.index[idx], current))
+            else:
+                if current < float(left.min()) and current <= float(right.min()):
+                    pivots.append((series.index[idx], current))
+
+        return pivots
+
+    @staticmethod
+    def _structure_tolerance(df: pd.DataFrame) -> float:
+        tr = IndicatorCalculator._true_range(df).tail(20).dropna()
+        close = float(df["close"].iloc[-1])
+        pip_floor = max(close * 0.0001, 0.00001)
+
+        if tr.empty:
+            return pip_floor
+
+        return max(float(tr.median()) * MarketStructureAnalyzer.EQUALITY_TOLERANCE_ATR_RATIO, pip_floor)
+
+    @staticmethod
+    def _classify_level_change(
+        *,
+        previous_level: float,
+        current_level: float,
+        tolerance: float,
+        higher_label: str,
+        lower_label: str,
+        equal_label: str,
+    ) -> str:
+        if current_level > previous_level + tolerance:
+            return higher_label
+        if current_level < previous_level - tolerance:
+            return lower_label
+        return equal_label

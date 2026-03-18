@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
 FASTAPI_IMPORT_ERROR: ModuleNotFoundError | None = None
 FASTAPI_AVAILABLE = True
@@ -32,6 +33,7 @@ class ApiContractTests(unittest.TestCase):
         self.assertEqual(body["snapshot"]["warmup_status_code"], 503)
         self.assertEqual(body["snapshot"]["upstream_failure_status_code"], 502)
         self.assertEqual(body["signals"]["status_values"], ["OK", "FAILED", "STALE", "STALE_FAILED"])
+        self.assertIn("Return null", body["signals"]["empty_state_behavior"])
         self.assertEqual(body["signals"]["preferred_timestamp_fields"], ["recorded_at", "data.timestamp"])
         self.assertEqual(body["scheduler"]["actionable_when"], "analysis_allowed_now == true")
 
@@ -48,6 +50,13 @@ class ApiContractTests(unittest.TestCase):
         self.assertIn("/api/meta/frontend-contract", paths)
         self.assertIn("/api/market/candles", paths)
         self.assertIn("/api/dashboard/summary", paths)
+
+    def test_latest_signal_returns_null_when_logs_are_missing(self):
+        with patch("app.api.server._latest_signal_file", return_value=None):
+            response = self.client.get("/api/signals/latest?kind=test_signal")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json())
 
 
 if __name__ == "__main__":

@@ -25,6 +25,21 @@ def _frame(rows: list[dict[str, float]]) -> pd.DataFrame:
     return df.set_index("time")
 
 
+def _frame_from_highs_lows(highs: list[float], lows: list[float]) -> pd.DataFrame:
+    rows = []
+    for high, low in zip(highs, lows, strict=True):
+        spread = high - low
+        rows.append(
+            {
+                "open": round(low + (spread * 0.35), 5),
+                "high": high,
+                "low": low,
+                "close": round(low + (spread * 0.7), 5),
+            }
+        )
+    return _frame(rows)
+
+
 class MarketAnalysisTests(unittest.TestCase):
     def test_root_market_analysis_reexports_shared_analysis_classes(self):
         self.assertIs(RootIndicatorCalculator, IndicatorCalculator)
@@ -71,14 +86,96 @@ class MarketAnalysisTests(unittest.TestCase):
         self.assertEqual(result, [1.121, 1.138])
 
     def test_market_structure_analyzer_detects_bullish_structure(self):
-        rows = []
-        for i in range(20):
-            low = 1.1000 + (0.002 * i)
-            high = low + 0.010
-            rows.append(
-                {"open": low + 0.002, "high": high, "low": low, "close": low + 0.008}
-            )
-        df = _frame(rows)
+        df = _frame_from_highs_lows(
+            highs=[
+                1.1010, 1.1030, 1.1060, 1.1100, 1.1080,
+                1.1065, 1.1075, 1.1105, 1.1145, 1.1180,
+                1.1165, 1.1140, 1.1155, 1.1170, 1.1160,
+            ],
+            lows=[
+                1.0990, 1.1005, 1.1025, 1.1055, 1.1040,
+                1.1030, 1.1045, 1.1070, 1.1110, 1.1145,
+                1.1130, 1.1120, 1.1135, 1.1150, 1.1140,
+            ],
+        )
+
+        result = MarketStructureAnalyzer.analyze(df, "4H")
+
+        self.assertEqual(result["trend"], "BULLISH")
+        self.assertIn("Bullish 4H structure", result["structure"])
+
+    def test_market_structure_analyzer_detects_bearish_structure(self):
+        df = _frame_from_highs_lows(
+            highs=[
+                1.1210, 1.1195, 1.1170, 1.1200, 1.1180, 1.1160,
+                1.1145, 1.1125, 1.1090, 1.1130, 1.1110, 1.1090,
+                1.1075, 1.1080, 1.1065, 1.1055,
+            ],
+            lows=[
+                1.1185, 1.1165, 1.1145, 1.1155, 1.1140, 1.1130,
+                1.1145, 1.1150, 1.1135, 1.1120, 1.1095, 1.1060,
+                1.1075, 1.1080, 1.1065, 1.1050,
+            ],
+        )
+
+        result = MarketStructureAnalyzer.analyze(df, "1H")
+
+        self.assertEqual(result["trend"], "BEARISH")
+        self.assertIn("Bearish 1H structure", result["structure"])
+
+    def test_market_structure_analyzer_detects_contracting_range(self):
+        df = _frame_from_highs_lows(
+            highs=[
+                1.1010, 1.1040, 1.1070, 1.1100, 1.1080, 1.1060,
+                1.1075, 1.1065, 1.1055, 1.1080, 1.1065, 1.1045,
+                1.1050, 1.1040, 1.1035, 1.1030,
+            ],
+            lows=[
+                1.0985, 1.1000, 1.1025, 1.1040, 1.1025, 1.1000,
+                1.1015, 1.1025, 1.1035, 1.1040, 1.1030, 1.1020,
+                1.1035, 1.1045, 1.1040, 1.1035,
+            ],
+        )
+
+        result = MarketStructureAnalyzer.analyze(df, "15M")
+
+        self.assertEqual(result["trend"], "NEUTRAL")
+        self.assertIn("Contracting range 15M", result["structure"])
+
+    def test_market_structure_analyzer_detects_expanding_range(self):
+        df = _frame_from_highs_lows(
+            highs=[
+                1.1010, 1.1030, 1.1060, 1.1100, 1.1080,
+                1.1065, 1.1075, 1.1105, 1.1145, 1.1180,
+                1.1165, 1.1140, 1.1155, 1.1170, 1.1160,
+            ],
+            lows=[
+                1.0990, 1.1005, 1.1025, 1.1055, 1.1040,
+                1.1030, 1.1045, 1.1070, 1.1110, 1.1145,
+                1.1130, 1.1000, 1.1015, 1.1030, 1.1020,
+            ],
+        )
+
+        result = MarketStructureAnalyzer.analyze(df, "Daily")
+
+        self.assertEqual(result["trend"], "NEUTRAL")
+        self.assertIn("Expanding range Daily", result["structure"])
+
+    def test_market_structure_analyzer_ignores_unconfirmed_terminal_wick(self):
+        df = _frame_from_highs_lows(
+            highs=[
+                1.1010, 1.1030, 1.1060, 1.1100, 1.1080,
+                1.1065, 1.1075, 1.1105, 1.1145, 1.1180,
+                1.1165, 1.1140, 1.1155, 1.1170, 1.1160,
+                1.1175, 1.1185,
+            ],
+            lows=[
+                1.0990, 1.1005, 1.1025, 1.1055, 1.1040,
+                1.1030, 1.1045, 1.1070, 1.1110, 1.1145,
+                1.1130, 1.1120, 1.1135, 1.1150, 1.1140,
+                1.1145, 1.1080,
+            ],
+        )
 
         result = MarketStructureAnalyzer.analyze(df, "4H")
 

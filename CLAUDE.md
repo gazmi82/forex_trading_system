@@ -72,7 +72,7 @@ main.py
 │
 ├── MarketDataBuilder (app/brokers/oanda.py)
 │   ├── IndicatorCalculator (EMA, RSI, ADX, ATR)
-│   ├── MarketStructureAnalyzer (HH/HL, LH/LL)
+│   ├── MarketStructureAnalyzer (confirmed swing pivots → HH/HL/LH/LL)
 │   └── ICT concepts (Order Blocks, FVGs, P/D zones, Liquidity sweeps)
 │
 ├── TradeExecutor (app/execution/trade_executor.py)
@@ -374,7 +374,9 @@ OANDA demo account successfully created and set as the primary broker.
 - Downloads OHLCV candles for 4H, 1H, Daily, Weekly timeframes
 - Calculates all indicators (EMA, RSI, ADX, ATR) from real data
 - Detects ICT concepts (Order Blocks, FVGs, P/D zones, liquidity sweeps)
-- Identifies market structure (HH/HL/LH/LL) across all timeframes
+- Identifies market structure from confirmed swing pivots across all timeframes
+- Uses ATR-based tolerance to avoid treating tiny wick differences as new structure
+- Keeps the same public `weekly_structure` / `*_trend` fields used by the API and frontend
 - Reads account balance, equity, open positions from OANDA
 - Fails closed when live broker data is unavailable
 

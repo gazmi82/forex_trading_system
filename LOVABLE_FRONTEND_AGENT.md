@@ -320,6 +320,12 @@ type HealthResponse = {
 };
 ```
 
+The `weekly_structure`, `daily_structure`, `h4_structure`, `h1_structure`, `m15_structure`
+and matching `*_trend` fields remain stable contract fields. Their backend derivation is
+now based on confirmed swing pivots with a tolerance filter, but the frontend should
+continue to treat them as display labels and must not recalculate market structure in
+the browser.
+
 ### Frontend use
 
 Use this for:
@@ -705,6 +711,8 @@ type LogEnvelope<T = Record<string, unknown>> = {
 };
 ```
 
+If no matching logs exist yet, this endpoint returns `null` with HTTP `200`.
+
 A real failure payload currently looks like:
 
 ```ts
@@ -735,12 +743,16 @@ as the analysis time, not the dashboard fetch time.
 
 - `staleTime: 10_000`
 - `refetchInterval: 30_000`
+- `refetchOnWindowFocus: false`
+- `retry: 2`
 
 ### Empty state
 
-If no logs exist, the backend returns `404`. Show:
+If the response body is `null`, show:
 
 - `No signal logs yet`
+
+Treat this as a normal empty state, not a request failure.
 
 ---
 
@@ -943,6 +955,9 @@ Recommended usage:
 
 - `staleTime: 15_000`
 - `refetchInterval: 30_000`
+- `refetchOnWindowFocus: false`
+- `retry: 2`
+- use short exponential backoff instead of immediate parallel retries on tab wake
 
 ---
 
@@ -1387,7 +1402,7 @@ Widgets:
 
 ## Error Handling Strategy
 
-### Backend 404
+### Backend null
 
 Meaning:
 
@@ -1410,6 +1425,22 @@ Frontend action:
 - show red error card
 - preserve last successful data if already loaded
 - clearly label stale data
+
+### Browser CORS error after inactivity
+
+Meaning:
+
+- the backend or upstream platform may have temporarily resumed, restarted, or returned an
+  intermediate response without CORS headers
+- the browser may surface this as a CORS failure even when the root cause is transient
+  upstream unavailability rather than a permanent backend CORS config bug
+
+Frontend action:
+
+- do not immediately hard-fail the dashboard on the first such error after tab wake
+- keep the last successful data visible when available
+- retry `/api/dashboard/summary` with backoff before surfacing a red error state
+- avoid refetching many detail endpoints simultaneously until the main summary request recovers
 
 ### Claude failure in signal payload
 

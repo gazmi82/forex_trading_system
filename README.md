@@ -186,7 +186,7 @@ Notes:
 - `/api/live/snapshot?refresh=true` returns the latest cached snapshot immediately and triggers a background OANDA + fundamentals refresh.
 - `/api/market/candles?pair=EUR_USD&granularity=M15&count=200` returns frontend-ready OHLCV candles.
 - `/api/status/scheduler` uses the same Monday-Friday and kill-zone gate as the runtime.
-- `/api/signals/latest` returns the latest saved `signal_*.json` plus freshness/failure metadata (`recorded_at`, `age_seconds`, `is_stale`, `status`).
+- `/api/signals/latest` returns the latest saved `signal_*.json` plus freshness/failure metadata (`recorded_at`, `age_seconds`, `is_stale`, `status`), or `null` when no matching logs exist yet.
 - `/api/dashboard/summary` is the easiest first frontend endpoint because it combines scheduler, live snapshot, diagnostics, latest signal, and open trades, backed by an in-memory live snapshot cache refreshed in the background.
 - `/api/meta/frontend-contract` exposes machine-readable frontend semantics that do not fit cleanly into OpenAPI alone.
 - `/openapi.json` is the generated backend schema for routes and response models.

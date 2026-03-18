@@ -174,6 +174,7 @@ class SignalContract(BaseModel):
     status_values: list[Literal["OK", "FAILED", "STALE", "STALE_FAILED"]]
     preferred_timestamp_fields: list[str]
     failure_indicators: list[str]
+    empty_state_behavior: str
 
 
 class SchedulerContract(BaseModel):
@@ -725,6 +726,7 @@ def _frontend_contract(*, now_utc: datetime | None = None) -> FrontendContractRe
             status_values=["OK", "FAILED", "STALE", "STALE_FAILED"],
             preferred_timestamp_fields=["recorded_at", "data.timestamp"],
             failure_indicators=["data.error", "data.validator_overrides"],
+            empty_state_behavior="Return null with HTTP 200 when no matching signal logs exist yet.",
         ),
         scheduler=SchedulerContract(
             endpoint="/api/status/scheduler",
@@ -805,13 +807,13 @@ def feed_diagnostics(
     )
 
 
-@app.get("/api/signals/latest", response_model=LogEnvelope)
+@app.get("/api/signals/latest", response_model=LogEnvelope | None)
 def latest_signal(
     kind: Literal["signal", "test_signal"] = Query("signal"),
-) -> LogEnvelope:
+) -> LogEnvelope | None:
     latest = _latest_signal_file(kind)
     if latest is None:
-        raise HTTPException(status_code=404, detail=f"No {kind} logs found")
+        return None
     return _log_envelope(latest, now_utc=_utc_now())
 
 
