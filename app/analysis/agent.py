@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-from app.core.config import FEEDBACK_DIR
+from app.analysis.trade_feedback import TradeFeedbackManager
 
 logger = logging.getLogger(__name__)
 
@@ -269,11 +269,11 @@ class ForexAnalystAgent:
         self.client = anthropic_client
         self.config = config
         self.log_dir = log_dir
-        self.feedback_dir = FEEDBACK_DIR
-        self.feedback_memory = []
+        self.feedback = TradeFeedbackManager(rag_pipeline, config, log_dir)
+        self.feedback_dir = self.feedback.feedback_dir
+        self.feedback_memory = self.feedback.feedback_memory
 
         log_dir.mkdir(parents=True, exist_ok=True)
-        self.feedback_dir.mkdir(parents=True, exist_ok=True)
 
         logger.info("ForexAnalystAgent initialized")
 
@@ -347,19 +347,7 @@ class ForexAnalystAgent:
         fund = market_data.get("fundamental", {})
         port = market_data.get("portfolio", {})
 
-        feedback_section = ""
-        if self.feedback_memory:
-            recent = self.feedback_memory[-self.config.get("feedback_memory_limit", 15):]
-            feedback_section = (
-                "\n═══════════════════════════════════════════\n"
-                "YOUR RECENT TRADE MEMORY (last outcomes):\n"
-                "═══════════════════════════════════════════\n"
-            )
-            for feedback in recent[-5:]:
-                feedback_section += (
-                    f"• {feedback['date']} {feedback['pair']} {feedback['direction']} → "
-                    f"{feedback['outcome']} ({feedback['pnl_r']}R): {feedback['lesson']}\n"
-                )
+        feedback_section = self.feedback.render_memory_section()
 
         return f"""
 {rag_context}
@@ -593,139 +581,10 @@ INSTRUCTIONS:
         return session in {"London Kill Zone", "NY Kill Zone", "London Close"}
 
     def _has_session_loss_streak(self, session: str, limit: int = 2) -> bool:
-        if not session:
-            return False
-
-        streak = 0
-        for item in reversed(self.feedback_memory):
-            if item.get("session") != session:
-                continue
-            if item.get("outcome") == "LOSS":
-                streak += 1
-                if streak >= limit:
-                    return True
-            else:
-                return False
-        return False
+        return self.feedback.has_session_loss_streak(session, limit)
 
     def record_trade_outcome(self, trade_record: dict):
-        trade_record = dict(trade_record)
-        pair = trade_record.get("pair", "")
-        direction = trade_record.get("direction", "")
-        outcome = trade_record.get("outcome", "")
-        pnl_r = trade_record.get("pnl_r", 0)
-        date = trade_record.get("date", datetime.utcnow().strftime("%Y-%m-%d"))
-        lesson = self._extract_lesson(trade_record)
-        trade_record["lesson"] = lesson
-
-        feedback_text = self._generate_feedback_text(trade_record)
-        self.rag.store_feedback(feedback_text, date, pair)
-
-        self.feedback_memory.append(
-            {
-                "date": date,
-                "pair": pair,
-                "direction": direction,
-                "outcome": outcome,
-                "pnl_r": pnl_r,
-                "session": trade_record.get("session", ""),
-                "lesson": lesson,
-            }
-        )
-
-        limit = self.config.get("feedback_memory_limit", 15)
-        if len(self.feedback_memory) > limit:
-            self.feedback_memory = self.feedback_memory[-limit:]
-
-        feedback_file = self._write_feedback_markdown(trade_record, feedback_text)
-
-        self._log_trade_outcome(trade_record)
-        logger.info(
-            f"Trade outcome recorded: {pair} {direction} → {outcome} ({pnl_r}R) | "
-            f"Feedback note: {feedback_file.name}"
-        )
-
-    def _generate_feedback_text(self, trade_record: dict) -> str:
-        return f"""
-TRADE REVIEW — {trade_record.get('pair')} {trade_record.get('direction')}
-Date: {trade_record.get('date')}
-Outcome: {trade_record.get('outcome')} | PnL: {trade_record.get('pnl_r')}R
-Session: {trade_record.get('session')}
-Duration: {trade_record.get('duration_hours')} hours
-
-ENTRY DETAILS:
-Entry: {trade_record.get('entry_price')}
-Stop Loss: {trade_record.get('stop_loss')}
-Take Profit: {trade_record.get('take_profit')}
-Lot Size: {trade_record.get('lot_size')}
-Confluence Score: {trade_record.get('confluence_score')}
-
-ORIGINAL REASONING:
-{trade_record.get('original_reasoning', 'Not recorded')}
-
-WHAT ACTUALLY HAPPENED:
-{trade_record.get('price_action_summary', 'Not recorded')}
-
-NEWS EVENTS THAT AFFECTED IT:
-{trade_record.get('relevant_events', 'None noted')}
-
-LESSON LEARNED:
-{trade_record.get('lesson', 'Not recorded')}
-
-WHAT TO DO DIFFERENTLY ON {trade_record.get('pair')} NEXT TIME:
-{trade_record.get('improvement', 'Not recorded')}
-"""
-
-    def _write_feedback_markdown(self, trade_record: dict, feedback_text: str) -> Path:
-        timestamp = datetime.utcnow()
-        timestamp_slug = timestamp.strftime("%Y%m%d_%H%M%S")
-        pair_slug = self._slugify(trade_record.get("pair", "eur-usd"))
-        outcome_slug = self._slugify(trade_record.get("outcome", "unknown"))
-        session_slug = self._slugify(trade_record.get("session", "unknown-session"))
-        filename = f"feedback_{timestamp_slug}_{pair_slug}_{session_slug}_{outcome_slug}.md"
-        output_path = self.feedback_dir / filename
-
-        markdown = (
-            f"# Trade Review — {trade_record.get('pair', 'Unknown Pair')} "
-            f"{trade_record.get('direction', '')}\n\n"
-            f"- Logged At (UTC): {timestamp.isoformat()}Z\n"
-            f"- Trade Date: {trade_record.get('date', '')}\n"
-            f"- Outcome: {trade_record.get('outcome', '')}\n"
-            f"- Session: {trade_record.get('session', '')}\n"
-            f"- PnL (R): {trade_record.get('pnl_r', '')}\n"
-            f"- PnL (USD): {trade_record.get('pnl_usd', '')}\n"
-            f"- Duration Hours: {trade_record.get('duration_hours', '')}\n"
-            f"- Confluence Score: {trade_record.get('confluence_score', '')}\n\n"
-            f"## Lesson\n\n"
-            f"{trade_record.get('lesson', 'Not recorded')}\n\n"
-            f"## Structured Review\n\n"
-            f"{feedback_text.strip()}\n"
-        )
-
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write(markdown)
-
-        return output_path
-
-    @staticmethod
-    def _slugify(value: str) -> str:
-        text = (value or "").strip().lower()
-        text = re.sub(r"[^a-z0-9]+", "-", text)
-        text = re.sub(r"-{2,}", "-", text).strip("-")
-        return text or "unknown"
-
-    def _extract_lesson(self, trade_record: dict) -> str:
-        lesson = trade_record.get("lesson", "")
-        if not lesson:
-            outcome = trade_record.get("outcome", "")
-            pnl_r = trade_record.get("pnl_r", 0)
-            if outcome == "WIN":
-                lesson = f"Setup worked. R:R achieved: {pnl_r}"
-            elif outcome == "LOSS":
-                lesson = "Setup failed. Check entry criteria."
-            else:
-                lesson = "Breakeven/partial. Monitor similar setups."
-        return lesson[:150]
+        self.feedback.record_trade_outcome(trade_record)
 
     def _log_analysis(
         self,
@@ -753,33 +612,3 @@ WHAT TO DO DIFFERENTLY ON {trade_record.get('pair')} NEXT TIME:
         log_file = self.log_dir / "agent_decisions.jsonl"
         with open(log_file, "a") as f:
             f.write(json.dumps(log_entry) + "\n")
-
-    def _log_trade_outcome(self, trade_record: dict):
-        import csv
-
-        csv_file = self.log_dir / "trades.csv"
-        file_exists = csv_file.exists()
-
-        fields = [
-            "date",
-            "pair",
-            "direction",
-            "entry_price",
-            "exit_price",
-            "stop_loss",
-            "take_profit",
-            "lot_size",
-            "outcome",
-            "pnl_r",
-            "pnl_usd",
-            "duration_hours",
-            "session",
-            "confluence_score",
-            "lesson",
-        ]
-
-        with open(csv_file, "a", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
-            if not file_exists:
-                writer.writeheader()
-            writer.writerow(trade_record)

@@ -140,7 +140,7 @@ def run_stats(pipeline):
             print(f"     {r['text'][:150]}...")
 
 
-def run_test_analysis(agent, pipeline, oanda_builder=None, executor=None, force_outside_session: bool = False):
+def run_test_analysis(agent, oanda_builder=None, executor=None, force_outside_session: bool = False):
     print("\n" + "="*60)
     print("🤖 TEST ANALYSIS MODE")
     print("="*60)
@@ -170,6 +170,7 @@ def run_test_analysis(agent, pipeline, oanda_builder=None, executor=None, force_
     print("="*60)
     print(json.dumps(signal, indent=2))
     output_file = write_signal_log(signal, prefix="test_signal")
+    signal["log_filename"] = output_file.name
     print(f"\n✅ Signal saved to: {output_file}")
 
     # Execute if signal qualifies and executor is available
@@ -217,7 +218,7 @@ def run_live_data_check(oanda_builder=None):
     return True
 
 
-def run_demo_loop(agent, pipeline, oanda_builder=None, executor=None):  # noqa: C901
+def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
     print("\n" + "="*60)
     print("🔄 DEMO LOOP MODE")
     print("="*60)
@@ -279,7 +280,10 @@ def run_demo_loop(agent, pipeline, oanda_builder=None, executor=None):  # noqa: 
                 print(f"  Signal:  {direction} | {confidence}% | Score: {score}/100")
 
                 log_file = write_signal_log(signal, prefix="signal")
+                signal["log_filename"] = log_file.name
                 print(f"  📝 Logged analysis to: {log_file}")
+                if executor:
+                    executor.record_signal_snapshot_for_open_trades(signal)
 
                 # 4. Execute if qualifies
                 if executor and direction != "NEUTRAL":
@@ -368,12 +372,12 @@ def main():
             sys.exit(1)
     elif args.mode == "test":
         # --dry-run: analyse signal but never place orders
-        ok = run_test_analysis(agent, pipeline, oanda_builder,
+        ok = run_test_analysis(agent, oanda_builder,
                                executor=None if args.dry_run else executor,
                                force_outside_session=args.force_outside_session)
         if ok is False:
             sys.exit(1)
-    elif args.mode == "demo":   run_demo_loop(agent, pipeline, oanda_builder, executor)
+    elif args.mode == "demo":   run_demo_loop(agent, oanda_builder, executor)
 
 
 if __name__ == "__main__":

@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-import csv
-import json
 import logging
 import os
-import threading
 from contextlib import asynccontextmanager
 from datetime import datetime
-from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlparse
@@ -15,14 +11,35 @@ from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.analysis.scheduler import get_demo_loop_schedule_state, get_next_entry_window_start_ny
-from app.brokers.oanda import MarketDataBuilder, OANDAClient
+from app.api.frontend_contract import build_frontend_contract
+from app.api.live_snapshot_service import LiveSnapshotService
+from app.api.log_queries import (
+    latest_file as _log_latest_file,
+    latest_signal_file as _log_latest_signal_file,
+    latest_snapshot_file as _log_latest_snapshot_file,
+    load_csv_tail as _log_load_csv_tail,
+    load_jsonl_tail as _log_load_jsonl_tail,
+    log_envelope as _build_log_envelope,
+    read_json as _log_read_json,
+)
+from app.api.models import (
+    DashboardSummaryResponse,
+    FeedDiagnosticsPayload,
+    FeedDiagnosticsResponse,
+    FrontendContractResponse,
+    HealthResponse,
+    ItemListResponse,
+    LogEnvelope,
+    LogWriteResponse,
+    MarketCandlesResponse,
+    SchedulerStatusResponse,
+)
+from app.brokers.oanda import MarketDataBuilder
 from app.core.config import LOGS_DIR, TRADING_CONFIG
-from app.logs.signal_logs import build_signal_log_metadata, infer_recorded_at, write_signal_log
-
+from app.logs.signal_logs import write_signal_log
 
 DEFAULT_CORS_ORIGINS = [
     "http://localhost:3000",
@@ -32,172 +49,9 @@ DEFAULT_CORS_ORIGINS = [
     "https://style-whisperer-87.lovable.app",
 ]
 SIGNAL_STALE_AFTER_SECONDS = int(os.getenv("SIGNAL_STALE_AFTER_SECONDS", "3600"))
-LIVE_SNAPSHOT_BACKGROUND_REFRESH_SECONDS = int(
-    os.getenv("LIVE_SNAPSHOT_BACKGROUND_REFRESH_SECONDS", "30")
-)
 
 logger = logging.getLogger(__name__)
-_snapshot_cache_lock = threading.Lock()
-_snapshot_refresh_lock = threading.Lock()
-_snapshot_stop_event = threading.Event()
-_snapshot_background_thread: threading.Thread | None = None
-_snapshot_cache_data: dict[str, Any] | None = None
-
-
-class HealthResponse(BaseModel):
-    status: str
-    service: str
-    environment: str
-    utc_time: str
-    public_api_base_url: str | None
-    oanda_configured: bool
-    anthropic_configured: bool
-    allowed_origins: list[str]
-    log_files: dict[str, int]
-
-
-class SchedulerStatusResponse(BaseModel):
-    utc_time: str
-    new_york_time: str
-    weekday: str
-    session: str
-    analysis_allowed_now: bool
-    schedule_reason: str
-    next_poll_seconds: int
-    next_entry_window_start_ny: str | None
-    trade_window_active: bool
-    runtime_mode: Literal["ENTRY_ANALYSIS", "MONITOR_ONLY", "MONITOR_OPEN_TRADES", "WEEKEND_BLOCK"]
-    trade_management_active: bool
-    open_trades_count: int
-
-
-class LogEnvelope(BaseModel):
-    filename: str
-    modified_at: str
-    recorded_at: str | None
-    age_seconds: int | None
-    is_stale: bool
-    status: Literal["OK", "FAILED", "STALE", "STALE_FAILED"]
-    data: dict[str, Any]
-
-
-class CandleResponse(BaseModel):
-    time: str
-    open: float
-    high: float
-    low: float
-    close: float
-    volume: int
-
-
-class MarketCandlesResponse(BaseModel):
-    pair: str
-    granularity: str
-    count: int
-    candles: list[CandleResponse]
-
-
-class FeedDiagnosticItem(BaseModel):
-    available: bool
-    value: Any | None = None
-    source: str | None = None
-    time_to_event: str | None = None
-
-
-class FeedDiagnosticsPayload(BaseModel):
-    oanda_market_data: FeedDiagnosticItem
-    rates: FeedDiagnosticItem
-    dxy: FeedDiagnosticItem
-    cot: FeedDiagnosticItem
-    calendar: FeedDiagnosticItem
-    headlines: FeedDiagnosticItem
-    retail_sentiment: FeedDiagnosticItem
-    risk_sentiment: FeedDiagnosticItem
-
-
-class FeedDiagnosticsResponse(BaseModel):
-    utc_time: str
-    diagnostics: FeedDiagnosticsPayload
-
-
-class ItemListResponse(BaseModel):
-    count: int
-    items: list[dict[str, Any]]
-
-
-class DashboardSummaryResponse(BaseModel):
-    utc_time: str
-    scheduler: SchedulerStatusResponse
-    live_snapshot: dict[str, Any]
-    feed_diagnostics: FeedDiagnosticsPayload
-    latest_signal: LogEnvelope | None
-    open_trades: ItemListResponse
-
-
-class LogWriteResponse(BaseModel):
-    logged_to: str
-
-
-class ContractRoute(BaseModel):
-    name: str
-    method: Literal["GET", "POST"]
-    path: str
-    description: str
-    query_defaults: dict[str, Any] = Field(default_factory=dict)
-    recommended_passive_query: dict[str, Any] | None = None
-    manual_refresh_query: dict[str, Any] | None = None
-
-
-class SnapshotContract(BaseModel):
-    endpoint: str
-    query_parameter: str
-    query_defaults: dict[str, Any]
-    recommended_passive_query: dict[str, Any]
-    manual_refresh_query: dict[str, Any]
-    warmup_status_code: int
-    upstream_failure_status_code: int
-    refresh_behavior: str
-
-
-class DashboardContract(BaseModel):
-    endpoint: str
-    query_parameter: str
-    query_defaults: dict[str, Any]
-    recommended_passive_query: dict[str, Any]
-    manual_refresh_query: dict[str, Any]
-    latest_signal_semantics: str
-
-
-class SignalContract(BaseModel):
-    endpoint: str
-    response_fields: list[str]
-    status_values: list[Literal["OK", "FAILED", "STALE", "STALE_FAILED"]]
-    preferred_timestamp_fields: list[str]
-    failure_indicators: list[str]
-    empty_state_behavior: str
-
-
-class SchedulerContract(BaseModel):
-    endpoint: str
-    actionable_when: str
-    blocked_reason_field: str
-    blocked_runtime_modes: list[Literal["MONITOR_ONLY", "MONITOR_OPEN_TRADES", "WEEKEND_BLOCK"]]
-
-
-class FrontendDiscovery(BaseModel):
-    openapi_url: str
-    contract_url: str
-    primary_dashboard_endpoint: str
-
-
-class FrontendContractResponse(BaseModel):
-    generated_at_utc: str
-    discovery: FrontendDiscovery
-    routes: list[ContractRoute]
-    snapshot: SnapshotContract
-    dashboard: DashboardContract
-    signals: SignalContract
-    scheduler: SchedulerContract
+_snapshot_service = LiveSnapshotService(logs_dir=LOGS_DIR, trading_config=TRADING_CONFIG)
 
 
 def _split_csv_env(name: str) -> list[str]:
@@ -283,222 +137,110 @@ def _ny_now() -> datetime:
     return datetime.now(tz=ZoneInfo("America/New_York"))
 
 
+# ---------------------------------------------------------------------------
+# Compatibility wrappers around extracted modules/services
+# ---------------------------------------------------------------------------
+
 def _read_json(path: Path) -> dict[str, Any]:
-    with open(path) as f:
-        return json.load(f)
+    return _log_read_json(path)
 
 
 def _latest_file(pattern: str) -> Path | None:
-    matches = sorted(LOGS_DIR.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
-    return matches[0] if matches else None
+    return _log_latest_file(pattern, logs_dir=LOGS_DIR)
 
 
 def _latest_signal_file(kind: Literal["signal", "test_signal"]) -> Path | None:
-    matches = list(LOGS_DIR.glob(f"{kind}_*.json"))
-    if not matches:
-        return None
-
-    def _sort_key(path: Path) -> tuple[float, float]:
-        data = _read_json(path)
-        modified_at = datetime.fromtimestamp(path.stat().st_mtime, tz=ZoneInfo("UTC"))
-        recorded_at = infer_recorded_at(path, data, modified_at=modified_at) or modified_at
-        return (recorded_at.timestamp(), modified_at.timestamp())
-
-    return max(matches, key=_sort_key)
+    return _log_latest_signal_file(kind, logs_dir=LOGS_DIR)
 
 
 def _latest_snapshot_file() -> Path | None:
-    return _latest_file("live_data_check_*.json")
+    return _log_latest_snapshot_file(logs_dir=LOGS_DIR)
 
 
 def _load_jsonl_tail(path: Path, limit: int) -> list[dict[str, Any]]:
-    if not path.exists():
-        return []
-
-    rows: list[dict[str, Any]] = []
-    with open(path) as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                rows.append(json.loads(line))
-            except json.JSONDecodeError:
-                continue
-    return rows[-limit:]
+    return _log_load_jsonl_tail(path, limit)
 
 
 def _load_csv_tail(path: Path, limit: int) -> list[dict[str, Any]]:
-    if not path.exists():
-        return []
-
-    with open(path) as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    return rows[-limit:]
+    return _log_load_csv_tail(path, limit)
 
 
-@lru_cache(maxsize=1)
 def _get_oanda_builder() -> MarketDataBuilder:
-    api_key = os.getenv("OANDA_API_KEY", "").strip()
-    account_id = os.getenv("OANDA_ACCOUNT_ID", "").strip()
-    if not api_key or not account_id:
-        raise RuntimeError("Missing OANDA_API_KEY or OANDA_ACCOUNT_ID")
-
-    client = OANDAClient(api_key, account_id, practice=TRADING_CONFIG["demo_mode"])
-    return MarketDataBuilder(client)
+    return _snapshot_service.get_oanda_builder()
 
 
 def _build_live_snapshot(*, persist: bool = False) -> dict[str, Any]:
-    try:
-        builder = _get_oanda_builder()
-    except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"OANDA unavailable: {exc}") from exc
-
-    try:
-        snapshot = builder.build_market_data("EUR_USD")
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Live snapshot build failed: {exc}") from exc
-
-    if persist:
-        output_file = LOGS_DIR / f"live_data_check_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
-        output_file.parent.mkdir(exist_ok=True)
-        with open(output_file, "w") as f:
-            json.dump(snapshot, f, indent=2)
-
-    return snapshot
+    return _snapshot_service.build_live_snapshot(persist=persist)
 
 
 def _cache_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
-    global _snapshot_cache_data
-    with _snapshot_cache_lock:
-        _snapshot_cache_data = snapshot
-    return snapshot
+    return _snapshot_service.cache_snapshot(snapshot)
 
 
 def _cached_snapshot() -> dict[str, Any] | None:
-    with _snapshot_cache_lock:
-        if _snapshot_cache_data is None:
-            return None
-        return dict(_snapshot_cache_data)
+    return _snapshot_service.cached_snapshot()
 
 
 def _load_snapshot_from_disk_into_cache() -> dict[str, Any] | None:
-    latest = _latest_snapshot_file()
-    if latest is None:
-        return None
-    snapshot = _read_json(latest)
-    return _cache_snapshot(snapshot)
+    return _snapshot_service.load_snapshot_from_disk_into_cache()
 
 
 def _refresh_snapshot_cache(*, persist: bool = False) -> dict[str, Any] | None:
-    if not _snapshot_refresh_lock.acquire(blocking=False):
-        return None
-
-    try:
-        snapshot = _build_live_snapshot(persist=persist)
-    except Exception as exc:
-        logger.warning(f"Background live snapshot refresh failed: {exc}")
-        return None
-    else:
-        return _cache_snapshot(snapshot)
-    finally:
-        _snapshot_refresh_lock.release()
+    return _snapshot_service.refresh_snapshot_cache(persist=persist)
 
 
 def _start_snapshot_refresh_async(*, persist: bool = False) -> None:
-    if _snapshot_refresh_lock.locked():
-        return
-
-    thread = threading.Thread(
-        target=_refresh_snapshot_cache,
-        kwargs={"persist": persist},
-        daemon=True,
-        name="live-snapshot-refresh",
-    )
-    thread.start()
-
-
-def _snapshot_refresh_loop() -> None:
-    while not _snapshot_stop_event.is_set():
-        _refresh_snapshot_cache(persist=False)
-        _snapshot_stop_event.wait(LIVE_SNAPSHOT_BACKGROUND_REFRESH_SECONDS)
+    _snapshot_service.start_snapshot_refresh_async(persist=persist)
 
 
 def _start_snapshot_background_refresh() -> None:
-    global _snapshot_background_thread
-    if not os.getenv("OANDA_API_KEY", "").strip() or not os.getenv("OANDA_ACCOUNT_ID", "").strip():
-        logger.info("Skipping background live snapshot refresh: OANDA credentials not configured")
-        return
-
-    if _snapshot_background_thread and _snapshot_background_thread.is_alive():
-        return
-
-    _snapshot_stop_event.clear()
-    _snapshot_background_thread = threading.Thread(
-        target=_snapshot_refresh_loop,
-        daemon=True,
-        name="live-snapshot-background",
-    )
-    _snapshot_background_thread.start()
+    _snapshot_service.start_background_refresh()
 
 
 def _stop_snapshot_background_refresh() -> None:
-    global _snapshot_background_thread
-    _snapshot_stop_event.set()
-    if _snapshot_background_thread and _snapshot_background_thread.is_alive():
-        _snapshot_background_thread.join(timeout=1)
-    _snapshot_background_thread = None
+    _snapshot_service.stop_background_refresh()
 
 
 def _snapshot_warming_http_error() -> HTTPException:
-    return HTTPException(
-        status_code=503,
-        detail=(
-            "Live snapshot warming up in background. "
-            "Retry shortly; no cached snapshot is available yet."
-        ),
-    )
+    return _snapshot_service.snapshot_warming_http_error()
 
 
 def _get_live_snapshot(*, refresh: bool, persist: bool = False) -> dict[str, Any]:
-    cached = _cached_snapshot()
+    return _snapshot_service.get_live_snapshot(refresh=refresh, persist=persist)
 
-    if refresh:
-        if cached is not None:
-            _start_snapshot_refresh_async(persist=persist)
-            return cached
 
-        persisted = _load_snapshot_from_disk_into_cache()
-        if persisted is not None:
-            _start_snapshot_refresh_async(persist=persist)
-            return persisted
+def _log_envelope(path: Path, *, now_utc: datetime | None = None) -> LogEnvelope:
+    if now_utc is None:
+        now_utc = _utc_now()
+    return _build_log_envelope(
+        path,
+        now_utc=now_utc,
+        stale_after_seconds=SIGNAL_STALE_AFTER_SECONDS,
+    )
 
-        _start_snapshot_refresh_async(persist=persist)
-        raise _snapshot_warming_http_error()
 
-    if cached is not None:
-        return cached
-
-    persisted = _load_snapshot_from_disk_into_cache()
-    if persisted is not None:
-        return persisted
-
-    _start_snapshot_refresh_async(persist=persist)
-    raise _snapshot_warming_http_error()
+def _frontend_contract(*, now_utc: datetime | None = None) -> FrontendContractResponse:
+    if now_utc is None:
+        now_utc = _utc_now()
+    return build_frontend_contract(
+        now_utc=now_utc,
+        openapi_url=app.openapi_url or "/openapi.json",
+    )
 
 
 def _serialize_candles(df: Any) -> list[dict[str, Any]]:
     candles: list[dict[str, Any]] = []
     for row in df.reset_index().itertuples(index=False):
-        candles.append({
-            "time": row.time.isoformat(),
-            "open": float(row.open),
-            "high": float(row.high),
-            "low": float(row.low),
-            "close": float(row.close),
-            "volume": int(row.volume),
-        })
+        candles.append(
+            {
+                "time": row.time.isoformat(),
+                "open": float(row.open),
+                "high": float(row.high),
+                "low": float(row.low),
+                "close": float(row.close),
+                "volume": int(row.volume),
+            }
+        )
     return candles
 
 
@@ -566,174 +308,14 @@ def _scheduler_status(snapshot: dict[str, Any]) -> SchedulerStatusResponse:
         analysis_allowed_now=schedule["analysis_allowed_now"],
         schedule_reason=schedule["schedule_reason"],
         next_poll_seconds=schedule["next_poll_seconds"],
-        next_entry_window_start_ny=get_next_entry_window_start_ny(now_ny, schedule["analysis_allowed_now"]),
+        next_entry_window_start_ny=get_next_entry_window_start_ny(
+            now_ny,
+            schedule["analysis_allowed_now"],
+        ),
         trade_window_active=schedule["trade_window_active"],
         runtime_mode=schedule["runtime_mode"],
         trade_management_active=schedule["trade_management_active"],
         open_trades_count=schedule["open_trades_count"],
-    )
-
-
-def _log_envelope(path: Path, *, now_utc: datetime | None = None) -> LogEnvelope:
-    if now_utc is None:
-        now_utc = _utc_now()
-
-    data = _read_json(path)
-    metadata = build_signal_log_metadata(
-        path,
-        data,
-        now_utc=now_utc,
-        stale_after_seconds=SIGNAL_STALE_AFTER_SECONDS,
-    )
-    return LogEnvelope(
-        filename=path.name,
-        modified_at=metadata["modified_at"],
-        recorded_at=metadata["recorded_at"],
-        age_seconds=metadata["age_seconds"],
-        is_stale=metadata["is_stale"],
-        status=metadata["status"],
-        data=data,
-    )
-
-
-def _frontend_contract(*, now_utc: datetime | None = None) -> FrontendContractResponse:
-    if now_utc is None:
-        now_utc = _utc_now()
-
-    openapi_url = app.openapi_url or "/openapi.json"
-    contract_url = "/api/meta/frontend-contract"
-
-    return FrontendContractResponse(
-        generated_at_utc=now_utc.isoformat(),
-        discovery=FrontendDiscovery(
-            openapi_url=openapi_url,
-            contract_url=contract_url,
-            primary_dashboard_endpoint="/api/dashboard/summary",
-        ),
-        routes=[
-            ContractRoute(
-                name="health",
-                method="GET",
-                path="/api/health",
-                description="Service health and deployment metadata.",
-            ),
-            ContractRoute(
-                name="dashboard_summary",
-                method="GET",
-                path="/api/dashboard/summary",
-                description="Primary dashboard aggregate for scheduler, snapshot, diagnostics, latest signal, and open trades.",
-                query_defaults={"refresh_live": False},
-                recommended_passive_query={"refresh_live": False},
-                manual_refresh_query={"refresh_live": True},
-            ),
-            ContractRoute(
-                name="live_snapshot",
-                method="GET",
-                path="/api/live/snapshot",
-                description="Cached live market snapshot with optional background refresh trigger.",
-                query_defaults={"refresh": True, "persist": False},
-                recommended_passive_query={"refresh": False, "persist": False},
-                manual_refresh_query={"refresh": True, "persist": False},
-            ),
-            ContractRoute(
-                name="market_candles",
-                method="GET",
-                path="/api/market/candles",
-                description="Frontend-ready OHLCV candles for chart bootstrapping.",
-                query_defaults={"pair": "EUR_USD", "granularity": "M15", "count": 200},
-            ),
-            ContractRoute(
-                name="scheduler_status",
-                method="GET",
-                path="/api/status/scheduler",
-                description="Current scheduler gate and next polling cadence.",
-                query_defaults={"refresh": True},
-                recommended_passive_query={"refresh": False},
-                manual_refresh_query={"refresh": True},
-            ),
-            ContractRoute(
-                name="feed_diagnostics",
-                method="GET",
-                path="/api/diagnostics/feeds",
-                description="Normalized per-feed availability and latest values.",
-                query_defaults={"refresh": False},
-            ),
-            ContractRoute(
-                name="latest_signal",
-                method="GET",
-                path="/api/signals/latest",
-                description="Latest saved signal envelope with freshness and failure metadata.",
-                query_defaults={"kind": "signal"},
-            ),
-            ContractRoute(
-                name="open_trades",
-                method="GET",
-                path="/api/trades/open",
-                description="Current open trades tracked by the execution layer.",
-            ),
-            ContractRoute(
-                name="closed_trades",
-                method="GET",
-                path="/api/trades/closed",
-                description="Recent closed trades from the execution layer JSONL log.",
-                query_defaults={"limit": 20},
-            ),
-            ContractRoute(
-                name="trade_history",
-                method="GET",
-                path="/api/trades/history",
-                description="Recent trade history rows from the CSV trade log.",
-                query_defaults={"limit": 50},
-            ),
-            ContractRoute(
-                name="latest_decisions",
-                method="GET",
-                path="/api/decisions/latest",
-                description="Recent agent decision log entries.",
-                query_defaults={"limit": 20},
-            ),
-            ContractRoute(
-                name="log_test_failure",
-                method="POST",
-                path="/api/signals/log-test-failure",
-                description="Persist a provided signal payload using the runtime log format.",
-            ),
-        ],
-        snapshot=SnapshotContract(
-            endpoint="/api/live/snapshot",
-            query_parameter="refresh",
-            query_defaults={"refresh": True, "persist": False},
-            recommended_passive_query={"refresh": False, "persist": False},
-            manual_refresh_query={"refresh": True, "persist": False},
-            warmup_status_code=503,
-            upstream_failure_status_code=502,
-            refresh_behavior=(
-                "When refresh=true, return the latest cached snapshot immediately when available "
-                "and trigger a background refresh. When no cached snapshot exists yet, return 503."
-            ),
-        ),
-        dashboard=DashboardContract(
-            endpoint="/api/dashboard/summary",
-            query_parameter="refresh_live",
-            query_defaults={"refresh_live": False},
-            recommended_passive_query={"refresh_live": False},
-            manual_refresh_query={"refresh_live": True},
-            latest_signal_semantics="latest_signal is informational when scheduler.analysis_allowed_now is false.",
-        ),
-        signals=SignalContract(
-            endpoint="/api/signals/latest",
-            response_fields=["filename", "modified_at", "recorded_at", "age_seconds", "is_stale", "status", "data"],
-            status_values=["OK", "FAILED", "STALE", "STALE_FAILED"],
-            preferred_timestamp_fields=["recorded_at", "data.timestamp"],
-            failure_indicators=["data.error", "data.validator_overrides"],
-            empty_state_behavior="Return null with HTTP 200 when no matching signal logs exist yet.",
-        ),
-        scheduler=SchedulerContract(
-            endpoint="/api/status/scheduler",
-            actionable_when="analysis_allowed_now == true",
-            blocked_reason_field="schedule_reason",
-            blocked_runtime_modes=["MONITOR_ONLY", "MONITOR_OPEN_TRADES", "WEEKEND_BLOCK"],
-        ),
     )
 
 

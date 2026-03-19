@@ -1,23 +1,23 @@
 # =============================================================================
-# trade_executor.py — OANDA Order Execution Engine
+# trade_executor.py — OANDA execution and live trade monitoring
 #
-# Handles:
-#   - Position sizing (1% risk rule)
-#   - Order placement (LIMIT / MARKET / STOP)
-#   - TP1 partial close (50%) + SL move to breakeven
-#   - Time stop (close if -0.5R after 8 hours)
-#   - Trade tracking (open_trades.json + trades.csv)
+# Responsibilities:
+#   - pre-trade safety checks
+#   - position sizing
+#   - order placement / broker actions
+#   - monitoring live trades for TP1 and time-stop rules
 #
-# demo_mode = True  → OANDA PRACTICE account (fake money, real fills/spreads)
-# demo_mode = False → OANDA LIVE account (NEVER before March 2027)
+# Trade journaling, timeline persistence, and feedback payload creation live in
+# app.execution.trade_journal.TradeJournal.
 # =============================================================================
 
-import json
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+
+from app.execution.trade_journal import TradeJournal
 
 logger = logging.getLogger(__name__)
 
@@ -28,43 +28,53 @@ class TradeExecutor:
     Called from the demo loop after ForexAnalystAgent generates a signal.
     """
 
+    INSTRUMENT = "EUR_USD"
+
     def __init__(self, oanda_client, trading_config: dict, log_dir: Path):
         self.client = oanda_client
         self.config = trading_config
         self.log_dir = Path(log_dir)
         self.demo_mode = trading_config.get("demo_mode", True)
-
-        self.open_trades_file = self.log_dir / "open_trades.json"
-        self.trades_csv = self.log_dir / "trades.csv"
-        self.daily_state_file = self.log_dir / "daily_state.json"
-        self.closed_trades_file = self.log_dir / "closed_trades.jsonl"
-
-        # Holds closed-trade records for the feedback loop; drained by demo loop
-        self._pending_feedback: list = []
-
-        self._init_logs()
+        self.journal = TradeJournal(self.log_dir)
 
     # =========================================================================
-    # INIT
+    # JOURNAL COMPATIBILITY WRAPPERS
     # =========================================================================
 
     def _init_logs(self):
-        if not self.trades_csv.exists():
-            with open(self.trades_csv, "w") as f:
-                f.write(
-                    "timestamp,order_id,trade_id,instrument,direction,"
-                    "units,entry_price,stop_loss,tp1,tp2,status,pnl,notes\n"
-                )
+        self.journal._init_logs()
 
     def _load_open_trades(self) -> dict:
-        if self.open_trades_file.exists():
-            with open(self.open_trades_file) as f:
-                return json.load(f)
-        return {}
+        return self.journal.load_open_trades()
 
     def _save_open_trades(self, trades: dict):
-        with open(self.open_trades_file, "w") as f:
-            json.dump(trades, f, indent=2)
+        self.journal.save_open_trades(trades)
+
+    def _track_trade(self, signal: dict, result: dict):
+        self.journal.record_trade_open(signal, result)
+
+    def _log_to_csv(self, signal: dict, result: dict):
+        self.journal._log_trade_open_to_csv(signal, result)
+
+    def record_signal_snapshot_for_open_trades(self, signal: dict):
+        self.journal.record_signal_snapshot_for_open_trades(signal)
+
+    def drain_closed_trades(self) -> list:
+        """
+        Returns and clears trade records closed since last call.
+        The demo loop calls this after monitor_open_trades() to feed
+        outcomes into agent.record_trade_outcome().
+        """
+        return self.journal.drain_closed_trades()
+
+    def _get_daily_pnl_pct(self, current_balance: float) -> float:
+        return self.journal.get_daily_pnl_pct(current_balance)
+
+    def _log_trade_close(self, trade: dict, reason: str, pnl: float | None = None):
+        self.journal.record_trade_close(trade, reason, pnl)
+
+    def _has_session_loss_streak(self, session: str, limit: int = 2) -> bool:
+        return self.journal.has_session_loss_streak(session, limit)
 
     # =========================================================================
     # MAIN ENTRY POINT
@@ -94,8 +104,8 @@ class TradeExecutor:
 
         try:
             account = self.client.get_account_summary()
-        except Exception as e:
-            result["reason"] = f"Account fetch failed: {e}"
+        except Exception as exc:
+            result["reason"] = f"Account fetch failed: {exc}"
             return result
 
         ok, reason = self._pre_trade_checks(signal, account)
@@ -124,8 +134,7 @@ class TradeExecutor:
                 }
             )
 
-            self._track_trade(signal, result)
-            self._log_to_csv(signal, result)
+            self.journal.record_trade_open(signal, result)
 
             sig = signal["signal"]
             print(f"\n{'='*50}")
@@ -141,18 +150,17 @@ class TradeExecutor:
             print(f"  Confidence: {confidence}%")
             print(f"  Order ID:   {result['order_id']}")
             logger.info(
-                f"Order placed: {direction} {units} EUR_USD | "
+                f"Order placed: {direction} {units} {self.INSTRUMENT} | "
                 f"Entry:{result['entry_price']} SL:{sig['stop_loss']} TP2:{sig['take_profit_2']}"
             )
-
-        except Exception as e:
-            result["reason"] = f"Order placement failed: {e}"
-            logger.error(f"Order error: {e}")
+        except Exception as exc:
+            result["reason"] = f"Order placement failed: {exc}"
+            logger.error(f"Order error: {exc}")
 
         return result
 
     # =========================================================================
-    # PRE-TRADE SAFETY CHECKS (all must pass)
+    # PRE-TRADE SAFETY CHECKS
     # =========================================================================
 
     def _pre_trade_checks(self, signal: dict, account: dict) -> tuple:
@@ -174,7 +182,7 @@ class TradeExecutor:
         if rr < min_rr:
             return False, f"R:R {rr} below minimum {min_rr}"
 
-        daily_pnl_pct = self._get_daily_pnl_pct(balance)
+        daily_pnl_pct = self.journal.get_daily_pnl_pct(balance)
         max_loss = self.config.get("max_daily_loss", 0.02)
         if daily_pnl_pct <= -(max_loss * 100):
             return (
@@ -188,13 +196,13 @@ class TradeExecutor:
         if session not in {"London Kill Zone", "NY Kill Zone", "London Close"}:
             return False, f"Session {session or 'UNKNOWN'} is outside allowed kill zones"
 
-        if self._has_session_loss_streak(session):
+        if self.journal.has_session_loss_streak(session):
             return False, f"Two consecutive losses already recorded in {session}"
 
         try:
-            for t in self.client.get_open_trades():
-                if t["instrument"] == "EUR_USD":
-                    return False, "EUR_USD position already open"
+            for trade in self.client.get_open_trades():
+                if trade["instrument"] == self.INSTRUMENT:
+                    return False, f"{self.INSTRUMENT} position already open"
         except Exception:
             pass
 
@@ -208,15 +216,15 @@ class TradeExecutor:
         return True, ""
 
     # =========================================================================
-    # POSITION SIZING (1% risk rule)
+    # POSITION SIZING
     # =========================================================================
 
     def _calculate_units(self, signal: dict, equity: float) -> int:
         """
-        units = (equity × 1%) / stop_distance_in_price
+        units = (equity × risk%) / stop_distance_in_price
 
         For EUR/USD: P&L = units × price_change
-        Example: $1,000 risk / 0.0030 stop = 333,333 units (3.3 lots)
+        Example: $1,000 risk / 0.0030 stop = 333,333 units
         """
         sig = signal.get("signal", {})
         entry_zone = sig.get("entry_zone", [0, 0])
@@ -234,7 +242,6 @@ class TradeExecutor:
 
         risk_amount = equity * self.config.get("max_risk_per_trade", 0.01)
         units = int(risk_amount / stop_distance)
-
         units = min(units, 500_000)
         units = max(units, 1_000)
 
@@ -252,7 +259,7 @@ class TradeExecutor:
         """
         POST order to OANDA REST API.
         BUY = positive units, SELL = negative units.
-        Uses TP2 as main take profit (TP1 handled by monitor).
+        Uses TP2 as the broker-managed take profit. TP1 is executor-managed.
         """
         sig = signal.get("signal", {})
         entry_zone = sig.get("entry_zone", [0, 0])
@@ -264,7 +271,7 @@ class TradeExecutor:
         signed_units = units if direction == "BUY" else -units
 
         order = {
-            "instrument": "EUR_USD",
+            "instrument": self.INSTRUMENT,
             "units": str(signed_units),
             "stopLossOnFill": {
                 "price": str(round(stop_loss, 5)),
@@ -276,7 +283,7 @@ class TradeExecutor:
             },
         }
 
-        if order_type in ("LIMIT", "STOP_LIMIT"):
+        if order_type in {"LIMIT", "STOP_LIMIT"}:
             order["type"] = "LIMIT"
             order["price"] = str(entry_price)
             order["timeInForce"] = "GTC"
@@ -313,28 +320,27 @@ class TradeExecutor:
         return result
 
     # =========================================================================
-    # TRADE MONITORING (called every 30 min from demo loop)
+    # TRADE MONITORING
     # =========================================================================
 
     def monitor_open_trades(self) -> list:
         """
-        Check all tracked trades for:
+        Check tracked trades for:
         - TP1 hit → close 50%, move SL to breakeven
-        - Time stop → close if -0.5R after 8 hours
-        - Already closed by OANDA (SL or TP2 hit)
+        - Time stop → close if -0.5R after N hours
+        - Broker-managed close (SL / TP / manual)
         """
         actions = []
-        tracked = self._load_open_trades()
-
+        tracked = self.journal.load_open_trades()
         if not tracked:
             return actions
 
         try:
-            price_data = self.client.get_current_price("EUR_USD")
+            price_data = self.client.get_current_price(self.INSTRUMENT)
             mid_price = price_data["mid"]
-            live_trades = {t["id"]: t for t in self.client.get_open_trades()}
-        except Exception as e:
-            logger.error(f"Monitor fetch error: {e}")
+            live_trades = {trade["id"]: trade for trade in self.client.get_open_trades()}
+        except Exception as exc:
+            logger.error(f"Monitor fetch error: {exc}")
             return actions
 
         now = datetime.now(timezone.utc)
@@ -346,78 +352,122 @@ class TradeExecutor:
                 msg = f"Trade {trade_id} closed by OANDA (SL/TP2 hit)"
                 actions.append(msg)
                 print(f"\n📋 {msg}")
-                self._log_trade_close(trade, "CLOSED_BY_OANDA")
+                self.journal.record_trade_close(trade, "CLOSED_BY_OANDA")
                 del tracked[key]
                 continue
 
-            if not trade_id and trade.get("order_id"):
-                order_id = trade.get("order_id")
-                filled_id = self._check_order_filled(order_id)
-                if filled_id:
-                    trade["trade_id"] = filled_id
-                    trade_id = filled_id
-                    trade["open_time"] = datetime.now(timezone.utc).isoformat()
-                    print(f"\n✅ Limit order {order_id} filled → trade {trade_id}")
-                    actions.append(f"Order {order_id} filled as trade {trade_id}")
-
+            trade_id = self._activate_pending_order_if_filled(trade, actions) or trade_id
             if not trade_id or trade_id not in live_trades:
                 continue
 
-            direction = trade.get("direction")
-            tp1 = trade.get("tp1", 0)
-            entry = trade.get("entry_price", 0)
-            tp1_hit = trade.get("tp1_hit", False)
-            open_time_str = trade.get("open_time")
+            live_trade = live_trades[trade_id]
+            time_stop_msg = self._apply_time_stop_if_needed(trade, live_trade, now)
+            if time_stop_msg:
+                actions.append(time_stop_msg)
+                print(f"\n⏱  TIME STOP: {time_stop_msg}")
+                del tracked[key]
+                continue
 
-            live = live_trades[trade_id]
+            tp1_msg = self._apply_tp1_if_needed(trade, live_trade, mid_price)
+            if tp1_msg:
+                actions.append(tp1_msg)
+                print(f"\n🎯 TP1 HIT: {tp1_msg}")
+                logger.info(tp1_msg)
 
-            if open_time_str:
-                open_time = datetime.fromisoformat(open_time_str)
-                hours_open = (now - open_time).total_seconds() / 3600
-                unrealized = live["unrealized_pl"]
-
-                try:
-                    eq = self.client.get_account_summary()["equity"]
-                    half_r = -(eq * self.config.get("max_risk_per_trade", 0.01) * 0.5)
-                except Exception:
-                    half_r = -500
-
-                max_h = self.config.get("time_stop_hours", 8)
-                if hours_open >= max_h and unrealized < half_r:
-                    self._close_trade(trade_id)
-                    msg = (
-                        f"Time stop: closed trade {trade_id} "
-                        f"after {hours_open:.1f}h | P&L: ${unrealized:.2f}"
-                    )
-                    actions.append(msg)
-                    print(f"\n⏱  TIME STOP: {msg}")
-                    self._log_trade_close(trade, "TIME_STOP", unrealized)
-                    del tracked[key]
-                    continue
-
-            if not tp1_hit and tp1 > 0:
-                tp1_reached = (direction == "BUY" and mid_price >= tp1) or (
-                    direction == "SELL" and mid_price <= tp1
-                )
-
-                if tp1_reached:
-                    current_units = int(abs(live["units"]))
-                    close_units = max(1, current_units // 2)
-
-                    self._close_partial(trade_id, close_units)
-                    self._move_sl_to_entry(trade_id, entry)
-
-                    trade["tp1_hit"] = True
-                    msg = (
-                        f"TP1 hit @ {mid_price:.5f}: "
-                        f"closed {close_units} units, SL → breakeven {entry}"
-                    )
-                    actions.append(msg)
-                    print(f"\n🎯 TP1 HIT: {msg}")
-                    logger.info(msg)
-
-        self._save_open_trades(tracked)
+        self.journal.save_open_trades(tracked)
         return actions
+
+    def _activate_pending_order_if_filled(self, trade: dict, actions: list[str]) -> str | None:
+        if trade.get("trade_id") or not trade.get("order_id"):
+            return trade.get("trade_id")
+
+        order_id = trade["order_id"]
+        filled_id = self._check_order_filled(order_id)
+        if not filled_id:
+            return None
+
+        self.journal.record_order_fill(trade, order_id, filled_id)
+        print(f"\n✅ Limit order {order_id} filled → trade {filled_id}")
+        actions.append(f"Order {order_id} filled as trade {filled_id}")
+        return filled_id
+
+    def _apply_time_stop_if_needed(
+        self,
+        trade: dict,
+        live_trade: dict,
+        now: datetime,
+    ) -> str | None:
+        open_time_str = trade.get("open_time")
+        if not open_time_str:
+            return None
+
+        try:
+            open_time = datetime.fromisoformat(open_time_str)
+        except Exception:
+            return None
+
+        hours_open = (now - open_time).total_seconds() / 3600
+        max_hours = self.config.get("time_stop_hours", 8)
+        if hours_open < max_hours:
+            return None
+
+        unrealized = float(live_trade["unrealized_pl"])
+        if unrealized >= self._half_r_threshold():
+            return None
+
+        trade_id = trade["trade_id"]
+        self._close_trade(trade_id)
+        self.journal.record_trade_close(trade, "TIME_STOP", unrealized)
+        return (
+            f"Time stop: closed trade {trade_id} "
+            f"after {hours_open:.1f}h | P&L: ${unrealized:.2f}"
+        )
+
+    def _half_r_threshold(self) -> float:
+        try:
+            equity = self.client.get_account_summary()["equity"]
+            return -(equity * self.config.get("max_risk_per_trade", 0.01) * 0.5)
+        except Exception:
+            return -500.0
+
+    def _apply_tp1_if_needed(
+        self,
+        trade: dict,
+        live_trade: dict,
+        mid_price: float,
+    ) -> str | None:
+        if trade.get("tp1_hit"):
+            return None
+
+        tp1 = trade.get("tp1", 0)
+        if not tp1:
+            return None
+
+        direction = trade.get("direction")
+        tp1_reached = (direction == "BUY" and mid_price >= tp1) or (
+            direction == "SELL" and mid_price <= tp1
+        )
+        if not tp1_reached:
+            return None
+
+        current_units = int(abs(live_trade["units"]))
+        close_units = max(1, current_units // 2)
+        entry = float(trade.get("entry_price", 0) or 0)
+        partial_pnl = (
+            (mid_price - entry) * close_units
+            if direction == "BUY"
+            else (entry - mid_price) * close_units
+        )
+
+        trade_id = trade["trade_id"]
+        self._close_partial(trade_id, close_units)
+        self._move_sl_to_entry(trade_id, entry)
+        self.journal.record_tp1_partial(trade, mid_price, close_units, partial_pnl)
+
+        return (
+            f"TP1 hit @ {mid_price:.5f}: "
+            f"closed {close_units} units, SL → breakeven {entry}"
+        )
 
     # =========================================================================
     # OANDA REST HELPERS
@@ -432,11 +482,10 @@ class TradeExecutor:
             )
             response = requests.get(url, headers=self.client.headers, timeout=10)
             data = response.json().get("order", {})
-            state = data.get("state", "")
-            if state == "FILLED":
+            if data.get("state", "") == "FILLED":
                 return data.get("tradeOpenedID")
-        except Exception as e:
-            logger.error(f"Order status check failed: {e}")
+        except Exception as exc:
+            logger.error(f"Order status check failed: {exc}")
         return None
 
     def _close_partial(self, trade_id: str, units: int):
@@ -476,181 +525,3 @@ class TradeExecutor:
         response = requests.put(url, headers=self.client.headers, timeout=10)
         if response.status_code != 200:
             logger.error(f"Trade close {trade_id} failed: {response.text}")
-
-    # =========================================================================
-    # LOGGING & TRACKING
-    # =========================================================================
-
-    def _track_trade(self, signal: dict, result: dict):
-        """Save new trade to open_trades.json."""
-        tracked = self._load_open_trades()
-        sig = signal.get("signal", {})
-        key = f"trade_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-
-        tracked[key] = {
-            "order_id": result.get("order_id"),
-            "trade_id": result.get("trade_id"),
-            "instrument": "EUR_USD",
-            "direction": sig.get("direction"),
-            "units": result.get("units"),
-            "entry_price": result.get("entry_price"),
-            "stop_loss": sig.get("stop_loss"),
-            "tp1": sig.get("take_profit_1"),
-            "tp2": sig.get("take_profit_2"),
-            "risk_reward": sig.get("risk_reward"),
-            "tp1_hit": False,
-            "open_time": datetime.now(timezone.utc).isoformat(),
-            "confluence": signal.get("confluence_score"),
-            "confidence": sig.get("confidence"),
-            "session": signal.get("session", ""),
-        }
-        self._save_open_trades(tracked)
-
-    def _log_to_csv(self, signal: dict, result: dict):
-        """Append trade entry to trades.csv."""
-        sig = signal.get("signal", {})
-        row = ",".join(
-            str(x)
-            for x in [
-                datetime.now(timezone.utc).isoformat(),
-                result.get("order_id", ""),
-                result.get("trade_id", ""),
-                "EUR_USD",
-                sig.get("direction", ""),
-                result.get("units", 0),
-                result.get("entry_price", 0),
-                sig.get("stop_loss", 0),
-                sig.get("take_profit_1", 0),
-                sig.get("take_profit_2", 0),
-                "OPEN",
-                "0",
-                f"Conf:{sig.get('confidence')} Score:{signal.get('confluence_score')} Session:{signal.get('session', '')}",
-            ]
-        )
-        with open(self.trades_csv, "a") as f:
-            f.write(row + "\n")
-
-    def drain_closed_trades(self) -> list:
-        """
-        Returns and clears trade records closed since last call.
-        The demo loop calls this after monitor_open_trades() to feed
-        outcomes into agent.record_trade_outcome().
-        """
-        closed = self._pending_feedback[:]
-        self._pending_feedback = []
-        return closed
-
-    def _get_daily_pnl_pct(self, current_balance: float) -> float:
-        """
-        Returns today's realized P&L as a percentage of the day's starting balance.
-        Persists the daily start balance in daily_state.json so it survives
-        the time.sleep(1800) calls but resets at midnight UTC.
-        """
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        state: dict = {}
-
-        if self.daily_state_file.exists():
-            try:
-                with open(self.daily_state_file) as f:
-                    state = json.load(f)
-            except Exception:
-                state = {}
-
-        if state.get("date") != today:
-            state = {"date": today, "start_balance": current_balance}
-            with open(self.daily_state_file, "w") as f:
-                json.dump(state, f)
-            return 0.0
-
-        start_balance = state.get("start_balance", current_balance)
-        if start_balance == 0:
-            return 0.0
-        return (current_balance - start_balance) / start_balance * 100
-
-    def _log_trade_close(self, trade: dict, reason: str, pnl: float = 0):
-        """Append trade close to trades.csv and queue for feedback loop."""
-        duration_hours = ""
-        open_time = trade.get("open_time")
-        if open_time:
-            try:
-                opened_at = datetime.fromisoformat(open_time)
-                duration_hours = round(
-                    (datetime.now(timezone.utc) - opened_at).total_seconds() / 3600,
-                    2,
-                )
-            except Exception:
-                duration_hours = ""
-
-        units = abs(float(trade.get("units", 0) or 0))
-        stop_distance = abs(
-            float(trade.get("entry_price", 0) or 0)
-            - float(trade.get("stop_loss", 0) or 0)
-        )
-        risk_amount = max(stop_distance * units, 0.0001)
-
-        self._pending_feedback.append(
-            {
-                "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-                "pair": trade.get("instrument", "EUR_USD"),
-                "direction": trade.get("direction", ""),
-                "entry_price": trade.get("entry_price", 0),
-                "stop_loss": trade.get("stop_loss", 0),
-                "take_profit": trade.get("tp2", 0),
-                "lot_size": trade.get("units", 0),
-                "outcome": "WIN" if pnl > 0 else ("LOSS" if pnl < 0 else "BREAKEVEN"),
-                "pnl_r": round(pnl / risk_amount, 2),
-                "pnl_usd": round(pnl, 2),
-                "duration_hours": duration_hours,
-                "session": trade.get("session", ""),
-                "confluence_score": trade.get("confluence", 0),
-                "close_reason": reason,
-            }
-        )
-        with open(self.closed_trades_file, "a") as f:
-            f.write(json.dumps(self._pending_feedback[-1]) + "\n")
-        row = ",".join(
-            str(x)
-            for x in [
-                datetime.now(timezone.utc).isoformat(),
-                trade.get("order_id", ""),
-                trade.get("trade_id", ""),
-                "EUR_USD",
-                trade.get("direction", ""),
-                trade.get("units", 0),
-                trade.get("entry_price", 0),
-                trade.get("stop_loss", 0),
-                trade.get("tp1", 0),
-                trade.get("tp2", 0),
-                reason,
-                round(pnl, 2),
-                f"Session:{trade.get('session', '')}",
-            ]
-        )
-        with open(self.trades_csv, "a") as f:
-            f.write(row + "\n")
-
-    def _has_session_loss_streak(self, session: str, limit: int = 2) -> bool:
-        if not session or not self.closed_trades_file.exists():
-            return False
-
-        try:
-            closed_rows = []
-            with open(self.closed_trades_file) as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    row = json.loads(line)
-                    if row.get("session") == session:
-                        closed_rows.append(row)
-        except Exception:
-            return False
-
-        if len(closed_rows) < limit:
-            return False
-
-        recent = closed_rows[-limit:]
-        try:
-            return all((row.get("outcome") == "LOSS") for row in recent)
-        except Exception:
-            return False

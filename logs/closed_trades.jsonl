@@ -1,0 +1,1 @@
+{"date": "2026-03-19", "pair": "EUR_USD", "direction": "SELL", "entry_price": 1.15374, "stop_loss": 1.1565, "take_profit": 1.14413, "lot_size": 362318, "outcome": "BREAKEVEN", "pnl_r": 0.0, "pnl_usd": 0, "duration_hours": 3.57, "session": "London Close", "confluence_score": 75, "close_reason": "CLOSED_BY_OANDA"}

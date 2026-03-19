@@ -84,7 +84,7 @@ class FundamentalsFetcherTests(unittest.TestCase):
         self.assertTrue(result["retail_sentiment"].startswith("MANUAL_CHECK"))
         self.assertTrue(result["risk_sentiment"].startswith("MANUAL_CHECK"))
 
-    @patch("app.fundamentals.fetcher.requests.get")
+    @patch("app.fundamentals.providers.requests.get")
     def test_calendar_fetch_uses_daily_cache(self, mock_get):
         original_cache = fetcher_module._calendar_cache
         original_cache_time = fetcher_module._calendar_cache_time
