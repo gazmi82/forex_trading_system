@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-03-19T13:22:00Z",
+  "pair": "EUR/USD",
+  "timeframe": "4H",
+  "session": "NY Kill Zone",
+  "macro_bias": {
+    "weekly": "BULLISH",
+    "daily": "BEARISH",
+    "h4": "NEUTRAL",
+    "alignment": "CONFLICTING"
+  },
+  "ict_analysis": {
+    "order_block": {
+      "present": true,
+      "type": "BULLISH",
+      "level": 1.14482,
+      "valid": true
+    },
+    "fair_value_gap": {
+      "present": true,
+      "type": "BULLISH",
+      "upper": 1.14666,
+      "lower": 1.14594
+    },
+    "liquidity": {
+      "recent_sweep": true,
+      "swept_level": 1.14882,
+      "direction": "BUY_SIDE"
+    },
+    "premium_discount": "EQUILIBRIUM",
+    "ote_zone": [
+      1.14439,
+      1.14679
+    ]
+  },
+  "technical_analysis": {
+    "ema_bias": "BEARISH",
+    "rsi_14": 47.92,
+    "rsi_signal": "NEUTRAL",
+    "adx_14": 24.07,
+    "market_regime": "RANGING",
+    "key_levels": {
+      "resistance": [
+        1.15322,
+        1.15426,
+        1.1549
+      ],
+      "support": [
+        1.14397,
+        1.14566,
+        1.1507
+      ]
+    }
+  },
+  "fundamental": {
+    "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+    "dxy_direction": "NEUTRAL",
+    "cot_bias": "BULLISH",
+    "next_news_event": "USD Unemployment Claims in 2h 45m",
+    "news_risk": "MEDIUM"
+  },
+  "confluence_score": 35,
+  "signal_strength": "NEUTRAL",
+  "signal": {
+    "direction": "NEUTRAL",
+    "confidence": 35,
+    "entry_zone": [
+      0.0,
+      0.0
+    ],
+    "stop_loss": 0.0,
+    "take_profit_1": 0.0,
+    "take_profit_2": 0.0,
+    "risk_reward": 0.0,
+    "recommended_lot_size": 0.0,
+    "order_type": "LIMIT"
+  },
+  "reasoning": [
+    "Weekly bullish vs Daily bearish creates conflicting macro structure - violates alignment rule",
+    "Recent buy-side liquidity sweep at 1.14882 with strong rejection suggests institutional selling interest",
+    "Rate differential of +1.62% in USD favor creates fundamental headwind for EUR/USD longs",
+    "Price at equilibrium (50% of range) - neither premium nor discount zone for clear directional bias",
+    "ADX at 24.07 indicates ranging market conditions - breakout strategies preferred per knowledge base"
+  ],
+  "key_risk": "Conflicting timeframe structure and upcoming USD news event in 2h 45m creates uncertainty",
+  "knowledge_sources_used": [
+    "Day Trading And Swing Trading - Inside days breakout strategy for ranging markets",
+    "The Forex Trading Course - Post-news retracement patterns and hedge strategies"
+  ],
+  "trade_management": {
+    "tp1_action": "N/A - No trade signal",
+    "tp2_action": "N/A - No trade signal",
+    "time_stop": "N/A - No trade signal"
+  },
+  "do_not_trade_reason": "Confluence score 35 below 45 threshold. Weekly/Daily structure conflict violates alignment rules. Awaiting clearer directional setup or timeframe alignment.",
+  "demo_mode": true,
+  "validator_overrides": [
+    "BLOCKED: Confidence too low (35%)"
+  ],
+  "logged_at_utc": "2026-03-19T13:22:52.269884Z",
+  "log_filename": "signal_20260319_132252.json"
+}
