@@ -80,6 +80,33 @@ class SchedulerStateTests(unittest.TestCase):
         self.assertTrue(schedule["trade_window_active"])
         self.assertEqual(schedule["schedule_reason"], "Allowed trade window")
 
+    def test_upcoming_entry_window_shortens_monitor_sleep(self):
+        now_ny = datetime(2026, 3, 16, 7, 50, tzinfo=ZoneInfo("America/New_York"))
+        schedule = get_demo_loop_schedule_state(
+            _market_data("London Session", False),
+            now_ny=now_ny,
+        )
+
+        self.assertFalse(schedule["analysis_allowed_now"])
+        self.assertEqual(schedule["runtime_mode"], "MONITOR_ONLY")
+        self.assertEqual(schedule["next_poll_seconds"], 600)
+        self.assertEqual(
+            get_next_entry_window_start_ny(now_ny, schedule["analysis_allowed_now"]),
+            "2026-03-16T08:00:00-04:00",
+        )
+
+    def test_upcoming_entry_window_shortens_open_trade_monitor_sleep(self):
+        now_ny = datetime(2026, 3, 16, 7, 55, tzinfo=ZoneInfo("America/New_York"))
+        schedule = get_demo_loop_schedule_state(
+            _market_data("London Session", False, open_trades=1),
+            now_ny=now_ny,
+        )
+
+        self.assertFalse(schedule["analysis_allowed_now"])
+        self.assertEqual(schedule["runtime_mode"], "MONITOR_OPEN_TRADES")
+        self.assertEqual(schedule["next_poll_seconds"], 300)
+        self.assertTrue(schedule["trade_management_active"])
+
     def test_weekend_overrides_raw_trade_window_flag(self):
         now_ny = datetime(2026, 3, 14, 3, 15, tzinfo=ZoneInfo("America/New_York"))
         schedule = get_demo_loop_schedule_state(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from datetime import datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -31,6 +32,26 @@ def _open_trades_count(market_data: dict[str, Any]) -> int:
         return max(int(raw_value), 0)
     except (TypeError, ValueError):
         return 0
+
+
+def _next_entry_window_start_ny(now_ny: datetime) -> datetime | None:
+    candidate = now_ny.replace(second=0, microsecond=0)
+    for day_offset in range(0, 8):
+        day = candidate + timedelta(days=day_offset)
+        if day.weekday() >= 5:
+            continue
+        for hour in ENTRY_WINDOW_START_HOURS_NY:
+            slot = day.replace(hour=hour, minute=0, second=0, microsecond=0)
+            if slot > now_ny:
+                return slot
+    return None
+
+
+def _seconds_until_next_entry_window(now_ny: datetime) -> int | None:
+    next_window = _next_entry_window_start_ny(now_ny)
+    if next_window is None:
+        return None
+    return max(1, math.ceil((next_window - now_ny).total_seconds()))
 
 
 def get_demo_loop_schedule_state(
@@ -77,6 +98,7 @@ def get_demo_loop_schedule_state(
     schedule_reason = _outside_trade_window_reason(session)
     runtime_mode = "MONITOR_ONLY"
     next_poll_seconds = MONITOR_ONLY_INTERVAL_SECONDS
+    seconds_until_next_entry = _seconds_until_next_entry_window(now_ny)
 
     if open_trades_count > 0:
         runtime_mode = "MONITOR_OPEN_TRADES"
@@ -85,6 +107,9 @@ def get_demo_loop_schedule_state(
         schedule_reason = (
             f"{schedule_reason} — monitoring {open_trades_count} open {trade_label}"
         )
+
+    if seconds_until_next_entry is not None:
+        next_poll_seconds = min(next_poll_seconds, seconds_until_next_entry)
 
     return {
         "analysis_allowed_now": False,
@@ -102,16 +127,8 @@ def get_next_entry_window_start_ny(now_ny: datetime, analysis_allowed_now: bool)
     if analysis_allowed_now:
         return None
 
-    candidate = now_ny.replace(second=0, microsecond=0)
-    for day_offset in range(0, 8):
-        day = candidate + timedelta(days=day_offset)
-        if day.weekday() >= 5:
-            continue
-        for hour in ENTRY_WINDOW_START_HOURS_NY:
-            slot = day.replace(hour=hour, minute=0)
-            if slot > now_ny:
-                return slot.isoformat()
-    return None
+    next_window = _next_entry_window_start_ny(now_ny)
+    return next_window.isoformat() if next_window else None
 
 
 def get_demo_loop_schedule(market_data: dict[str, Any]) -> tuple[bool, str, int, str]:
