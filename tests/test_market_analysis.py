@@ -52,11 +52,15 @@ class MarketAnalysisTests(unittest.TestCase):
         self.assertIs(PackagedOandaMarketStructureAnalyzer, MarketStructureAnalyzer)
 
     def test_find_bullish_fvg_returns_latest_gap(self):
+        # Bullish FVG requires: c1.high < c3.low (gap exists) AND
+        # c2 (impulse candle) low >= c1.high (impulse never breached back into the gap).
+        # March 20 fix tightened the second condition to remove false positives.
         df = _frame(
             [
                 {"open": 1.1490, "high": 1.1495, "low": 1.1488, "close": 1.1492},
                 {"open": 1.1498, "high": 1.15003, "low": 1.1496, "close": 1.1499},
-                {"open": 1.1501, "high": 1.1502, "low": 1.1499, "close": 1.1500},
+                # c2 (impulse): low must be >= c1.high (1.15003) to pass validation
+                {"open": 1.1502, "high": 1.1512, "low": 1.15005, "close": 1.1510},
                 {"open": 1.1509, "high": 1.1511, "low": 1.1508, "close": 1.1510},
                 {"open": 1.1510, "high": 1.1512, "low": 1.1509, "close": 1.1511},
             ]

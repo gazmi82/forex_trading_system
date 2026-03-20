@@ -84,8 +84,8 @@ class TradeFeedbackTests(unittest.TestCase):
                 "entry_price": 1.15374,
             }
 
-            executor._track_trade(signal, result)
-            tracked = executor._load_open_trades()
+            executor.journal.record_trade_open(signal, result)
+            tracked = executor.journal.load_open_trades()
             trade = next(iter(tracked.values()))
 
             self.assertEqual(trade["signal_log_filename"], "signal_20260319_130000.json")
@@ -137,7 +137,7 @@ class TradeFeedbackTests(unittest.TestCase):
                 "units": 362318,
                 "entry_price": 1.15374,
             }
-            executor._track_trade(entry_signal, result)
+            executor.journal.record_trade_open(entry_signal, result)
 
             loop_signal = {
                 "pair": "EUR/USD",
@@ -151,9 +151,9 @@ class TradeFeedbackTests(unittest.TestCase):
             }
             executor.record_signal_snapshot_for_open_trades(loop_signal)
 
-            tracked = executor._load_open_trades()
+            tracked = executor.journal.load_open_trades()
             trade = next(iter(tracked.values()))
-            executor._log_trade_close(trade, "TIME_STOP", -250.0)
+            executor.journal.record_trade_close(trade, "TIME_STOP", -250.0)
 
             timeline_path = log_dir / "trade_signal_timelines" / trade["signal_timeline_file"]
             timeline = json.loads(timeline_path.read_text(encoding="utf-8"))
@@ -246,7 +246,7 @@ class TradeFeedbackTests(unittest.TestCase):
                 "signal_log_filename": signal_log.name,
             }
 
-            executor._log_trade_close(trade, "CLOSED_BY_OANDA", None)
+            executor.journal.record_trade_close(trade, "CLOSED_BY_OANDA", None)
             closed_trade = executor.drain_closed_trades()[0]
 
             self.assertEqual(closed_trade["outcome"], "PARTIAL_WIN")

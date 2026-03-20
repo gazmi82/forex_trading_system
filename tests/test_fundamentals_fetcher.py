@@ -71,18 +71,20 @@ class FundamentalsFetcherTests(unittest.TestCase):
     @patch("app.fundamentals.fetcher.fetch_cot_eur", return_value={})
     @patch("app.fundamentals.fetcher.fetch_dxy", return_value={})
     @patch("app.fundamentals.fetcher.fetch_policy_rates", return_value={})
-    def test_get_auto_fundamentals_falls_back_to_manual_check(self, *_mocks):
+    def test_get_auto_fundamentals_falls_back_to_neutral_values(self, *_mocks):
+        # March 20 fix: empty feeds now return safe neutral values instead of
+        # MANUAL_CHECK strings, so Claude never receives unhandled sentinel tokens.
         result = get_auto_fundamentals()
 
         self.assertIsNone(result["usd_rate"])
-        self.assertTrue(result["rate_differential"].startswith("MANUAL_CHECK"))
-        self.assertTrue(result["dxy_direction"].startswith("MANUAL_CHECK"))
-        self.assertTrue(result["cot_bias"].startswith("MANUAL_CHECK"))
-        self.assertTrue(result["next_news_event"].startswith("MANUAL_CHECK"))
+        self.assertEqual(result["rate_differential"], "N/A (live Fed/ECB data unavailable)")
+        self.assertEqual(result["dxy_direction"], "NEUTRAL")
+        self.assertEqual(result["cot_bias"], "NEUTRAL")
+        self.assertEqual(result["next_news_event"], "MANUAL_CHECK")   # calendar still uses MANUAL_CHECK
         self.assertEqual(result["news_risk"], "HIGH")
-        self.assertTrue(result["recent_headline"].startswith("MANUAL_CHECK"))
-        self.assertTrue(result["retail_sentiment"].startswith("MANUAL_CHECK"))
-        self.assertTrue(result["risk_sentiment"].startswith("MANUAL_CHECK"))
+        self.assertEqual(result["recent_headline"], "None available")
+        self.assertEqual(result["retail_sentiment"], "NEUTRAL")
+        self.assertEqual(result["risk_sentiment"], "NEUTRAL")
 
     @patch("app.fundamentals.providers.requests.get")
     def test_calendar_fetch_uses_daily_cache(self, mock_get):

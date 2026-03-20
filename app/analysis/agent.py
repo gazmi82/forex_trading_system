@@ -6,6 +6,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+from app.analysis.confluence_scorer import calculate_confluence
 from app.analysis.scheduler import ALLOWED_ENTRY_SESSIONS
 from app.analysis.trade_feedback import TradeFeedbackManager
 
@@ -540,6 +541,30 @@ INSTRUCTIONS:
             logger.warning(f"Signal overridden: {overrides}")
             return signal
 
+        # --- Mechanical confluence scoring (Item 1.1 / 1.2) ---
+        # Calculate an independent, deterministic score from market_data.
+        # Replace Claude's self-reported score with the mechanical value so
+        # that downstream execution gates are based on objective data.
+        try:
+            mech_result = calculate_confluence(market_data, signal)
+            mech_score  = mech_result["confluence_score"]
+        except Exception as _exc:
+            logger.warning(f"Mechanical confluence scorer failed: {_exc}")
+            mech_score  = 0
+            mech_result = {"confluence_score": 0, "direction_implied": "NEUTRAL", "component_scores": {}}
+
+        signal["claude_confluence_score"] = signal.get("confluence_score", 0)
+        signal["confluence_score"]        = mech_score
+        signal["confluence_components"]   = mech_result.get("component_scores", {})
+        signal["direction_implied"]       = mech_result.get("direction_implied", "NEUTRAL")
+
+        if mech_score < self.config.get("min_confidence", 65):
+            sig["direction"] = "NEUTRAL"
+            overrides.append(
+                f"BLOCKED: Mechanical confluence score too low "
+                f"({mech_score}/100, minimum 65; Claude scored {signal['claude_confluence_score']})"
+            )
+
         # Normalise the session field to the actual clock-derived value so the
         # executor receives the ground-truth session, not Claude's inferred label.
         session = fund.get("active_session", signal.get("session", ""))
@@ -701,3 +726,23 @@ INSTRUCTIONS:
         log_file = self.log_dir / "agent_decisions.jsonl"
         with open(log_file, "a") as f:
             f.write(json.dumps(log_entry) + "\n")
+
+        # --- Score calibration log (Item 1.3) ---
+        # Records Claude's score vs mechanical score per analysis.
+        # After 50+ entries, correlate mechanical scores to win rates.
+        claude_score = signal.get("claude_confluence_score", 0)
+        mech_score   = signal.get("confluence_score", 0)
+        direction    = (signal.get("signal") or {}).get("direction", "NEUTRAL")
+        session      = signal.get("session", "")
+        calibration_entry = {
+            "timestamp":        datetime.utcnow().isoformat(),
+            "session":          session,
+            "claude_score":     claude_score,
+            "mechanical_score": mech_score,
+            "delta":            mech_score - claude_score,
+            "direction":        direction,
+            "outcome":          None,   # updated after trade closes
+        }
+        cal_file = self.log_dir / "score_calibration.jsonl"
+        with open(cal_file, "a") as f:
+            f.write(json.dumps(calibration_entry) + "\n")

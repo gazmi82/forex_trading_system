@@ -1,7 +1,7 @@
 # CLAUDE.md — Forex Trading System Project Context
 # This file is for Claude Code (VS Code) to stay aligned with all decisions,
 # architecture, and progress made in the main Claude.ai chat session.
-# Last updated: March 14, 2026
+# Last updated: March 20, 2026
 
 ---
 
@@ -78,7 +78,16 @@ main.py
 ├── TradeExecutor (app/execution/trade_executor.py)
 │   ├── Order validation + sizing
 │   ├── OANDA order placement / monitoring
+│   ├── TP1 partial close (tp1_close_percent from config)
+│   ├── ATR-based trailing stop after TP1 (tp2_trail from config)
 │   └── Trade outcome feedback loop
+│
+├── TradeJournal (app/execution/trade_journal.py)
+│   ├── Open/closed trade persistence
+│   ├── Structured feedback fields per closed trade:
+│   │   setup_grade (A/B/C/F), entry_timing, ict_post_hoc,
+│   │   root_cause, pattern_tags
+│   └── Trade signal timeline per trade
 │
 └── app/fundamentals/fetcher.py
     ├── DXY intraday signal via Yahoo Finance
@@ -413,41 +422,68 @@ the system stops and prints actionable warnings. It does not substitute static d
 
 ## NEXT STEPS (Priority Order)
 
-```
-IMMEDIATE (this week):
-  2. ✅ Build OANDA broker layer           — DONE March 10
-  3. ✅ Create OANDA demo account          — DONE March 11 ($100k)
-  4. ✅ Ingest research papers (21/23)     — DONE March 11 (388 chunks)
-  5. ⬜ Generate OANDA API key
-     → oanda.com → My Account → Manage API Access → Generate
-  6. ⬜ Set env vars: OANDA_API_KEY + OANDA_ACCOUNT_ID=101-001-38764497-001
-  7. ⬜ Test live connection: python main.py --mode test
-  8. ⬜ Confirm live EUR/USD price flowing into agent
+See `IMPROVEMENT_ROADMAP.md` for the full path from score 38 → 75.
+Summary of phases below.
 
-SHORT TERM (weeks 2-4):
-  9. ⬜ Ingest 2 missing research PDFs (run --mode ingest)
+```
+COMPLETED (March 2026):
+  ✅ Build OANDA broker layer                 — March 10
+  ✅ Create OANDA demo account ($100k)        — March 11
+  ✅ Ingest research papers (21/23)           — March 11 (388 chunks)
+  ✅ Fix RSI/ADX division-by-zero             — March 20
+  ✅ Fix FVG false positives                  — March 20
+  ✅ Fix Premium/Discount zone detection      — March 20
+  ✅ Fix daily PnL surviving restarts         — March 20
+  ✅ Fix trades_today accurate count          — March 20
+  ✅ Fix session loss streak after restart    — March 20
+  ✅ Fix open risk sum (absolute per trade)   — March 20
+  ✅ Fix daily loss projection before block   — March 20
+  ✅ Fix greedy JSON regex → brace-depth      — March 20
+  ✅ Add OANDA candle retry + backoff         — March 20
+  ✅ Fix fundamentals MANUAL_CHECK strings    — March 20
+  ✅ Structured trade feedback (grade/root)   — March 20
+  ✅ Claude-haiku trade lesson generation     — March 20
+  ✅ Wire tp1_close_percent from config       — March 20
+  ✅ ATR-based trailing stop after TP1        — March 20
+  ✅ Remove dead code + consolidate constants — March 20
+
+IMMEDIATE (still needed this week):
+  ⬜ Generate OANDA API key
+     → oanda.com → My Account → Manage API Access → Generate
+  ⬜ Set env vars: OANDA_API_KEY + OANDA_ACCOUNT_ID=101-001-38764497-001
+  ⬜ Test live connection: python main.py --mode test
+  ⬜ Ingest 2 missing research PDFs
      → Deep learning forex prediction.pdf
      → Triennial Central Bank Survey — Foreign exchange turnover.pdf
-  10. ⬜ Add ICT YouTube transcripts to documents/ict/
-  11. ⬜ Build performance dashboard (Streamlit)
-      → Visual chart of all signals over time
-      → Win/loss tracking per signal
+  ⬜ Add ICT YouTube transcripts to documents/ict/
 
-MONTH 2-3:
-  12. ⬜ Build Risk Manager agent (second Claude call)
-      → Reviews every signal before logging
-      → Can reject or modify signal
-  13. ⬜ Build Trade Executor agent (third Claude call)
-      → Determines optimal entry timing within entry zone
-      → Manages partial closes at TP1
-  14. ⬜ Harden live fundamentals infrastructure
-      → Replace public JSON feeds / webpage scraping for calendar, news, and USD/EUR rate data
-      → Move those feeds onto solid documented endpoints in a later phase
+PHASE 1 — Score 38 → 50 (Month 2-3):
+  ⬜ Build mechanical confluence scorer (app/analysis/confluence_scorer.py)
+     → Deterministic Python calculation, not Claude self-report
+     → Wire into _validate_signal as the gate for execution
+  ⬜ Enforce weekly loss limit (5%) in agent + executor
 
-MONTH 6+:
-  15. ⬜ Connect OANDA order execution API
-      → Auto-place trades on demo account
-      → Still demo, but real fills + real spreads
+PHASE 2 — Score 50 → 60 (Month 3-4):
+  ⬜ Build backtester (app/backtesting/)
+     → Historical data loader (OANDA candles, 2+ years)
+     → Signal replay engine (no Claude API, mechanical scorer only)
+     → Trade outcome simulator (same rules as live executor)
+     → Performance report (win rate, expectancy, by session/tag)
+
+PHASE 3 — Score 60 → 67 (Month 4-5):
+  ⬜ Edge database aggregator (app/performance/edge_report.py)
+     → Win rate / avg R / expectancy per pattern tag, session, grade
+  ⬜ Weekly performance summary (auto-generated every Friday)
+  ⬜ Harden live fundamentals infrastructure
+
+PHASE 4 — Score 67 → 72 (Month 5-6):
+  ⬜ Session-specific time stop calibration
+  ⬜ Build performance dashboard (Streamlit)
+
+PHASE 5 — Score 72 → 75 (Month 6-8):
+  ⬜ Order block mitigation tracking
+  ⬜ FVG fill status tracking
+  ⬜ Displacement candle validation for OB detection
 ```
 
 ---
@@ -489,6 +525,68 @@ Status: ✅ Resolved
 Issue: API key from wrong workspace (Claude Code workspace, not Individual Org)
 Fix:   Created new key in Default workspace under Gazmir's Individual Org
 Status: ✅ Resolved
+
+Issue: RSI/ADX crash on flat or zero-range markets
+Fix:   Extract scalars before division; guard NaN/zero with explicit checks
+Status: ✅ Resolved — March 20, 2026
+
+Issue: FVG false positives — impulse candle retracing back through gap
+Fix:   Validate c2 (impulse candle) does not breach back through c1 boundary
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Premium/Discount almost always returning EQUILIBRIUM
+Fix:   Switched from price-relative 0.2% band to range-relative 60/40 threshold
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Liquidity sweep lookback too narrow (10 candles)
+Fix:   Extended to 48 candles to catch full session sweeps
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Greedy JSON regex failing on nested Claude responses
+Fix:   Replaced with brace-depth tracker that handles nested objects + strings
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Session label using Claude's inferred value, not clock-derived value
+Fix:   Overwrite signal["session"] from fund.get("active_session") in validator
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Daily loss check not projecting new trade's risk before blocking
+Fix:   Block when daily_pnl - max_trade_risk_pct < -max_daily_loss_pct
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Open risk masking offsetting positions (abs of net sum)
+Fix:   Sum absolute per-position exposure instead of abs(net)
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Daily PnL resetting to 0 after process restart
+Fix:   _get_daily_start_balance() reads from persistent daily_state.json
+Status: ✅ Resolved — March 20, 2026
+
+Issue: trades_today showing open count only, not daily total
+Fix:   _count_closed_today() scans closed_trades.jsonl for today's entries
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Session loss streak not surviving process restarts
+Fix:   Falls back to closed_trades.jsonl when in-memory feedback is empty
+Status: ✅ Resolved — March 20, 2026
+
+Issue: OANDA candle fetch failing silently on network errors
+Fix:   3-attempt retry with 2s/4s exponential backoff
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Fundamentals MANUAL_CHECK strings passed as-is to Claude
+Fix:   Neutral fallback values (NEUTRAL, None available) for all fields
+Status: ✅ Resolved — March 20, 2026
+
+Issue: tp1_close_percent and tp2_trail in config never used by executor
+Fix:   Wired tp1_close_percent into _apply_tp1_if_needed;
+       added _apply_trailing_stop_if_needed with one-directional ATR trail
+Status: ✅ Resolved — March 20, 2026
+
+Issue: Dead wrapper methods in TradeExecutor and unused aliases in agent
+Fix:   Removed 8 dead wrappers; removed feedback_dir/feedback_memory aliases;
+       consolidated ALLOWED_ENTRY_SESSIONS to single definition in scheduler.py
+Status: ✅ Resolved — March 20, 2026
 ```
 
 ---
@@ -534,6 +632,9 @@ When working on this project in VS Code, follow these rules:
 8. **Config changes go in app/core/config.py only** — not hardcoded in other files
 9. **New documents go in documents/[category]/** then run --mode ingest
 10. **Keep the OANDA broker layer separate** — never merge `app/brokers/oanda.py` into the CLI entrypoint
+11. **New features must follow IMPROVEMENT_ROADMAP.md phase order** — do not skip phases; each builds on the last
+12. **Allowed sessions are defined once** — always import `ALLOWED_ENTRY_SESSIONS` from `app/analysis/scheduler.py`, never hardcode the set
+13. **Confluence scoring** — when the mechanical scorer (Phase 1) is built, it becomes the execution gate; Claude's self-reported score is logged only for comparison
 
 ---
 

@@ -274,10 +274,23 @@ Every 30 minutes:
    - logs/closed_trades.jsonl (structured closed-trade records)
    - logs/signal_*.json / logs/test_signal_*.json (signal payloads, including Claude failures)
 
-6. FEEDBACK LOOP
-   After each trade closes, outcome is stored back into RAG.
-   Agent builds a memory of its own successes and failures.
-   A readable markdown trade review is also written to:
+6. TRADE MANAGEMENT
+   After entry, the executor monitors every cycle:
+   - TP1 hit → close tp1_close_percent of position (default 50%),
+     move stop loss to entry (breakeven)
+   - After TP1 → trail stop at ATR-based distance as price advances
+     toward TP2 (one-directional only, never moves against the trade)
+   - Time stop → close if -0.5R after session-appropriate hours
+
+7. FEEDBACK LOOP
+   After each trade closes, a structured post-trade review is built:
+   - setup_grade (A/B/C/F) — quality of the setup independent of outcome
+   - entry_timing (OPTIMAL/ACCEPTABLE/AT_EDGE/OUTSIDE_ZONE)
+   - ict_post_hoc — did OB hold, did FVG act as magnet, did sweep reverse?
+   - root_cause — CORRECT_PROCESS_ADVERSE_OUTCOME vs NEWS_INTERFERENCE etc.
+   - pattern_tags — searchable edge tags (ob_entry, post_sweep, mtf_aligned…)
+   - Claude-haiku generates a 1-2 sentence process-focused lesson
+   Structured review stored into RAG + readable markdown written to:
    - feedback/feedback_YYYYMMDD_HHMMSS_pair_session_outcome.md
 ```
 
@@ -321,11 +334,17 @@ The system is configured for 12-month demo trading:
 - Full logging active from day 1
 - Feedback loop builds agent memory over time
 
+See `IMPROVEMENT_ROADMAP.md` for the structured path from the current
+state to a validated, evidence-based system (score 38 → 75) across
+five pillars: backtesting, mechanical confluence scoring, performance
+intelligence, smarter trade management, and ICT quality.
+
 After 12 months of consistent profitability on demo:
 1. Review all metrics in `logs/performance.csv`
-2. Run Monte Carlo simulation
-3. Only then change `demo_mode = False`
-4. Start with 10% of intended live capital
+2. Review edge report output from `app/performance/edge_report.py`
+3. Run Monte Carlo simulation
+4. Only then change `demo_mode = False`
+5. Start with 10% of intended live capital
 
 ---
 
