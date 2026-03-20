@@ -120,8 +120,8 @@ TRADING_CONFIG = {
     "max_weekly_loss":      0.05,       # 5% → emergency shutdown
 
     # Position management
-    "tp1_close_percent":    0.50,       # Close 50% at TP1
-    "tp2_trail":            True,       # Trail remaining position to TP2
+    "tp1_close_percent":    0.50,       # Fraction of position to close at TP1 (0.50 = 50%)
+    "tp2_trail":            True,       # Trail remaining position after TP1; False = fixed TP2 only
     "time_stop_hours":      8,          # Close if -0.5R after N hours
 
     # Session filter (EST times)

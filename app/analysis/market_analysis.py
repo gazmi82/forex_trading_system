@@ -50,9 +50,14 @@ class IndicatorCalculator:
         delta = df["close"].diff()
         gain = delta.clip(lower=0).rolling(period).mean()
         loss = (-delta.clip(upper=0)).rolling(period).mean()
-        rs = gain / loss
-        rsi = 100 - (100 / (1 + rs))
-        return round(rsi.iloc[-1], 2)
+        last_gain = gain.iloc[-1]
+        last_loss = loss.iloc[-1]
+        if pd.isna(last_gain) or pd.isna(last_loss):
+            return 50.0
+        if last_loss == 0:
+            return 100.0 if last_gain > 0 else 50.0
+        rs = last_gain / last_loss
+        return round(100 - (100 / (1 + rs)), 2)
 
     @staticmethod
     def _adx(df: pd.DataFrame, period: int = 14) -> float:
@@ -66,12 +71,18 @@ class IndicatorCalculator:
         dmp_smooth = dm_plus.rolling(period).mean()
         dmm_smooth = dm_minus.rolling(period).mean()
 
-        di_plus = 100 * dmp_smooth / tr_smooth
-        di_minus = 100 * dmm_smooth / tr_smooth
-        dx = 100 * (di_plus - di_minus).abs() / (di_plus + di_minus)
+        # Guard against division by zero on flat/zero-range markets
+        safe_tr = tr_smooth.replace(0, float("nan"))
+        di_plus = (100 * dmp_smooth / safe_tr).fillna(0)
+        di_minus = (100 * dmm_smooth / safe_tr).fillna(0)
+
+        di_sum = di_plus + di_minus
+        safe_sum = di_sum.replace(0, float("nan"))
+        dx = (100 * (di_plus - di_minus).abs() / safe_sum).fillna(0)
         adx = dx.rolling(period).mean()
 
-        return round(adx.iloc[-1], 2)
+        val = adx.iloc[-1]
+        return round(float(val), 2) if pd.notna(val) else 0.0
 
     @staticmethod
     def _atr(df: pd.DataFrame, period: int = 14) -> float:
@@ -143,18 +154,21 @@ class IndicatorCalculator:
         swing_high = recent["high"].max()
         swing_low = recent["low"].min()
         current = recent["close"].iloc[-1]
-        if swing_high == swing_low:
+        range_size = swing_high - swing_low
+        if range_size <= 0:
             return "EQUILIBRIUM (flat range)"
 
-        equilibrium = (swing_high + swing_low) / 2
+        # Express current price as a percentage of the recent range (0% = low, 100% = high).
+        # Thresholds: >60% = PREMIUM, <40% = DISCOUNT, 40-60% = EQUILIBRIUM zone.
+        # This is purely range-relative, matching ICT's 50% equilibrium concept.
+        range_pct = (current - swing_low) / range_size
+        pct_label = round(range_pct * 100)
 
-        if current > equilibrium * 1.002:
-            pct = round((current - swing_low) / (swing_high - swing_low) * 100)
-            return f"PREMIUM ({pct}% of range)"
-        if current < equilibrium * 0.998:
-            pct = round((current - swing_low) / (swing_high - swing_low) * 100)
-            return f"DISCOUNT ({pct}% of range)"
-        return "EQUILIBRIUM (50% of range)"
+        if range_pct > 0.60:
+            return f"PREMIUM ({pct_label}% of range)"
+        if range_pct < 0.40:
+            return f"DISCOUNT ({pct_label}% of range)"
+        return f"EQUILIBRIUM ({pct_label}% of range)"
 
     @staticmethod
     def _ote_zone(df: pd.DataFrame, lookback: int = 20) -> list:
@@ -216,21 +230,26 @@ class IndicatorCalculator:
 
         for i in range(len(lookback) - 3, 1, -1):
             c1 = lookback.iloc[i - 1]
+            c2 = lookback.iloc[i]       # the impulse candle
             c3 = lookback.iloc[i + 1]
 
             if direction == "bullish":
-                if c1["high"] < c3["low"]:
+                # Gap exists between c1 high and c3 low, AND c2 (impulse) never
+                # breached back below c1's high — confirming a clean unvisited gap.
+                if c1["high"] < c3["low"] and c2["low"] >= c1["high"]:
                     return f"{round(c1['high'], 5)}–{round(c3['low'], 5)} (1H, unfilled)"
 
             elif direction == "bearish":
-                if c1["low"] > c3["high"]:
+                # Gap exists between c3 high and c1 low, AND c2 (impulse) never
+                # breached back above c1's low — confirming a clean unvisited gap.
+                if c1["low"] > c3["high"] and c2["high"] <= c1["low"]:
                     return f"{round(c3['high'], 5)}–{round(c1['low'], 5)} (1H, unfilled)"
 
         return "None identified"
 
     @staticmethod
     def _find_liquidity_sweep(df: pd.DataFrame) -> str:
-        recent = df.tail(10)
+        recent = df.tail(48)  # ~48 hours on 1H chart; 10 was too narrow to catch session sweeps
 
         for i in range(len(recent) - 1, 0, -1):
             candle = recent.iloc[i]

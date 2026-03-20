@@ -13,10 +13,13 @@
 # Install: pip install oandapyV20 pandas ta requests
 # =============================================================================
 
+import json
 import logging
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
@@ -128,7 +131,21 @@ class OANDAClient:
             "price": "M",
         }
 
-        response = requests.get(url, headers=self.headers, params=params, timeout=15)
+        last_exc: Exception | None = None
+        response = None
+        for attempt in range(1, 4):
+            try:
+                response = requests.get(url, headers=self.headers, params=params, timeout=15)
+                break
+            except requests.exceptions.RequestException as exc:
+                last_exc = exc
+                if attempt < 3:
+                    time.sleep(2 ** attempt)  # 2 s, 4 s
+        else:
+            raise ConnectionError(
+                f"OANDA candle fetch failed after 3 attempts ({granularity}): {last_exc}"
+            )
+
         data = response.json()
 
         if "candles" not in data:
@@ -202,8 +219,9 @@ class MarketDataBuilder:
     Produces the complete market_data dict ready for the agent.
     """
 
-    def __init__(self, oanda_client: OANDAClient):
+    def __init__(self, oanda_client: OANDAClient, log_dir: Optional[Path] = None):
         self.client = oanda_client
+        self.log_dir = log_dir
         self.calculator = IndicatorCalculator()
         self.structure = MarketStructureAnalyzer()
         self._daily_start_balance: Optional[float] = None
@@ -287,15 +305,11 @@ class MarketDataBuilder:
         open_risk_pct = 0.0
         if open_trades:
             open_risk_pct = round(
-                abs(sum(trade["unrealized_pl"] for trade in open_trades)) / equity * 100,
+                sum(abs(trade["unrealized_pl"]) for trade in open_trades) / equity * 100,
                 2,
             )
 
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        if self._daily_start_date != today:
-            self._daily_start_balance = account["balance"]
-            self._daily_start_date = today
-        start_bal = self._daily_start_balance or account["balance"]
+        start_bal = self._get_daily_start_balance(account["balance"])
         daily_pnl_pct = (
             round((account["balance"] - start_bal) / start_bal * 100, 2)
             if start_bal > 0
@@ -307,7 +321,7 @@ class MarketDataBuilder:
             "open_trades": len(open_trades),
             "open_risk_pct": open_risk_pct,
             "daily_pnl_pct": daily_pnl_pct,
-            "trades_today": len(open_trades),
+            "trades_today": len(open_trades) + self._count_closed_today(),
             "usd_exposure": self._calculate_usd_exposure(open_trades),
             "margin_used_pct": round(account["margin_used"] / equity * 100, 2),
         }
@@ -325,6 +339,63 @@ class MarketDataBuilder:
             "portfolio": portfolio,
             "fetch_time": datetime.now(timezone.utc).isoformat(),
         }
+
+    def _get_daily_start_balance(self, current_balance: float) -> float:
+        """
+        Return today's opening balance, surviving process restarts.
+
+        Priority:
+          1. In-memory cache (already set for today).
+          2. Executor's daily_state.json (persisted to disk by TradeJournal).
+          3. Current balance as fallback (first run of the day or no file).
+        """
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        if self._daily_start_date == today and self._daily_start_balance is not None:
+            return self._daily_start_balance
+
+        if self.log_dir:
+            state_file = self.log_dir / "daily_state.json"
+            if state_file.exists():
+                try:
+                    with open(state_file) as f:
+                        state = json.load(f)
+                    if state.get("date") == today:
+                        start_bal = float(state["start_balance"])
+                        self._daily_start_balance = start_bal
+                        self._daily_start_date = today
+                        return start_bal
+                except Exception:
+                    pass
+
+        # First call of the day or no file — use current balance as the baseline.
+        self._daily_start_balance = current_balance
+        self._daily_start_date = today
+        return current_balance
+
+    def _count_closed_today(self) -> int:
+        """Count trades closed today from the persistent closed_trades.jsonl log."""
+        if not self.log_dir:
+            return 0
+        closed_file = self.log_dir / "closed_trades.jsonl"
+        if not closed_file.exists():
+            return 0
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        count = 0
+        try:
+            with open(closed_file) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        if json.loads(line).get("date") == today:
+                            count += 1
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+        return count
 
     def _get_session_info(self) -> dict:
         """Determine current trading session based on UTC time, DST-aware."""

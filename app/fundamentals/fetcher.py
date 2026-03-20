@@ -338,18 +338,16 @@ def get_auto_fundamentals(
         ecb_main_refi_rate = None
         ecb_marginal_lending_rate = None
         ecb_deposit_rate = None
-        rate_differential = (
-            "MANUAL_CHECK — live Fed/ECB rate pages unavailable; "
-            "check network access or page layout changes"
-        )
+        rate_differential = "N/A (live Fed/ECB data unavailable)"
         rates_source = "unavailable"
 
     if dxy:
         dxy_direction = dxy["direction"]
         dxy_lvl_str = str(dxy["level"])
     else:
-        dxy_direction = "MANUAL_CHECK — Yahoo Finance DXY unavailable"
-        dxy_lvl_str = "MANUAL_CHECK — verify yfinance/network access"
+        # Keep enum-typed fields as valid enum values so Claude's prompt stays clean.
+        dxy_direction = "NEUTRAL"
+        dxy_lvl_str = "N/A"
 
     if cot:
         cot_bias = cot["bias"]
@@ -358,8 +356,8 @@ def get_auto_fundamentals(
             f"Hedge Funds: {cot['lm_str']} (as of {cot['as_of']})"
         )
     else:
-        cot_bias = "MANUAL_CHECK — CFTC COT unavailable"
-        cot_net = "MANUAL_CHECK — verify cftc.gov access or Friday report availability"
+        cot_bias = "NEUTRAL"
+        cot_net = "N/A (CFTC unavailable)"
 
     if calendar:
         next_event_name = calendar.get("next_event_name", "")
@@ -367,25 +365,29 @@ def get_auto_fundamentals(
         time_to_event = calendar.get("time_to_event")
         news_risk = calendar.get("news_risk", "LOW")
     else:
-        next_event_name = "MANUAL_CHECK — Forex Factory calendar unavailable; verify network/endpoint"
-        next_news_event = next_event_name
+        # "MANUAL_CHECK" prefix is intentional — agent.py detects it and hard-blocks
+        # trading when the calendar is unavailable (fail-closed). Keep it short so
+        # the validator's startswith("MANUAL_CHECK") check still fires, but don't
+        # inject a long warning string into Claude's prompt.
+        next_event_name = "MANUAL_CHECK"
+        next_news_event = "MANUAL_CHECK"
         time_to_event = None
         news_risk = "HIGH"
 
     if news:
         recent_headline = news["headline"]
     else:
-        recent_headline = "MANUAL_CHECK — set FINNHUB_API_KEY or NEWS_API_KEY for live headlines"
+        recent_headline = "None available"
 
     if sentiment_data:
         sentiment = sentiment_data["sentiment"]
     else:
-        sentiment = "MANUAL_CHECK — OANDA position book unavailable; verify OANDA_API_KEY/access"
+        sentiment = "NEUTRAL"
 
     if risk:
         risk_sentiment = risk["risk_sentiment"]
     else:
-        risk_sentiment = "MANUAL_CHECK — SPY proxy unavailable; verify yfinance/network"
+        risk_sentiment = "NEUTRAL"
 
     return {
         "usd_rate": usd_rate,

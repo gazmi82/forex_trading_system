@@ -17,6 +17,7 @@ from pathlib import Path
 
 import requests
 
+from app.analysis.scheduler import ALLOWED_ENTRY_SESSIONS
 from app.execution.trade_journal import TradeJournal
 
 logger = logging.getLogger(__name__)
@@ -37,25 +38,6 @@ class TradeExecutor:
         self.demo_mode = trading_config.get("demo_mode", True)
         self.journal = TradeJournal(self.log_dir)
 
-    # =========================================================================
-    # JOURNAL COMPATIBILITY WRAPPERS
-    # =========================================================================
-
-    def _init_logs(self):
-        self.journal._init_logs()
-
-    def _load_open_trades(self) -> dict:
-        return self.journal.load_open_trades()
-
-    def _save_open_trades(self, trades: dict):
-        self.journal.save_open_trades(trades)
-
-    def _track_trade(self, signal: dict, result: dict):
-        self.journal.record_trade_open(signal, result)
-
-    def _log_to_csv(self, signal: dict, result: dict):
-        self.journal._log_trade_open_to_csv(signal, result)
-
     def record_signal_snapshot_for_open_trades(self, signal: dict):
         self.journal.record_signal_snapshot_for_open_trades(signal)
 
@@ -66,15 +48,6 @@ class TradeExecutor:
         outcomes into agent.record_trade_outcome().
         """
         return self.journal.drain_closed_trades()
-
-    def _get_daily_pnl_pct(self, current_balance: float) -> float:
-        return self.journal.get_daily_pnl_pct(current_balance)
-
-    def _log_trade_close(self, trade: dict, reason: str, pnl: float | None = None):
-        self.journal.record_trade_close(trade, reason, pnl)
-
-    def _has_session_loss_streak(self, session: str, limit: int = 2) -> bool:
-        return self.journal.has_session_loss_streak(session, limit)
 
     # =========================================================================
     # MAIN ENTRY POINT
@@ -193,7 +166,7 @@ class TradeExecutor:
         if account["open_trade_count"] >= 3:
             return False, f"Already {account['open_trade_count']} open trades — max 3"
 
-        if session not in {"London Kill Zone", "NY Kill Zone", "London Close"}:
+        if session not in ALLOWED_ENTRY_SESSIONS:
             return False, f"Session {session or 'UNKNOWN'} is outside allowed kill zones"
 
         if self.journal.has_session_loss_streak(session):
@@ -374,6 +347,12 @@ class TradeExecutor:
                 print(f"\n🎯 TP1 HIT: {tp1_msg}")
                 logger.info(tp1_msg)
 
+            trail_msg = self._apply_trailing_stop_if_needed(trade, mid_price)
+            if trail_msg:
+                actions.append(trail_msg)
+                print(f"\n📈 TRAIL: {trail_msg}")
+                logger.info(trail_msg)
+
         self.journal.save_open_trades(tracked)
         return actions
 
@@ -451,7 +430,8 @@ class TradeExecutor:
             return None
 
         current_units = int(abs(live_trade["units"]))
-        close_units = max(1, current_units // 2)
+        close_pct = self.config.get("tp1_close_percent", 0.50)
+        close_units = max(1, int(current_units * close_pct))
         entry = float(trade.get("entry_price", 0) or 0)
         partial_pnl = (
             (mid_price - entry) * close_units
@@ -467,6 +447,57 @@ class TradeExecutor:
         return (
             f"TP1 hit @ {mid_price:.5f}: "
             f"closed {close_units} units, SL → breakeven {entry}"
+        )
+
+    def _apply_trailing_stop_if_needed(self, trade: dict, mid_price: float) -> str | None:
+        """
+        Trail the stop loss after TP1 has been hit.
+
+        Trail distance = entry-to-TP1 distance (1R equivalent).
+        The stop only ever moves in the profitable direction — never back.
+        Disabled when tp2_trail = False in config.
+        """
+        if not trade.get("tp1_hit"):
+            return None
+        if not self.config.get("tp2_trail", True):
+            return None
+
+        direction  = trade.get("direction")
+        entry      = float(trade.get("entry_price", 0) or 0)
+        tp1        = float(trade.get("tp1", 0) or 0)
+        current_sl = float(trade.get("stop_loss", 0) or 0)
+        trade_id   = trade.get("trade_id")
+
+        if not entry or not tp1 or not current_sl or not trade_id:
+            return None
+
+        trail_distance = abs(tp1 - entry)  # = 1R; stop follows price at this gap
+
+        if direction == "BUY":
+            new_sl = round(mid_price - trail_distance, 5)
+            if new_sl <= current_sl:           # never move SL down on a BUY
+                return None
+        elif direction == "SELL":
+            new_sl = round(mid_price + trail_distance, 5)
+            if new_sl >= current_sl:           # never move SL up on a SELL
+                return None
+        else:
+            return None
+
+        self._move_sl_to_entry(trade_id, new_sl)
+        trade["stop_loss"] = new_sl            # persisted when save_open_trades() is called
+        self.journal._append_management_event(
+            trade,
+            {
+                "event_type": "TRAILING_STOP",
+                "new_stop_loss": new_sl,
+                "mid_price": round(mid_price, 5),
+                "trail_distance": round(trail_distance, 5),
+            },
+        )
+        return (
+            f"Trailing stop → {new_sl:.5f} "
+            f"(price {mid_price:.5f}, trail {trail_distance:.5f})"
         )
 
     # =========================================================================

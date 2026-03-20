@@ -360,6 +360,10 @@ def main():
         oanda_builder = setup_oanda(demo_mode=TRADING_CONFIG["demo_mode"])
         if oanda_builder is None:
             sys.exit(1)
+        # Give the builder access to the log directory so it can read
+        # daily_state.json (daily PnL survives restarts) and count closed
+        # trades today (accurate trades_today metric for Claude's prompt).
+        oanda_builder.log_dir = LOGS_DIR
         if args.mode in {"test", "demo"}:
             oanda_client = oanda_builder.client
             executor = setup_executor(oanda_client, TRADING_CONFIG, LOGS_DIR)

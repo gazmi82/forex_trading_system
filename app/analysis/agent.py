@@ -6,6 +6,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+from app.analysis.scheduler import ALLOWED_ENTRY_SESSIONS
 from app.analysis.trade_feedback import TradeFeedbackManager
 
 logger = logging.getLogger(__name__)
@@ -270,9 +271,6 @@ class ForexAnalystAgent:
         self.config = config
         self.log_dir = log_dir
         self.feedback = TradeFeedbackManager(rag_pipeline, config, log_dir)
-        self.feedback_dir = self.feedback.feedback_dir
-        self.feedback_memory = self.feedback.feedback_memory
-
         log_dir.mkdir(parents=True, exist_ok=True)
 
         logger.info("ForexAnalystAgent initialized")
@@ -460,6 +458,39 @@ INSTRUCTIONS:
                 }
             )
 
+    @staticmethod
+    def _extract_json_object(text: str):
+        """
+        Find the first complete, balanced JSON object in text.
+        Tracks brace depth and string state to avoid the greedy-regex
+        pitfall where {…} matches from the first { to the very last }.
+        """
+        start = text.find("{")
+        if start == -1:
+            return None
+        depth = 0
+        in_string = False
+        escape_next = False
+        for i, ch in enumerate(text[start:], start):
+            if escape_next:
+                escape_next = False
+                continue
+            if ch == "\\" and in_string:
+                escape_next = True
+                continue
+            if ch == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[start : i + 1]
+        return None
+
     def _parse_signal(self, raw_response: str, pair: str) -> dict:
         try:
             return json.loads(raw_response)
@@ -471,10 +502,10 @@ INSTRUCTIONS:
                 except Exception:
                     pass
 
-            json_match = re.search(r"\{.*\}", raw_response, re.DOTALL)
-            if json_match:
+            extracted = ForexAnalystAgent._extract_json_object(raw_response)
+            if extracted:
                 try:
-                    return json.loads(json_match.group())
+                    return json.loads(extracted)
                 except Exception:
                     pass
 
@@ -509,20 +540,33 @@ INSTRUCTIONS:
             logger.warning(f"Signal overridden: {overrides}")
             return signal
 
+        # Normalise the session field to the actual clock-derived value so the
+        # executor receives the ground-truth session, not Claude's inferred label.
         session = fund.get("active_session", signal.get("session", ""))
+        signal["session"] = session
         if not self._is_allowed_session(session):
             sig["direction"] = "NEUTRAL"
             overrides.append(f"BLOCKED: Outside allowed kill zones ({session})")
 
         daily_pnl = port.get("daily_pnl_pct", 0)
-        if daily_pnl <= -2.0:
+        max_trade_risk_pct = self.config.get("max_risk_per_trade", 0.01) * 100  # e.g. 1.0%
+        max_daily_loss_pct = self.config.get("max_daily_loss", 0.02) * 100      # e.g. 2.0%
+        # Block if already past the limit OR if a max-risk trade would push past it.
+        if daily_pnl <= -max_daily_loss_pct or (daily_pnl - max_trade_risk_pct) < -max_daily_loss_pct:
             sig["direction"] = "NEUTRAL"
-            overrides.append(f"BLOCKED: Daily loss limit reached ({daily_pnl}%)")
+            overrides.append(
+                f"BLOCKED: Daily loss limit reached or would be exceeded "
+                f"({daily_pnl:.2f}% today, {max_trade_risk_pct:.1f}% new risk, limit {max_daily_loss_pct:.1f}%)"
+            )
 
         open_risk = port.get("open_risk_pct", 0)
-        if open_risk >= 3.0:
+        max_portfolio_risk_pct = self.config.get("max_portfolio_risk", 0.03) * 100  # default 3.0%
+        if open_risk + max_trade_risk_pct > max_portfolio_risk_pct:
             sig["direction"] = "NEUTRAL"
-            overrides.append(f"BLOCKED: Max portfolio risk reached ({open_risk}%)")
+            overrides.append(
+                f"BLOCKED: Adding trade would exceed portfolio risk cap "
+                f"({open_risk:.1f}% open + {max_trade_risk_pct:.1f}% new > {max_portfolio_risk_pct:.1f}% limit)"
+            )
 
         if self._has_session_loss_streak(session):
             sig["direction"] = "NEUTRAL"
@@ -578,12 +622,57 @@ INSTRUCTIONS:
             return False
 
     def _is_allowed_session(self, session: str) -> bool:
-        return session in {"London Kill Zone", "NY Kill Zone", "London Close"}
+        return session in ALLOWED_ENTRY_SESSIONS
 
     def _has_session_loss_streak(self, session: str, limit: int = 2) -> bool:
         return self.feedback.has_session_loss_streak(session, limit)
 
+    def _generate_trade_lesson(self, feedback_record: dict) -> str:
+        """
+        Generate a concise, process-focused lesson using claude-haiku.
+        Called once per closed trade before the record reaches RAG storage.
+        """
+        try:
+            outcome     = feedback_record.get("outcome", "UNKNOWN")
+            setup_grade = feedback_record.get("setup_grade", "?")
+            root_cause  = feedback_record.get("root_cause", "UNDETERMINED")
+            entry_timing = feedback_record.get("entry_timing", "UNKNOWN")
+            ict_post_hoc = feedback_record.get("ict_post_hoc") or {}
+            direction   = feedback_record.get("direction", "")
+            session     = feedback_record.get("session", "")
+            pnl_r       = feedback_record.get("pnl_r", 0)
+            tags        = feedback_record.get("pattern_tags", [])
+            reasoning   = feedback_record.get("reasoning", [])
+            reasoning_text = "; ".join(str(r) for r in reasoning[:2]) if reasoning else "none recorded"
+
+            prompt = (
+                f"Trade: EUR/USD {direction} | Session: {session}\n"
+                f"Outcome: {outcome} ({pnl_r}R) | Setup Grade: {setup_grade}\n"
+                f"Root cause: {root_cause} | Entry timing: {entry_timing}\n"
+                f"ICT post-hoc: {json.dumps(ict_post_hoc)}\n"
+                f"Pattern tags: {', '.join(tags)}\n"
+                f"Entry reasoning (first 2 points): {reasoning_text}\n\n"
+                "In 1-2 sentences, state the single most important process lesson from this trade. "
+                "Focus on what should be repeated or avoided next time, not the outcome itself. "
+                "Be specific to the root cause and setup grade. No preamble — just the lesson."
+            )
+
+            response = self.client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=200,
+                temperature=0,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return response.content[0].text.strip()[:300]
+        except Exception as exc:
+            logger.warning(f"Trade lesson generation failed: {exc}")
+            return ""
+
     def record_trade_outcome(self, trade_record: dict):
+        lesson = self._generate_trade_lesson(trade_record)
+        if lesson:
+            trade_record = dict(trade_record)
+            trade_record["lesson"] = lesson
         self.feedback.record_trade_outcome(trade_record)
 
     def _log_analysis(

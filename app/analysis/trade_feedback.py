@@ -41,16 +41,44 @@ class TradeFeedbackManager:
         return "\n".join(lines)
 
     def has_session_loss_streak(self, session: str, limit: int = 2) -> bool:
+        # Check in-memory feedback (populated during the current runtime session)
+        session_seen = 0
         streak = 0
         for item in reversed(self.feedback_memory):
             if item.get("session") != session:
                 continue
+            session_seen += 1
             if item.get("outcome") == "LOSS":
                 streak += 1
                 if streak >= limit:
                     return True
             else:
+                return False  # win in this session breaks the streak
+
+        # If no trades for this session exist in memory (e.g. after a restart),
+        # fall back to the persistent closed_trades.jsonl file so the rule survives
+        # process restarts and stays consistent with the TradeJournal implementation.
+        if session_seen == 0:
+            closed_file = self.log_dir / "closed_trades.jsonl"
+            if not closed_file.exists():
                 return False
+            try:
+                closed_rows = []
+                with open(closed_file) as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        row = json.loads(line)
+                        if row.get("session") == session:
+                            closed_rows.append(row)
+            except Exception:
+                return False
+            if len(closed_rows) < limit:
+                return False
+            recent = closed_rows[-limit:]
+            return all(row.get("outcome") == "LOSS" for row in recent)
+
         return False
 
     def record_trade_outcome(self, trade_record: dict):
@@ -434,14 +462,36 @@ class TradeFeedbackManager:
 
         return trade_record
 
+    @staticmethod
+    def _fmt_bool(value) -> str:
+        if value is None:
+            return "N/A (concept not present at entry)"
+        return "Yes" if value else "No"
+
     def _generate_feedback_text(self, trade_record: dict) -> str:
-        pair_value = display_pair(trade_record.get("pair"))
+        pair_value  = display_pair(trade_record.get("pair"))
+        ict_ph      = trade_record.get("ict_post_hoc") or {}
+        tags        = trade_record.get("pattern_tags") or []
+        tags_str    = ", ".join(tags) if tags else "none"
+
         return f"""
 TRADE REVIEW — {pair_value} {trade_record.get('direction')}
 Date: {trade_record.get('date')}
 Outcome: {trade_record.get('outcome')} | PnL: {trade_record.get('pnl_r')}R
 Session: {trade_record.get('session')}
 Duration: {trade_record.get('duration_hours')} hours
+
+SETUP ANALYSIS (process-based):
+Setup Grade:    {trade_record.get('setup_grade', 'N/A')}  (A=full confluence, B=good, C=marginal, F=rule violation)
+Entry Timing:   {trade_record.get('entry_timing', 'N/A')}  (OPTIMAL/ACCEPTABLE/AT_EDGE/OUTSIDE_ZONE)
+Root Cause:     {trade_record.get('root_cause', 'N/A')}
+Pattern Tags:   {tags_str}
+
+ICT POST-HOC EVALUATION:
+Order Block Held:          {self._fmt_bool(ict_ph.get('ob_held'))}
+FVG Acted as Magnet:       {self._fmt_bool(ict_ph.get('fvg_acted_as_magnet'))}
+Sweep Led to Reversal:     {self._fmt_bool(ict_ph.get('sweep_led_to_reversal'))}
+P/D Zone Respected:        {self._fmt_bool(ict_ph.get('pd_zone_respected'))}
 
 ENTRY DETAILS:
 Entry: {trade_record.get('entry_price')}
@@ -479,22 +529,42 @@ DATA GAPS / WHY SOME DETAILS ARE MISSING:
         output_path = self.feedback_dir / filename
         pair_value = display_pair(trade_record.get("pair"))
 
+        ict_ph   = trade_record.get("ict_post_hoc") or {}
+        tags     = trade_record.get("pattern_tags") or []
+        tags_str = ", ".join(f"`{t}`" for t in tags) if tags else "none"
+
         markdown = (
             f"# Trade Review — {pair_value} {trade_record.get('direction', '')}\n\n"
-            f"- Logged At (UTC): {timestamp.isoformat()}Z\n"
-            f"- Trade Date: {trade_record.get('date', '')}\n"
-            f"- Outcome: {trade_record.get('outcome', '')}\n"
-            f"- Session: {trade_record.get('session', '')}\n"
-            f"- PnL (R): {trade_record.get('pnl_r', '')}\n"
-            f"- PnL (USD): {trade_record.get('pnl_usd', '')}\n"
-            f"- Duration Hours: {trade_record.get('duration_hours', '')}\n"
-            f"- Confluence Score: {trade_record.get('confluence_score', '')}\n\n"
+            f"| Field | Value |\n"
+            f"|-------|-------|\n"
+            f"| Logged At (UTC) | {timestamp.isoformat()}Z |\n"
+            f"| Trade Date | {trade_record.get('date', '')} |\n"
+            f"| Outcome | {trade_record.get('outcome', '')} |\n"
+            f"| Session | {trade_record.get('session', '')} |\n"
+            f"| PnL (R) | {trade_record.get('pnl_r', '')} |\n"
+            f"| PnL (USD) | {trade_record.get('pnl_usd', '')} |\n"
+            f"| Duration (hours) | {trade_record.get('duration_hours', '')} |\n"
+            f"| Confluence Score | {trade_record.get('confluence_score', '')} |\n\n"
+            f"## Setup Analysis\n\n"
+            f"| Dimension | Value |\n"
+            f"|-----------|-------|\n"
+            f"| Setup Grade | {trade_record.get('setup_grade', 'N/A')} |\n"
+            f"| Entry Timing | {trade_record.get('entry_timing', 'N/A')} |\n"
+            f"| Root Cause | {trade_record.get('root_cause', 'N/A')} |\n"
+            f"| Pattern Tags | {tags_str} |\n\n"
+            f"## ICT Post-Hoc\n\n"
+            f"| Concept | Played Out? |\n"
+            f"|---------|-------------|\n"
+            f"| Order Block Held | {self._fmt_bool(ict_ph.get('ob_held'))} |\n"
+            f"| FVG Acted as Magnet | {self._fmt_bool(ict_ph.get('fvg_acted_as_magnet'))} |\n"
+            f"| Sweep Led to Reversal | {self._fmt_bool(ict_ph.get('sweep_led_to_reversal'))} |\n"
+            f"| P/D Zone Respected | {self._fmt_bool(ict_ph.get('pd_zone_respected'))} |\n\n"
             f"## Lesson\n\n"
             f"{trade_record.get('lesson', 'Not recorded')}\n\n"
             f"## Data Gaps\n\n"
             f"{trade_record.get('data_gaps_summary', 'No major review-data gaps were detected for this trade.')}\n\n"
-            f"## Structured Review\n\n"
-            f"{feedback_text.strip()}\n"
+            f"## Full Review\n\n"
+            f"```\n{feedback_text.strip()}\n```\n"
         )
 
         with open(output_path, "w", encoding="utf-8") as f:
@@ -503,21 +573,39 @@ DATA GAPS / WHY SOME DETAILS ARE MISSING:
         return output_path
 
     def _extract_lesson(self, trade_record: dict) -> str:
+        # Prefer pre-generated haiku lesson (already in trade_record["lesson"] if agent ran it)
         lesson = trade_record.get("lesson", "")
-        if not lesson:
-            outcome = trade_record.get("outcome", "")
-            pnl_r = trade_record.get("pnl_r", 0)
-            if outcome == "WIN":
-                lesson = f"Setup worked and the review has a recorded outcome of {pnl_r}R. Preserve the same conditions that supported the trade."
-            elif outcome == "LOSS":
-                lesson = "Setup failed. Re-check whether the entry thesis, timing, and event context actually supported the trade instead of assuming the original analysis was correct."
-            elif outcome == "PARTIAL_WIN":
-                lesson = "The trade banked profit on TP1, but the final runner outcome was not fully reconstructed. Trade management was partly successful, while post-trade observability was weak."
-            elif outcome == "UNKNOWN":
-                lesson = "The trade outcome cannot be classified confidently because the final broker-side close details were not captured. Improve observability before drawing strategic conclusions."
-            else:
-                lesson = "Breakeven or partial outcome. Review whether the thesis was right but the follow-through was weak, or whether the trade lacked enough edge from the start."
-        return lesson[:150]
+        if lesson:
+            return lesson[:300]
+
+        # Root-cause-specific fallbacks (more useful than generic outcome messages)
+        root_cause = trade_record.get("root_cause", "")
+        outcome    = trade_record.get("outcome", "")
+        pnl_r      = trade_record.get("pnl_r", 0)
+
+        _rc = {
+            "RULE_VIOLATION":                "A validator override fired — do not take trades when any hard rule is blocked.",
+            "NEWS_INTERFERENCE":             "High/medium news risk was present; reduce size or skip when a major event is near.",
+            "WRONG_MTF_READ":                "Multi-timeframe alignment was MIXED or CONFLICTING; wait for a cleaner directional agreement before entering.",
+            "ENTRY_TIMING_COST":             "Time stop fired before the thesis played out; consider whether the entry was too early in the session.",
+            "CORRECT_PROCESS_CORRECT_OUTCOME": f"Setup grade was solid and it worked ({pnl_r}R). Replicate the same conditions.",
+            "CORRECT_PROCESS_ADVERSE_OUTCOME": f"The process was sound but the trade lost ({pnl_r}R). Accept the outcome — re-evaluate only if a new pattern emerges across several such trades.",
+            "MARGINAL_SETUP_GOT_LUCKY":      "A marginal setup produced a win; avoid treating this as confirmation of a weak edge.",
+            "MARGINAL_SETUP_POOR_OUTCOME":   "Setup was marginal at entry; raise the standard before the next similar trigger.",
+        }
+        if root_cause in _rc:
+            return _rc[root_cause]
+
+        # Generic outcome fallback
+        if outcome == "WIN":
+            return f"Setup worked ({pnl_r}R). Preserve the conditions that supported the trade."
+        if outcome == "LOSS":
+            return "Setup failed. Re-check whether entry thesis, timing, and event context were aligned."
+        if outcome == "PARTIAL_WIN":
+            return "Banked TP1 but full runner outcome was not captured. Trade management was partly successful."
+        if outcome == "UNKNOWN":
+            return "Final broker close was not fetched; outcome is unclassified. Improve close-event observability."
+        return "Review whether the thesis was right but follow-through was weak, or the trade lacked enough edge."
 
     def _log_trade_outcome(self, trade_record: dict):
         csv_file = self.log_dir / "trades.csv"

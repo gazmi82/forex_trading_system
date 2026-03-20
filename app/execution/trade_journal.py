@@ -429,6 +429,169 @@ class TradeJournal:
             return 0.0
         return (current_balance - start_balance) / start_balance * 100
 
+    # =========================================================================
+    # STRUCTURED TRADE ANALYSIS HELPERS
+    # =========================================================================
+
+    @staticmethod
+    def _grade_setup(confluence: int, confidence: int, rr: float, validator_overrides: list) -> str:
+        """
+        Grade the setup quality independent of outcome.
+        A = full confluence, high confidence, strong R:R
+        B = good setup, all rules met
+        C = marginal (barely met thresholds)
+        F = rule violation or override fired
+        """
+        if validator_overrides:
+            return "F"
+        score = (
+            (3 if confluence >= 85 else 2 if confluence >= 75 else 1)
+            + (2 if confidence >= 75 else 1 if confidence >= 70 else 0)
+            + (2 if rr >= 3.0 else 1 if rr >= 2.5 else 0)
+        )
+        return "A" if score >= 6 else ("B" if score >= 4 else ("C" if score >= 2 else "F"))
+
+    @staticmethod
+    def _classify_entry_timing(trade: dict) -> str:
+        """How close was the actual entry price to the optimal zone midpoint."""
+        signal = trade.get("entry_signal_snapshot") or {}
+        entry_zone = (signal.get("signal") or {}).get("entry_zone", [])
+        entry_price = float(trade.get("entry_price", 0) or 0)
+        if not entry_zone or len(entry_zone) < 2 or not entry_price:
+            return "UNKNOWN"
+        zone_low, zone_high = float(entry_zone[0]), float(entry_zone[1])
+        zone_width = zone_high - zone_low
+        if zone_width <= 0:
+            return "UNKNOWN"
+        zone_mid = (zone_low + zone_high) / 2
+        deviation = abs(entry_price - zone_mid)
+        if deviation <= zone_width * 0.25:
+            return "OPTIMAL"
+        if zone_low <= entry_price <= zone_high:
+            return "ACCEPTABLE"
+        if deviation <= zone_width:
+            return "AT_EDGE"
+        return "OUTSIDE_ZONE"
+
+    @staticmethod
+    def _classify_ict_post_hoc(trade: dict, outcome: str) -> dict:
+        """
+        Proxy check: did the ICT concepts used at entry actually play out?
+        Uses trade result as the signal since we don't have live price data at close.
+        """
+        ict = trade.get("ict_analysis") or {}
+        direction = str(trade.get("direction", "")).upper()
+        tp1_hit = bool(trade.get("tp1_hit"))
+        won = outcome in ("WIN", "PARTIAL_WIN")
+
+        ob = ict.get("order_block") or {}
+        fvg = ict.get("fair_value_gap") or {}
+        liq = ict.get("liquidity") or {}
+        pd = str(ict.get("premium_discount") or "").upper()
+
+        in_correct_zone = (direction == "BUY" and "DISCOUNT" in pd) or (
+            direction == "SELL" and "PREMIUM" in pd
+        )
+
+        return {
+            "ob_held": (tp1_hit or won) if ob.get("present") else None,
+            "fvg_acted_as_magnet": tp1_hit if fvg.get("present") else None,
+            "sweep_led_to_reversal": won if liq.get("recent_sweep") else None,
+            "pd_zone_respected": won if (in_correct_zone and pd) else (False if pd else None),
+        }
+
+    @staticmethod
+    def _classify_root_cause(
+        outcome: str,
+        setup_grade: str,
+        close_reason: str,
+        macro_bias: dict,
+        fundamental: dict,
+        validator_overrides: list,
+    ) -> str:
+        """
+        Classify why the trade won or lost based on process, not just result.
+        This is the key field for process-based learning.
+        """
+        if setup_grade == "F" or validator_overrides:
+            return "RULE_VIOLATION"
+        news_risk = str((fundamental or {}).get("news_risk", "")).upper()
+        if news_risk in ("HIGH", "MEDIUM") and outcome == "LOSS":
+            return "NEWS_INTERFERENCE"
+        alignment = str((macro_bias or {}).get("alignment", "")).upper()
+        if alignment in ("MIXED", "CONFLICTING") and outcome == "LOSS":
+            return "WRONG_MTF_READ"
+        if close_reason == "TIME_STOP" and outcome not in ("WIN",):
+            return "ENTRY_TIMING_COST"
+        if setup_grade in ("A", "B") and outcome == "WIN":
+            return "CORRECT_PROCESS_CORRECT_OUTCOME"
+        if setup_grade in ("A", "B") and outcome in ("LOSS", "BREAKEVEN", "UNKNOWN"):
+            return "CORRECT_PROCESS_ADVERSE_OUTCOME"
+        if setup_grade == "C" and outcome == "WIN":
+            return "MARGINAL_SETUP_GOT_LUCKY"
+        if setup_grade == "C":
+            return "MARGINAL_SETUP_POOR_OUTCOME"
+        return "UNDETERMINED"
+
+    @staticmethod
+    def _generate_pattern_tags(trade: dict, setup_grade: str) -> list:
+        """
+        Generate structured tags that accumulate into an edge database over time.
+        Allows queries like: 'win rate on ob_entry + post_sweep + with_weekly_trend'
+        """
+        tags = []
+        session = str(trade.get("session", "")).lower().replace(" ", "_")
+        if session:
+            tags.append(session)
+
+        ict = trade.get("ict_analysis") or {}
+        if (ict.get("order_block") or {}).get("present"):
+            tags.append("ob_entry")
+        if (ict.get("fair_value_gap") or {}).get("present"):
+            tags.append("fvg_confluence")
+        if (ict.get("liquidity") or {}).get("recent_sweep"):
+            tags.append("post_sweep")
+        pd = str(ict.get("premium_discount") or "").upper()
+        if "DISCOUNT" in pd:
+            tags.append("discount_zone")
+        elif "PREMIUM" in pd:
+            tags.append("premium_zone")
+
+        macro = trade.get("macro_bias") or {}
+        if isinstance(macro, dict):
+            alignment = str(macro.get("alignment", "")).upper()
+            weekly = str(macro.get("weekly", "")).upper()
+            direction = str(trade.get("direction", "")).upper()
+            tags.append("mtf_aligned" if alignment == "ALIGNED" else "mtf_mixed")
+            if (direction == "BUY" and weekly == "BULLISH") or (
+                direction == "SELL" and weekly == "BEARISH"
+            ):
+                tags.append("with_weekly_trend")
+            elif weekly in ("BULLISH", "BEARISH"):
+                tags.append("against_weekly_trend")
+
+        confluence = int(trade.get("confluence", 0) or 0)
+        tags.append("high_confluence" if confluence >= 85 else "moderate_confluence")
+        if int(trade.get("confidence", 0) or 0) < 70:
+            tags.append("marginal_confidence")
+        if float(trade.get("risk_reward", 0) or 0) < 2.5:
+            tags.append("marginal_rr")
+
+        fund = trade.get("fundamental_context") or {}
+        if str((fund if isinstance(fund, dict) else {}).get("news_risk", "")).upper() in (
+            "HIGH",
+            "MEDIUM",
+        ):
+            tags.append("news_day")
+
+        grade_tag = {"A": "grade_a", "B": "grade_b", "C": "grade_c", "F": "grade_f"}.get(
+            setup_grade
+        )
+        if grade_tag:
+            tags.append(grade_tag)
+
+        return tags
+
     def record_trade_close(self, trade: dict, reason: str, pnl: float | None = None):
         duration_hours = ""
         open_time = trade.get("open_time")
@@ -462,6 +625,24 @@ class TradeJournal:
                 "Only the recorded partial-close estimate, if any, is known."
             )
 
+        setup_grade = TradeJournal._grade_setup(
+            int(trade.get("confluence", 0) or 0),
+            int(trade.get("confidence", 0) or 0),
+            float(trade.get("risk_reward", 0) or 0),
+            list(trade.get("validator_overrides") or []),
+        )
+        entry_timing = TradeJournal._classify_entry_timing(trade)
+        ict_post_hoc = TradeJournal._classify_ict_post_hoc(trade, outcome)
+        root_cause = TradeJournal._classify_root_cause(
+            outcome,
+            setup_grade,
+            reason,
+            trade.get("macro_bias") or {},
+            trade.get("fundamental_context") or {},
+            list(trade.get("validator_overrides") or []),
+        )
+        pattern_tags = TradeJournal._generate_pattern_tags(trade, setup_grade)
+
         feedback_record = {
             "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "pair": trade.get("pair") or trade.get("instrument", "EUR_USD"),
@@ -482,6 +663,11 @@ class TradeJournal:
                 if reason == "CLOSED_BY_OANDA"
                 else "Trade was closed by the executor's time-stop rule."
             ),
+            "setup_grade": setup_grade,
+            "entry_timing": entry_timing,
+            "ict_post_hoc": ict_post_hoc,
+            "root_cause": root_cause,
+            "pattern_tags": pattern_tags,
             "signal_timestamp": trade.get("signal_timestamp", ""),
             "signal_log_filename": trade.get("signal_log_filename", ""),
             "signal_strength": trade.get("signal_strength", ""),
