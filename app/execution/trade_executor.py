@@ -53,6 +53,13 @@ class TradeExecutor:
     # MAIN ENTRY POINT
     # =========================================================================
 
+    @staticmethod
+    def _blocked_execution_reason(signal: dict) -> str:
+        overrides = list(signal.get("validator_overrides") or [])
+        if overrides:
+            return "; ".join(str(item) for item in overrides)
+        return "Signal blocked by validator"
+
     def execute_signal(self, signal: dict) -> dict:
         """
         Called from demo loop after every signal.
@@ -70,9 +77,14 @@ class TradeExecutor:
 
         direction = signal.get("signal", {}).get("direction", "NEUTRAL")
         confidence = signal.get("signal", {}).get("confidence", 0)
+        execution_direction = signal.get("execution_direction") or direction
 
         if direction == "NEUTRAL":
-            result["reason"] = "Signal NEUTRAL — no trade"
+            result["reason"] = "Claude proposed NEUTRAL — no trade"
+            return result
+
+        if signal.get("execution_allowed") is False:
+            result["reason"] = self._blocked_execution_reason(signal)
             return result
 
         try:
@@ -93,7 +105,7 @@ class TradeExecutor:
             return result
 
         try:
-            order_result = self._place_order(signal, units, direction)
+            order_result = self._place_order(signal, units, execution_direction)
             result.update(
                 {
                     "executed": True,
@@ -113,7 +125,7 @@ class TradeExecutor:
             print(f"\n{'='*50}")
             print(f"🎯 ORDER PLACED — {'DEMO' if self.demo_mode else 'LIVE'}")
             print(f"{'='*50}")
-            print(f"  Direction:  {direction}")
+            print(f"  Direction:  {execution_direction}")
             print(f"  Units:      {units:,}")
             print(f"  Entry:      {result['entry_price']}")
             print(f"  Stop Loss:  {sig['stop_loss']}")
@@ -121,9 +133,11 @@ class TradeExecutor:
             print(f"  TP2:        {sig['take_profit_2']}  (trail rest)")
             print(f"  R:R:        {sig['risk_reward']}")
             print(f"  Confidence: {confidence}%")
+            print(f"  Claude:     {signal.get('confluence_score', 0)}/100")
+            print(f"  Mechanical: {signal.get('mechanical_confluence_score', 0)}/100")
             print(f"  Order ID:   {result['order_id']}")
             logger.info(
-                f"Order placed: {direction} {units} {self.INSTRUMENT} | "
+                f"Order placed: {execution_direction} {units} {self.INSTRUMENT} | "
                 f"Entry:{result['entry_price']} SL:{sig['stop_loss']} TP2:{sig['take_profit_2']}"
             )
         except Exception as exc:
@@ -147,9 +161,16 @@ class TradeExecutor:
         balance = account["balance"]
         session = signal.get("session", "")
 
+        if signal.get("execution_allowed") is False:
+            return False, self._blocked_execution_reason(signal)
+
         min_conf = self.config.get("min_confidence", 65)
         if confidence < min_conf:
             return False, f"Confidence {confidence}% < {min_conf}% threshold"
+
+        mechanical_score = signal.get("mechanical_confluence_score")
+        if isinstance(mechanical_score, (int, float)) and mechanical_score < min_conf:
+            return False, f"Mechanical score {mechanical_score}% < {min_conf}% threshold"
 
         min_rr = self.config.get("min_rr_ratio", 2.0)
         if rr < min_rr:
@@ -310,8 +331,10 @@ class TradeExecutor:
 
         try:
             price_data = self.client.get_current_price(self.INSTRUMENT)
-            mid_price = price_data["mid"]
+            bid_price = float(price_data["bid"])
+            ask_price = float(price_data["ask"])
             live_trades = {trade["id"]: trade for trade in self.client.get_open_trades()}
+            recent_extremes = self._get_recent_monitor_extremes()
         except Exception as exc:
             logger.error(f"Monitor fetch error: {exc}")
             return actions
@@ -341,13 +364,26 @@ class TradeExecutor:
                 del tracked[key]
                 continue
 
-            tp1_msg = self._apply_tp1_if_needed(trade, live_trade, mid_price)
+            tp1_msg = self._apply_tp1_if_needed(
+                trade,
+                live_trade,
+                bid_price,
+                ask_price,
+                recent_extremes["high"],
+                recent_extremes["low"],
+            )
             if tp1_msg:
                 actions.append(tp1_msg)
                 print(f"\n🎯 TP1 HIT: {tp1_msg}")
                 logger.info(tp1_msg)
 
-            trail_msg = self._apply_trailing_stop_if_needed(trade, mid_price)
+            trail_msg = self._apply_trailing_stop_if_needed(
+                trade,
+                bid_price,
+                ask_price,
+                recent_extremes["high"],
+                recent_extremes["low"],
+            )
             if trail_msg:
                 actions.append(trail_msg)
                 print(f"\n📈 TRAIL: {trail_msg}")
@@ -355,6 +391,30 @@ class TradeExecutor:
 
         self.journal.save_open_trades(tracked)
         return actions
+
+    def _get_recent_monitor_extremes(self) -> dict:
+        """
+        Use recent M1 candles so TP1 / trailing logic can still react when
+        price touched a level between poll intervals and then retraced.
+        """
+        lookback = max(int(self.config.get("monitor_extreme_lookback_m1", 15)), 2)
+        try:
+            candles = self.client.get_candles(self.INSTRUMENT, "M1", count=lookback)
+        except Exception as exc:
+            logger.warning(f"Recent candle fetch for trade monitor failed: {exc}")
+            return {"high": None, "low": None}
+
+        if candles is None or getattr(candles, "empty", True):
+            return {"high": None, "low": None}
+
+        try:
+            return {
+                "high": float(candles["high"].max()),
+                "low": float(candles["low"].min()),
+            }
+        except Exception as exc:
+            logger.warning(f"Recent candle aggregation failed: {exc}")
+            return {"high": None, "low": None}
 
     def _activate_pending_order_if_filled(self, trade: dict, actions: list[str]) -> str | None:
         if trade.get("trade_id") or not trade.get("order_id"):
@@ -413,7 +473,10 @@ class TradeExecutor:
         self,
         trade: dict,
         live_trade: dict,
-        mid_price: float,
+        bid_price: float,
+        ask_price: float,
+        recent_high: float | None = None,
+        recent_low: float | None = None,
     ) -> str | None:
         if trade.get("tp1_hit"):
             return None
@@ -423,33 +486,58 @@ class TradeExecutor:
             return None
 
         direction = trade.get("direction")
-        tp1_reached = (direction == "BUY" and mid_price >= tp1) or (
-            direction == "SELL" and mid_price <= tp1
-        )
+        entry = float(trade.get("entry_price", 0) or 0)
+        if direction == "BUY":
+            exit_price = bid_price
+            recent_touch = recent_high is not None and recent_high >= tp1
+            tp1_reached = exit_price >= tp1 or recent_touch
+            current_profitable = exit_price > entry
+        elif direction == "SELL":
+            exit_price = ask_price
+            recent_touch = recent_low is not None and recent_low <= tp1
+            tp1_reached = exit_price <= tp1 or recent_touch
+            current_profitable = exit_price < entry
+        else:
+            return None
+
         if not tp1_reached:
+            return None
+        if exit_price is None or not current_profitable:
             return None
 
         current_units = int(abs(live_trade["units"]))
         close_pct = self.config.get("tp1_close_percent", 0.50)
         close_units = max(1, int(current_units * close_pct))
-        entry = float(trade.get("entry_price", 0) or 0)
         partial_pnl = (
-            (mid_price - entry) * close_units
+            (exit_price - entry) * close_units
             if direction == "BUY"
-            else (entry - mid_price) * close_units
+            else (entry - exit_price) * close_units
         )
 
         trade_id = trade["trade_id"]
         self._close_partial(trade_id, close_units)
         self._move_sl_to_entry(trade_id, entry)
-        self.journal.record_tp1_partial(trade, mid_price, close_units, partial_pnl)
+        self.journal.record_tp1_partial(trade, exit_price, close_units, partial_pnl)
+
+        late_touch_note = ""
+        if direction == "BUY" and exit_price < tp1 and recent_touch:
+            late_touch_note = " (detected from recent M1 high)"
+        elif direction == "SELL" and exit_price > tp1 and recent_touch:
+            late_touch_note = " (detected from recent M1 low)"
 
         return (
-            f"TP1 hit @ {mid_price:.5f}: "
-            f"closed {close_units} units, SL → breakeven {entry}"
+            f"TP1 handled @ {exit_price:.5f}{late_touch_note}: "
+            f"closed {close_units} units, SL → breakeven {entry:.5f}"
         )
 
-    def _apply_trailing_stop_if_needed(self, trade: dict, mid_price: float) -> str | None:
+    def _apply_trailing_stop_if_needed(
+        self,
+        trade: dict,
+        bid_price: float,
+        ask_price: float,
+        recent_high: float | None = None,
+        recent_low: float | None = None,
+    ) -> str | None:
         """
         Trail the stop loss after TP1 has been hit.
 
@@ -474,11 +562,23 @@ class TradeExecutor:
         trail_distance = abs(tp1 - entry)  # = 1R; stop follows price at this gap
 
         if direction == "BUY":
-            new_sl = round(mid_price - trail_distance, 5)
+            reference_price = max(
+                bid_price,
+                recent_high if recent_high is not None else bid_price,
+            )
+            new_sl = round(reference_price - trail_distance, 5)
+            if new_sl >= bid_price:
+                return None
             if new_sl <= current_sl:           # never move SL down on a BUY
                 return None
         elif direction == "SELL":
-            new_sl = round(mid_price + trail_distance, 5)
+            reference_price = min(
+                ask_price,
+                recent_low if recent_low is not None else ask_price,
+            )
+            new_sl = round(reference_price + trail_distance, 5)
+            if new_sl <= ask_price:
+                return None
             if new_sl >= current_sl:           # never move SL up on a SELL
                 return None
         else:
@@ -491,13 +591,13 @@ class TradeExecutor:
             {
                 "event_type": "TRAILING_STOP",
                 "new_stop_loss": new_sl,
-                "mid_price": round(mid_price, 5),
+                "mid_price": round((bid_price + ask_price) / 2, 5),
                 "trail_distance": round(trail_distance, 5),
             },
         )
         return (
             f"Trailing stop → {new_sl:.5f} "
-            f"(price {mid_price:.5f}, trail {trail_distance:.5f})"
+            f"(reference {reference_price:.5f}, trail {trail_distance:.5f})"
         )
 
     # =========================================================================

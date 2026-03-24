@@ -365,14 +365,14 @@ class TestNewsClear(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# 4. Integration: claude score vs mechanical score can diverge
+# 4. Integration: Claude score and mechanical score can diverge
 # ---------------------------------------------------------------------------
 
 class TestClaudeVsMechanicalDivergence(unittest.TestCase):
-    def test_mechanical_score_replaces_claude_score(self):
+    def test_mechanical_score_can_be_much_lower_than_claude_confidence(self):
         """
-        Simulates Item 1.2: a signal where Claude reports 80 but mechanical
-        conditions are weak — mechanical score should be < 65, trade blocked.
+        Mechanical confluence is computed independently from Claude's own
+        confidence or score fields. Weak structure should still score < 65.
         """
         # All-negative market_data for a BUY direction
         md = {

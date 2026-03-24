@@ -36,6 +36,17 @@ class TradeJournal:
     def _copy_json_value(value):
         return deepcopy(value)
 
+    @staticmethod
+    def _execution_allowed(signal: dict) -> bool:
+        if "execution_allowed" in signal:
+            return bool(signal.get("execution_allowed"))
+        direction = (signal.get("signal") or {}).get("direction", "NEUTRAL")
+        return direction != "NEUTRAL" and not list(signal.get("validator_overrides") or [])
+
+    @staticmethod
+    def _execution_direction(signal: dict) -> str:
+        return signal.get("execution_direction") or (signal.get("signal") or {}).get("direction", "NEUTRAL")
+
     def load_open_trades(self) -> dict:
         if self.open_trades_file.exists():
             with open(self.open_trades_file) as f:
@@ -73,8 +84,11 @@ class TradeJournal:
             "signal_log_filename": signal.get("log_filename", ""),
             "session": signal.get("session", ""),
             "direction": signal.get("signal", {}).get("direction", ""),
+            "execution_direction": self._execution_direction(signal),
+            "execution_allowed": self._execution_allowed(signal),
             "confidence": signal.get("signal", {}).get("confidence", 0),
             "confluence_score": signal.get("confluence_score", 0),
+            "mechanical_confluence_score": signal.get("mechanical_confluence_score", 0),
             "signal_strength": signal.get("signal_strength", ""),
             "key_risk": signal.get("key_risk", ""),
             "signal_snapshot": self._copy_json_value(signal),
@@ -132,6 +146,10 @@ class TradeJournal:
             "validator_overrides": self._copy_json_value(signal.get("validator_overrides", [])),
             "order_type": sig.get("order_type", ""),
             "confidence": sig.get("confidence", 0),
+            "confluence_score": signal.get("confluence_score", 0),
+            "mechanical_confluence_score": signal.get("mechanical_confluence_score", 0),
+            "execution_allowed": self._execution_allowed(signal),
+            "execution_direction": self._execution_direction(signal),
             "risk_reward": sig.get("risk_reward", 0),
             "initial_risk_usd": initial_risk_usd,
             "entry_signal_snapshot": self._copy_json_value(signal),
@@ -171,6 +189,7 @@ class TradeJournal:
             "risk_reward": trade.get("risk_reward"),
             "confidence": trade.get("confidence"),
             "confluence_score": trade.get("confluence"),
+            "mechanical_confluence_score": trade.get("mechanical_confluence"),
             "signal_log_filename": trade.get("signal_log_filename", ""),
             "analysis_events": [],
             "trade_management_events": [],
@@ -314,7 +333,7 @@ class TradeJournal:
             "order_id": result.get("order_id"),
             "trade_id": result.get("trade_id"),
             "instrument": "EUR_USD",
-            "direction": sig.get("direction"),
+            "direction": self._execution_direction(signal),
             "units": result.get("units"),
             "entry_price": result.get("entry_price"),
             "stop_loss": sig.get("stop_loss"),
@@ -324,6 +343,7 @@ class TradeJournal:
             "tp1_hit": False,
             "open_time": datetime.now(timezone.utc).isoformat(),
             "confluence": signal.get("confluence_score"),
+            "mechanical_confluence": signal.get("mechanical_confluence_score"),
             "confidence": sig.get("confidence"),
             "session": signal.get("session", ""),
             "partial_realized_pnl_usd": 0.0,
@@ -352,7 +372,12 @@ class TradeJournal:
                 sig.get("take_profit_2", 0),
                 "OPEN",
                 "0",
-                f"Conf:{sig.get('confidence')} Score:{signal.get('confluence_score')} Session:{signal.get('session', '')}",
+                (
+                    f"Conf:{sig.get('confidence')} "
+                    f"Claude:{signal.get('confluence_score')} "
+                    f"Mech:{signal.get('mechanical_confluence_score')} "
+                    f"Session:{signal.get('session', '')}"
+                ),
             ]
         )
         with open(self.trades_csv, "a") as f:
@@ -377,6 +402,7 @@ class TradeJournal:
         trade["tp1_fill_price"] = round(mid_price, 5)
         trade["tp1_closed_units"] = close_units
         trade["stop_moved_to_entry"] = True
+        trade["stop_loss"] = round(float(trade.get("entry_price", 0) or 0), 5)
         trade["partial_realized_pnl_usd"] = round(
             float(trade.get("partial_realized_pnl_usd", 0) or 0) + partial_pnl,
             2,
@@ -626,7 +652,7 @@ class TradeJournal:
             )
 
         setup_grade = TradeJournal._grade_setup(
-            int(trade.get("confluence", 0) or 0),
+            int(trade.get("mechanical_confluence", trade.get("confluence", 0)) or 0),
             int(trade.get("confidence", 0) or 0),
             float(trade.get("risk_reward", 0) or 0),
             list(trade.get("validator_overrides") or []),
@@ -657,6 +683,10 @@ class TradeJournal:
             "duration_hours": duration_hours,
             "session": trade.get("session", ""),
             "confluence_score": trade.get("confluence", 0),
+            "mechanical_confluence_score": trade.get(
+                "mechanical_confluence",
+                trade.get("confluence", 0),
+            ),
             "close_reason": reason,
             "close_reason_detail": (
                 "Broker-managed protective order closed the trade."

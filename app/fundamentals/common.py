@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from datetime import datetime, timedelta, timezone
 
+from dateutil.parser import isoparse
+
 
 def cache_fresh(cached_at: datetime | None, max_age: timedelta) -> bool:
     return cached_at is not None and (datetime.now(timezone.utc) - cached_at) < max_age
@@ -12,10 +14,9 @@ def parse_utc(value: str | None) -> datetime | None:
     if not value:
         return None
 
-    cleaned = value.strip().replace("Z", "+00:00")
     try:
-        parsed = datetime.fromisoformat(cleaned)
-    except ValueError:
+        parsed = isoparse(value.strip())
+    except (TypeError, ValueError):
         return None
 
     if parsed.tzinfo is None:

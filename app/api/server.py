@@ -84,11 +84,10 @@ def _public_api_base_url() -> str | None:
 
 
 def _trusted_hosts() -> list[str]:
+    hosts = {"localhost", "127.0.0.1", "testserver"}
     configured = _split_csv_env("API_TRUSTED_HOSTS")
-    if configured:
-        return configured
+    hosts.update(configured)
 
-    hosts = {"localhost", "127.0.0.1"}
     public_base_url = _public_api_base_url()
     if public_base_url:
         parsed = urlparse(public_base_url)

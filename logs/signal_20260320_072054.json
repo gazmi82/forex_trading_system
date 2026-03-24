@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-03-20T07:20:00Z",
+  "pair": "EUR/USD",
+  "timeframe": "4H",
+  "session": "London Kill Zone",
+  "macro_bias": {
+    "weekly": "BULLISH",
+    "daily": "BEARISH",
+    "h4": "NEUTRAL",
+    "alignment": "CONFLICTING"
+  },
+  "ict_analysis": {
+    "order_block": {
+      "present": true,
+      "type": "BEARISH",
+      "level": 1.15374,
+      "valid": true
+    },
+    "fair_value_gap": {
+      "present": true,
+      "type": "BULLISH",
+      "upper": 1.15772,
+      "lower": 1.15676
+    },
+    "liquidity": {
+      "recent_sweep": true,
+      "swept_level": 1.15636,
+      "direction": "SELL_SIDE"
+    },
+    "premium_discount": "PREMIUM",
+    "ote_zone": [
+      1.14794,
+      1.15089
+    ]
+  },
+  "technical_analysis": {
+    "ema_bias": "BEARISH",
+    "rsi_14": 52.34,
+    "rsi_signal": "NEUTRAL",
+    "adx_14": 23.73,
+    "market_regime": "RANGING",
+    "key_levels": {
+      "resistance": [
+        1.2083,
+        1.1929,
+        1.1835
+      ],
+      "support": [
+        1.1411,
+        1.1507,
+        1.153
+      ]
+    }
+  },
+  "fundamental": {
+    "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+    "dxy_direction": "FALLING",
+    "cot_bias": "BULLISH",
+    "next_news_event": "CLEAR",
+    "news_risk": "CLEAR"
+  },
+  "confluence_score": 35,
+  "signal_strength": "NEUTRAL",
+  "signal": {
+    "direction": "NEUTRAL",
+    "confidence": 35,
+    "entry_zone": [
+      0.0,
+      0.0
+    ],
+    "stop_loss": 0.0,
+    "take_profit_1": 0.0,
+    "take_profit_2": 0.0,
+    "risk_reward": 0.0,
+    "recommended_lot_size": 0.0,
+    "order_type": "LIMIT"
+  },
+  "reasoning": [
+    "Weekly bullish vs Daily bearish creates conflicting structure - violates alignment rule",
+    "Price in premium zone (65% of range) but recent SSL sweep shows rejection from lows",
+    "Rate differential strongly favors USD but DXY falling and COT bullish EUR create mixed fundamentals",
+    "ADX at 23.73 indicates ranging market - breakout strategies from knowledge base not applicable",
+    "London Kill Zone active but conflicting timeframes prevent high-conviction setup"
+  ],
+  "key_risk": "Conflicting multi-timeframe structure creates whipsaw potential in ranging market",
+  "knowledge_sources_used": [
+    "Day Trading And Swing Trading - Inside Days Breakout Play strategy not applicable in current ranging conditions",
+    "The Forex Trading Course - Post-news retracement concepts relevant but no recent news catalyst present"
+  ],
+  "trade_management": {
+    "tp1_action": "N/A - No trade signal",
+    "tp2_action": "N/A - No trade signal",
+    "time_stop": "N/A - No trade signal"
+  },
+  "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Weekly/Daily structure conflict violates alignment rules. Market in ranging regime with mixed fundamental signals.",
+  "demo_mode": true,
+  "validator_overrides": [
+    "BLOCKED: Confidence too low (35%)"
+  ],
+  "logged_at_utc": "2026-03-20T07:20:54.045416Z",
+  "log_filename": "signal_20260320_072054.json"
+}

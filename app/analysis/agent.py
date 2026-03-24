@@ -313,7 +313,7 @@ class ForexAnalystAgent:
 
         signal = self._parse_signal(raw_response, pair)
         signal = self._validate_signal(signal, market_data)
-        self._log_analysis(pair, market_data, rag_context, signal, retrieved_chunks)
+        self._log_analysis(pair, market_data, signal, retrieved_chunks)
 
         runtime_issue = self._get_runtime_issue(signal)
         if runtime_issue:
@@ -322,9 +322,15 @@ class ForexAnalystAgent:
 
         direction = signal.get("signal", {}).get("direction", "NEUTRAL")
         confidence = signal.get("signal", {}).get("confidence", 0)
-        score = signal.get("confluence_score", 0)
+        claude_score = signal.get("confluence_score", 0)
+        mechanical_score = signal.get("mechanical_confluence_score", 0)
+        execution_label = "EXECUTE" if signal.get("execution_allowed") else "BLOCKED"
         label = "Fallback Signal" if runtime_issue else "Signal"
-        print(f"\n  📊 {label}: {direction} | Confidence: {confidence}% | Score: {score}/100")
+        print(
+            f"\n  📊 {label}: {direction} | Confidence: {confidence}% | "
+            f"Claude Score: {claude_score}/100 | Mechanical: {mechanical_score}/100 | "
+            f"{execution_label}"
+        )
 
         return signal
 
@@ -526,25 +532,32 @@ INSTRUCTIONS:
         fund = market_data.get("fundamental", {})
         sig = signal.get("signal", {})
         overrides = []
+        proposed_direction = (sig.get("direction") or "NEUTRAL").upper()
+        execution_allowed = proposed_direction != "NEUTRAL"
+        execution_direction = proposed_direction if execution_allowed else "NEUTRAL"
 
         runtime_issue = self._get_runtime_issue(signal)
         if runtime_issue:
-            sig["direction"] = "NEUTRAL"
             if signal.get("error"):
                 overrides.append("BLOCKED: Claude API unavailable")
             else:
                 overrides.append("BLOCKED: Claude response parsing failed")
+            signal["mechanical_confluence_score"] = 0
+            signal["mechanical_confluence_components"] = {}
+            signal["mechanical_direction_implied"] = "NEUTRAL"
+            signal["execution_allowed"] = False
+            signal["execution_direction"] = "NEUTRAL"
             if market_data.get("demo_mode", True):
                 signal["demo_mode"] = True
             signal["validator_overrides"] = overrides
             signal["signal"] = sig
-            logger.warning(f"Signal overridden: {overrides}")
+            logger.warning(f"Signal blocked: {overrides}")
             return signal
 
         # --- Mechanical confluence scoring (Item 1.1 / 1.2) ---
         # Calculate an independent, deterministic score from market_data.
-        # Replace Claude's self-reported score with the mechanical value so
-        # that downstream execution gates are based on objective data.
+        # Preserve Claude's original score for analysis/logging, and store the
+        # mechanical result separately for execution gating and calibration.
         try:
             mech_result = calculate_confluence(market_data, signal)
             mech_score  = mech_result["confluence_score"]
@@ -553,16 +566,20 @@ INSTRUCTIONS:
             mech_score  = 0
             mech_result = {"confluence_score": 0, "direction_implied": "NEUTRAL", "component_scores": {}}
 
-        signal["claude_confluence_score"] = signal.get("confluence_score", 0)
-        signal["confluence_score"]        = mech_score
-        signal["confluence_components"]   = mech_result.get("component_scores", {})
-        signal["direction_implied"]       = mech_result.get("direction_implied", "NEUTRAL")
+        signal["mechanical_confluence_score"] = mech_score
+        signal["mechanical_confluence_components"] = mech_result.get("component_scores", {})
+        signal["mechanical_direction_implied"] = mech_result.get("direction_implied", "NEUTRAL")
+
+        def block(reason: str):
+            nonlocal execution_allowed, execution_direction
+            execution_allowed = False
+            execution_direction = "NEUTRAL"
+            overrides.append(reason)
 
         if mech_score < self.config.get("min_confidence", 65):
-            sig["direction"] = "NEUTRAL"
-            overrides.append(
+            block(
                 f"BLOCKED: Mechanical confluence score too low "
-                f"({mech_score}/100, minimum 65; Claude scored {signal['claude_confluence_score']})"
+                f"({mech_score}/100, minimum 65; Claude scored {signal.get('confluence_score', 0)})"
             )
 
         # Normalise the session field to the actual clock-derived value so the
@@ -570,16 +587,14 @@ INSTRUCTIONS:
         session = fund.get("active_session", signal.get("session", ""))
         signal["session"] = session
         if not self._is_allowed_session(session):
-            sig["direction"] = "NEUTRAL"
-            overrides.append(f"BLOCKED: Outside allowed kill zones ({session})")
+            block(f"BLOCKED: Outside allowed kill zones ({session})")
 
         daily_pnl = port.get("daily_pnl_pct", 0)
         max_trade_risk_pct = self.config.get("max_risk_per_trade", 0.01) * 100  # e.g. 1.0%
         max_daily_loss_pct = self.config.get("max_daily_loss", 0.02) * 100      # e.g. 2.0%
         # Block if already past the limit OR if a max-risk trade would push past it.
         if daily_pnl <= -max_daily_loss_pct or (daily_pnl - max_trade_risk_pct) < -max_daily_loss_pct:
-            sig["direction"] = "NEUTRAL"
-            overrides.append(
+            block(
                 f"BLOCKED: Daily loss limit reached or would be exceeded "
                 f"({daily_pnl:.2f}% today, {max_trade_risk_pct:.1f}% new risk, limit {max_daily_loss_pct:.1f}%)"
             )
@@ -587,42 +602,38 @@ INSTRUCTIONS:
         open_risk = port.get("open_risk_pct", 0)
         max_portfolio_risk_pct = self.config.get("max_portfolio_risk", 0.03) * 100  # default 3.0%
         if open_risk + max_trade_risk_pct > max_portfolio_risk_pct:
-            sig["direction"] = "NEUTRAL"
-            overrides.append(
+            block(
                 f"BLOCKED: Adding trade would exceed portfolio risk cap "
                 f"({open_risk:.1f}% open + {max_trade_risk_pct:.1f}% new > {max_portfolio_risk_pct:.1f}% limit)"
             )
 
         if self._has_session_loss_streak(session):
-            sig["direction"] = "NEUTRAL"
-            overrides.append(f"BLOCKED: Two consecutive losses already recorded in {session}")
+            block(f"BLOCKED: Two consecutive losses already recorded in {session}")
 
         next_event = fund.get("next_news_event") or fund.get("next_event_name") or ""
         if next_event.startswith("MANUAL_CHECK"):
-            sig["direction"] = "NEUTRAL"
-            overrides.append("BLOCKED: Live economic calendar unavailable")
+            block("BLOCKED: Live economic calendar unavailable")
         time_to_event = fund.get("time_to_event", "")
         if self._is_within_news_blackout(time_to_event):
-            sig["direction"] = "NEUTRAL"
-            overrides.append(f"BLOCKED: News blackout active ({time_to_event} to event)")
+            block(f"BLOCKED: News blackout active ({time_to_event} to event)")
 
         confidence = sig.get("confidence", 0)
         if confidence < self.config.get("min_confidence", 65):
-            sig["direction"] = "NEUTRAL"
-            overrides.append(f"BLOCKED: Confidence too low ({confidence}%)")
+            block(f"BLOCKED: Confidence too low ({confidence}%)")
 
         rr = sig.get("risk_reward", 0)
         if rr > 0 and rr < 2.0:
-            sig["direction"] = "NEUTRAL"
-            overrides.append(f"BLOCKED: R:R too low ({rr} < 2.0 minimum)")
+            block(f"BLOCKED: R:R too low ({rr} < 2.0 minimum)")
 
         if market_data.get("demo_mode", True):
             signal["demo_mode"] = True
 
+        signal["execution_allowed"] = execution_allowed
+        signal["execution_direction"] = execution_direction
+        signal["validator_overrides"] = overrides
+        signal["signal"] = sig
         if overrides:
-            signal["validator_overrides"] = overrides
-            signal["signal"] = sig
-            logger.warning(f"Signal overridden: {overrides}")
+            logger.warning(f"Signal blocked: {overrides}")
 
         return signal
 
@@ -704,7 +715,6 @@ INSTRUCTIONS:
         self,
         pair: str,
         market_data: dict,
-        rag_context: str,
         signal: dict,
         retrieved_chunks: dict,
     ):
@@ -714,7 +724,10 @@ INSTRUCTIONS:
             "price": market_data.get("price"),
             "signal": signal.get("signal", {}),
             "confluence_score": signal.get("confluence_score", 0),
+            "mechanical_confluence_score": signal.get("mechanical_confluence_score", 0),
             "signal_strength": signal.get("signal_strength", "NEUTRAL"),
+            "execution_allowed": signal.get("execution_allowed", False),
+            "execution_direction": signal.get("execution_direction", "NEUTRAL"),
             "reasoning": signal.get("reasoning", []),
             "key_risk": signal.get("key_risk", ""),
             "overrides": signal.get("validator_overrides", []),
@@ -730,8 +743,8 @@ INSTRUCTIONS:
         # --- Score calibration log (Item 1.3) ---
         # Records Claude's score vs mechanical score per analysis.
         # After 50+ entries, correlate mechanical scores to win rates.
-        claude_score = signal.get("claude_confluence_score", 0)
-        mech_score   = signal.get("confluence_score", 0)
+        claude_score = signal.get("confluence_score", 0)
+        mech_score   = signal.get("mechanical_confluence_score", 0)
         direction    = (signal.get("signal") or {}).get("direction", "NEUTRAL")
         session      = signal.get("session", "")
         calibration_entry = {

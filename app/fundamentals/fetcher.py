@@ -188,11 +188,9 @@ def fetch_next_calendar_event(force_refresh: bool = False) -> dict:
         event_time = result.get("event_time", "")
         event_suffix = ""
         if event_time:
-            try:
-                parsed = datetime.fromisoformat(event_time)
+            parsed = _parse_utc(event_time)
+            if parsed is not None:
                 event_suffix = f" ({parsed.strftime('%Y-%m-%d %H:%M UTC')})"
-            except ValueError:
-                event_suffix = ""
         print(
             f"  ✅ Calendar: {result['next_event_name']} in {result['time_to_event']}{event_suffix}"
         )

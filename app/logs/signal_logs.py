@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any, Mapping
 from zoneinfo import ZoneInfo
 
+from dateutil.parser import isoparse
+
 
 UTC = ZoneInfo("UTC")
 FAILURE_OVERRIDE = "BLOCKED: Claude API unavailable"
@@ -18,13 +20,9 @@ def parse_utc_datetime(value: Any) -> datetime | None:
     if not isinstance(value, str) or not value.strip():
         return None
 
-    normalized = value.strip()
-    if normalized.endswith("Z"):
-        normalized = normalized[:-1] + "+00:00"
-
     try:
-        parsed = datetime.fromisoformat(normalized)
-    except ValueError:
+        parsed = isoparse(value.strip())
+    except (TypeError, ValueError):
         return None
 
     if parsed.tzinfo is None:
