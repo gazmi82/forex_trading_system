@@ -4,7 +4,7 @@ import json
 import logging
 from pathlib import Path
 
-from app.analysis.decision_logging import log_analysis
+from app.analysis.decision_logging import log_analysis, update_calibration_outcome
 from app.analysis.message_builder import build_analysis_user_message
 from app.analysis.prompt import FOREX_ANALYST_SYSTEM_PROMPT
 from app.analysis.signal_pipeline import (
@@ -201,6 +201,12 @@ class ForexAnalystAgent:
             trade_record = dict(trade_record)
             trade_record["lesson"] = lesson
         self.feedback.record_trade_outcome(trade_record)
+        updated = update_calibration_outcome(self.log_dir, trade_record)
+        if not updated and (self.log_dir / "score_calibration.jsonl").exists():
+            logger.warning(
+                "Calibration log update could not match closed trade for signal timestamp %s",
+                trade_record.get("signal_timestamp", ""),
+            )
 
     def _log_analysis(
         self,

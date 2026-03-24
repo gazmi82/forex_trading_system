@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 
 from app.analysis.agent import ForexAnalystAgent
@@ -311,6 +312,89 @@ class TradeFeedbackTests(unittest.TestCase):
             self.assertIn("did not completely miss the calendar", content)
             self.assertIn("DATA GAPS / WHY SOME DETAILS ARE MISSING:", content)
             self.assertIn("Final broker-managed exit was not fetched", content)
+
+    def test_record_trade_outcome_updates_score_calibration_and_summary(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_dir = Path(tmpdir) / "logs"
+            feedback_dir = Path(tmpdir) / "feedback"
+            log_dir.mkdir(parents=True, exist_ok=True)
+            feedback_dir.mkdir(parents=True, exist_ok=True)
+
+            calibration_file = log_dir / "score_calibration.jsonl"
+            rows = []
+            for idx in range(49):
+                rows.append(
+                    {
+                        "timestamp": f"2026-03-24T10:{idx:02d}:00Z",
+                        "signal_timestamp": f"2026-03-24T09:{idx:02d}:00Z",
+                        "pair": "EUR/USD",
+                        "session": "NY Kill Zone",
+                        "claude_score": 70 + (idx % 10),
+                        "mechanical_score": 65 + (idx % 15),
+                        "delta": -5,
+                        "direction": "BUY",
+                        "outcome": "WIN" if idx % 2 == 0 else "LOSS",
+                    }
+                )
+            rows.append(
+                {
+                    "timestamp": "2026-03-24T15:00:00Z",
+                    "signal_timestamp": "2026-03-24T14:30:00Z",
+                    "pair": "EUR/USD",
+                    "session": "NY Kill Zone",
+                    "claude_score": 82,
+                    "mechanical_score": 76,
+                    "delta": -6,
+                    "direction": "BUY",
+                    "outcome": None,
+                }
+            )
+            calibration_file.write_text(
+                "".join(json.dumps(row) + "\n" for row in rows),
+                encoding="utf-8",
+            )
+
+            rag = _DummyRag()
+            agent = ForexAnalystAgent(rag, None, {"feedback_memory_limit": 15}, log_dir)
+            agent.feedback.feedback_dir = feedback_dir
+            trade_record = {
+                "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                "pair": "EUR/USD",
+                "direction": "BUY",
+                "entry_price": 1.0800,
+                "stop_loss": 1.0780,
+                "take_profit": 1.0840,
+                "lot_size": 100000,
+                "outcome": "WIN",
+                "pnl_r": 1.8,
+                "pnl_usd": 1800.0,
+                "duration_hours": 2.5,
+                "session": "NY Kill Zone",
+                "confluence_score": 82,
+                "mechanical_confluence_score": 76,
+                "close_reason": "TIME_STOP",
+                "signal_timestamp": "2026-03-24T14:30:00Z",
+                "signal_log_filename": "",
+                "signal_log_entry_id": "",
+            }
+
+            agent.record_trade_outcome(trade_record)
+
+            updated_rows = [
+                json.loads(line)
+                for line in calibration_file.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            matched = next(
+                row for row in updated_rows if row.get("signal_timestamp") == "2026-03-24T14:30:00Z"
+            )
+            self.assertEqual(matched["outcome"], "WIN")
+            self.assertEqual(matched["pnl_r"], 1.8)
+
+            report = json.loads((log_dir / "score_calibration_report.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["status"], "ready")
+            self.assertEqual(report["resolved_samples"], 50)
+            self.assertIn("mechanical_vs_win_correlation", report)
 
 
 if __name__ == "__main__":

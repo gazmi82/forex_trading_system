@@ -189,6 +189,14 @@ def validate_signal(
             f"({daily_pnl:.2f}% today, {max_trade_risk_pct:.1f}% new risk, limit {max_daily_loss_pct:.1f}%)"
         )
 
+    weekly_pnl = port.get("weekly_pnl_pct", 0)
+    max_weekly_loss_pct = config.get("max_weekly_loss", 0.05) * 100
+    if weekly_pnl <= -max_weekly_loss_pct or (weekly_pnl - max_trade_risk_pct) < -max_weekly_loss_pct:
+        block(
+            f"BLOCKED: Weekly loss limit reached or would be exceeded "
+            f"({weekly_pnl:.2f}% this week, {max_trade_risk_pct:.1f}% new risk, limit {max_weekly_loss_pct:.1f}%)"
+        )
+
     open_risk = port.get("open_risk_pct", 0)
     max_portfolio_risk_pct = config.get("max_portfolio_risk", 0.03) * 100
     if open_risk + max_trade_risk_pct > max_portfolio_risk_pct:

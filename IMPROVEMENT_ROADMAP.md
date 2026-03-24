@@ -1,5 +1,5 @@
 # Improvement Roadmap — Score 38 → 75
-## Forex Trading System | Last updated: March 20, 2026
+## Forex Trading System | Last updated: March 24, 2026
 
 This document defines every improvement required to raise the system
 confidence score from 38/100 to 75/100. Each item includes the problem
@@ -11,15 +11,27 @@ Improvements are grouped into five pillars. Complete them in phase order
 
 ---
 
+## Implementation Status
+
+- Current roadmap phase: Phase 1 (`DONE`) — ready to start Phase 2
+- Estimated current score: `50/100`
+- Item status counts: `4 DONE`, `4 PARTIAL`, `7 MISSING`
+- Legend:
+  - `[DONE]` = implemented and materially satisfies the item intent and acceptance criteria
+  - `[PARTIAL]` = some implementation exists, but the roadmap scope is not fully complete
+  - `[MISSING]` = not implemented yet
+
+---
+
 ## Current State
 
 | Dimension              | Current                                | Target                              |
 |------------------------|----------------------------------------|-------------------------------------|
 | Edge validation        | No backtesting — untested              | 2+ years backtested, 200+ samples   |
-| Confluence scoring     | Self-reported by Claude                | Mechanically calculated             |
-| Performance visibility | Signals logged, no aggregation         | Win rate by tag, session, grade     |
+| Confluence scoring     | Claude analysis + mechanical gate      | Mechanically calculated             |
+| Performance visibility | Signals and trades logged, no edge aggregation | Win rate by tag, session, grade |
 | Trailing stop          | Fixed distance (entry-to-TP1)          | ATR-based                           |
-| Weekly loss limit      | Defined in config, never enforced      | Enforced in validator + executor    |
+| Weekly loss limit      | Enforced in validator + executor       | Enforced in validator + executor    |
 | ICT OB detection       | Basic (last bearish candle heuristic)  | Mitigation-aware + displacement     |
 | FVG detection          | Unfilled check only                    | Partial and full fill tracking      |
 
@@ -48,7 +60,9 @@ produces the signal grades it. A score of 85 from Claude has no proven
 relationship to actual win rate. You cannot use it to make statistical
 decisions.
 
-### Item 1.1 — Mechanical Confluence Calculator
+### Item 1.1 — Mechanical Confluence Calculator [DONE]
+**Status:** `DONE` — deterministic scorer is implemented and unit-tested across all 13 components.
+
 **New file:** `app/analysis/confluence_scorer.py`
 
 Build a function `calculate_confluence(market_data, signal) -> dict`
@@ -101,7 +115,9 @@ Returns:
 
 ---
 
-### Item 1.2 — Wire Mechanical Score into Validator
+### Item 1.2 — Wire Mechanical Score into Validator [DONE]
+**Status:** `DONE` — the mechanical score is computed after Claude, saved alongside Claude's score, and used as an execution gate. The implementation preserves Claude's original `confluence_score` instead of overwriting it by design.
+
 **File:** `app/analysis/agent.py` (`_validate_signal`)
 
 - Call `calculate_confluence(market_data, signal)` after Claude returns.
@@ -115,7 +131,9 @@ Returns:
 
 ---
 
-### Item 1.3 — Score Calibration Log
+### Item 1.3 — Score Calibration Log [DONE]
+**Status:** `DONE` — per-analysis calibration rows are logged, closed-trade outcomes are written back to matching rows, and a calibration report is generated automatically once enough resolved samples exist.
+
 **File:** `app/analysis/agent.py` (`_log_analysis`)
 
 Log the delta between Claude's score and the mechanical score to
@@ -133,7 +151,9 @@ produce higher win rates? This validates or adjusts scoring weights.
 
 ---
 
-### Item 1.4 — Enforce Weekly Loss Limit
+### Item 1.4 — Enforce Weekly Loss Limit [DONE]
+**Status:** `DONE` — weekly realized P&L is calculated from `closed_trades.jsonl`, projected trade risk is checked, and both validator and executor block new trades after the weekly loss cap is hit.
+
 **Files:** `app/analysis/agent.py`, `app/execution/trade_executor.py`
 
 Calculate weekly P&L from `closed_trades.jsonl` entries where `date`
@@ -159,7 +179,9 @@ The system has never been tested against historical data. Every demo
 trade is a blind experiment. Without historical validation you cannot
 distinguish a real edge from random noise or survivorship bias.
 
-### Item 2.1 — Historical Data Loader
+### Item 2.1 — Historical Data Loader [MISSING]
+**Status:** `MISSING` — no `app/backtesting/data_loader.py` exists yet.
+
 **New file:** `app/backtesting/data_loader.py`
 
 Class `HistoricalDataLoader`:
@@ -175,7 +197,9 @@ Class `HistoricalDataLoader`:
 
 ---
 
-### Item 2.2 — Signal Replay Engine
+### Item 2.2 — Signal Replay Engine [MISSING]
+**Status:** `MISSING` — no historical signal replay engine exists yet.
+
 **New file:** `app/backtesting/signal_replayer.py`
 
 Walk forward through every Kill Zone window in the historical data:
@@ -199,7 +223,9 @@ mechanical scorer. Claude is non-deterministic and costs money.
 
 ---
 
-### Item 2.3 — Outcome Simulator
+### Item 2.3 — Outcome Simulator [MISSING]
+**Status:** `MISSING` — there is no backtest outcome simulator mirroring the live executor rules.
+
 **New file:** `app/backtesting/outcome_simulator.py`
 
 Given a `BacktestSignal`, walk forward through subsequent candles and
@@ -222,7 +248,9 @@ can read both live and backtest results.
 
 ---
 
-### Item 2.4 — Backtest Performance Report
+### Item 2.4 — Backtest Performance Report [MISSING]
+**Status:** `MISSING` — no backtest reporting pipeline or `backtest_results/report.json` output exists yet.
+
 **New file:** `app/backtesting/report.py`
 
 Read simulated closed trades and produce:
@@ -246,7 +274,9 @@ Pattern tags, setup grades, and root causes are logged per trade, but
 nothing aggregates them. After 50 demo trades you need answers to:
 "What is my win rate on ob_entry + post_sweep + London Kill Zone setups?"
 
-### Item 3.1 — Edge Database Aggregator
+### Item 3.1 — Edge Database Aggregator [PARTIAL]
+**Status:** `PARTIAL` — trade journaling already captures pattern tags, setup grades, root causes, and both scores, but there is no dedicated aggregator or edge report module yet.
+
 **New file:** `app/performance/edge_report.py`
 
 Function `generate_edge_report(closed_trades_path) -> dict` that
@@ -267,7 +297,9 @@ Only report groups with >= 10 trades to avoid misleading small samples.
 
 ---
 
-### Item 3.2 — Weekly Performance Summary
+### Item 3.2 — Weekly Performance Summary [MISSING]
+**Status:** `MISSING` — no weekly summary script or markdown output is generated yet.
+
 **New file:** `app/performance/weekly_summary.py`
 
 Script run every Friday that produces a one-page markdown file:
@@ -286,8 +318,11 @@ Action items generated automatically from data, not written manually.
 ## PHASE 4 — Smarter Trade Management
 **Score impact: 67 → 72**
 
-### Item 4.1 — ATR-Based Trailing Stop (already implemented March 20)
-Done. The trailing stop now uses `atr_1h_at_entry × trail_atr_multiplier`
+### Item 4.1 — ATR-Based Trailing Stop (already implemented March 20) [PARTIAL]
+**Status:** `PARTIAL` — TP1 and trailing-stop management exist, but the trail still uses the fixed entry-to-TP1 distance instead of `atr_1h_at_entry × trail_atr_multiplier`.
+
+Planned target behavior:
+The trailing stop should use `atr_1h_at_entry × trail_atr_multiplier`
 instead of the fixed entry-to-TP1 distance.
 
 Next improvement: ensure `atr_1h_at_entry` is stored in the open trade
@@ -303,7 +338,9 @@ entry-to-TP1 distance.
 
 ---
 
-### Item 4.2 — Session-Specific Time Stop
+### Item 4.2 — Session-Specific Time Stop [MISSING]
+**Status:** `MISSING` — the executor still reads a single numeric `time_stop_hours` value instead of session-specific settings.
+
 **File:** `app/core/config.py`, `app/execution/trade_executor.py`
 
 Replace the single `time_stop_hours: 8` with session-specific values:
@@ -330,7 +367,9 @@ In reality, an OB is invalidated once price trades back through it
 (mitigated). FVG detection marks gaps as `unfilled` but never updates
 when price partially or fully fills them.
 
-### Item 5.1 — Order Block Mitigation
+### Item 5.1 — Order Block Mitigation [PARTIAL]
+**Status:** `PARTIAL` — order blocks are detected and scored, but the detector does not yet walk forward to mark blocks as `MITIGATED`.
+
 **File:** `app/analysis/market_analysis.py` (`_find_order_block`)
 
 After identifying the OB candle, walk forward through subsequent candles:
@@ -344,7 +383,9 @@ A MITIGATED OB receives zero confluence points in the mechanical scorer.
 
 ---
 
-### Item 5.2 — FVG Fill Status
+### Item 5.2 — FVG Fill Status [PARTIAL]
+**Status:** `PARTIAL` — FVG detection exists and reports `unfilled`, but it does not yet distinguish `partial` vs `filled`, and the scorer does not apply reduced points.
+
 **File:** `app/analysis/market_analysis.py` (`_find_fvg`)
 
 After identifying the gap, walk forward and check if subsequent candles
@@ -357,7 +398,9 @@ Fully filled FVG = zero points. Partial fill = half points.
 
 ---
 
-### Item 5.3 — Displacement Candle Validation
+### Item 5.3 — Displacement Candle Validation [MISSING]
+**Status:** `MISSING` — order block validation still relies on the simpler move-magnitude heuristic and does not enforce displacement-body rules.
+
 **File:** `app/analysis/market_analysis.py` (`_find_order_block`)
 
 The current `strong_move` check requires the next 3 candles to move 2×

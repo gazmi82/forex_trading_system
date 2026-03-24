@@ -25,6 +25,7 @@ from typing import Optional
 import pandas as pd
 
 from app.analysis.market_analysis import IndicatorCalculator, MarketStructureAnalyzer
+from app.logs.closed_trade_stats import weekly_pnl_pct_from_closed_trades
 
 logger = logging.getLogger(__name__)
 
@@ -315,12 +316,20 @@ class MarketDataBuilder:
             if start_bal > 0
             else 0.0
         )
+        weekly_pnl_pct = 0.0
+        if self.log_dir:
+            weekly_pnl_pct = weekly_pnl_pct_from_closed_trades(
+                self.log_dir / "closed_trades.jsonl",
+                account["balance"],
+            )
 
         portfolio = {
+            "balance": account["balance"],
             "equity": equity,
             "open_trades": len(open_trades),
             "open_risk_pct": open_risk_pct,
             "daily_pnl_pct": daily_pnl_pct,
+            "weekly_pnl_pct": weekly_pnl_pct,
             "trades_today": len(open_trades) + self._count_closed_today(),
             "usd_exposure": self._calculate_usd_exposure(open_trades),
             "margin_used_pct": round(account["margin_used"] / equity * 100, 2),

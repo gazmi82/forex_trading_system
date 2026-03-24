@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from app.core.text_utils import normalize_pair, slugify_text
+from app.logs.closed_trade_stats import weekly_pnl_pct_from_closed_trades
 
 logger = logging.getLogger(__name__)
 
@@ -465,6 +466,12 @@ class TradeJournal:
         if start_balance == 0:
             return 0.0
         return (current_balance - start_balance) / start_balance * 100
+
+    def get_weekly_pnl_pct(self, current_balance: float) -> float:
+        return weekly_pnl_pct_from_closed_trades(
+            self.closed_trades_file,
+            current_balance,
+        )
 
     # =========================================================================
     # STRUCTURED TRADE ANALYSIS HELPERS

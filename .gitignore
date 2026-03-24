@@ -27,7 +27,7 @@ __pycache__/
 .AppleDouble
 
 # Logs and runtime artifacts
-logs/
+/logs/
 
 # Jupyter
 .ipynb_checkpoints/

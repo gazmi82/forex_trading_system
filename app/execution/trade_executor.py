@@ -183,6 +183,17 @@ class TradeExecutor:
                 False,
                 f"Daily loss limit hit ({daily_pnl_pct:.1f}%) — no more trades today",
             )
+        projected_trade_risk_pct = self.config.get("max_risk_per_trade", 0.01) * 100
+
+        weekly_pnl_pct = self.journal.get_weekly_pnl_pct(balance)
+        max_weekly_loss = self.config.get("max_weekly_loss", 0.05)
+        if weekly_pnl_pct <= -(max_weekly_loss * 100) or (
+            weekly_pnl_pct - projected_trade_risk_pct
+        ) < -(max_weekly_loss * 100):
+            return (
+                False,
+                f"Weekly loss limit hit ({weekly_pnl_pct:.1f}%) — no more trades this week",
+            )
 
         if account["open_trade_count"] >= 3:
             return False, f"Already {account['open_trade_count']} open trades — max 3"
