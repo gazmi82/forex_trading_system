@@ -1,5 +1,6 @@
-from app.analysis.agent import FOREX_ANALYST_SYSTEM_PROMPT, ForexAnalystAgent
+from app.analysis.agent import ForexAnalystAgent
 from app.analysis.market_analysis import IndicatorCalculator, MarketStructureAnalyzer
+from app.analysis.prompt import FOREX_ANALYST_SYSTEM_PROMPT
 from app.analysis.scheduler import (
     ALLOWED_ENTRY_SESSIONS,
     ENTRY_ANALYSIS_INTERVAL_SECONDS,

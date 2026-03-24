@@ -93,6 +93,18 @@ def _trusted_hosts() -> list[str]:
         parsed = urlparse(public_base_url)
         if parsed.hostname:
             hosts.add(parsed.hostname)
+            # Render health checks and port probing can arrive on transient
+            # *.onrender.com hosts even when PUBLIC_API_BASE_URL points at a
+            # single service hostname. Trust the platform subdomain family so
+            # the middleware does not reject Render's own probes with HTTP 400.
+            if parsed.hostname.endswith(".onrender.com"):
+                hosts.add("*.onrender.com")
+
+    render_external_host = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
+    if render_external_host:
+        hosts.add(render_external_host)
+        if render_external_host.endswith(".onrender.com"):
+            hosts.add("*.onrender.com")
     return sorted(hosts)
 
 

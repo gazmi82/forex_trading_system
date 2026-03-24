@@ -1,4 +1,5 @@
-from app.analysis.agent import FOREX_ANALYST_SYSTEM_PROMPT, ForexAnalystAgent
+from app.analysis.agent import ForexAnalystAgent
+from app.analysis.prompt import FOREX_ANALYST_SYSTEM_PROMPT
 
 __all__ = ["FOREX_ANALYST_SYSTEM_PROMPT", "ForexAnalystAgent"]
 

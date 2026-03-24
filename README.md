@@ -29,7 +29,12 @@ trading_system/
 ├── fundamentals_fetcher.py ← Compatibility shim to app/fundamentals/fetcher.py
 ├── requirements.txt      ← All dependencies
 ├── app/
-│   ├── analysis/         ← Agent, scheduler, market analysis
+│   ├── analysis/         ← Analysis pipeline
+│   │   ├── agent.py      ← Orchestrates RAG → Claude → validation → logging
+│   │   ├── prompt.py     ← Static system prompt
+│   │   ├── message_builder.py ← Builds the live-market user prompt
+│   │   ├── signal_pipeline.py ← Parse + validate Claude output
+│   │   └── decision_logging.py ← Decision and calibration logs
 │   ├── api/              ← FastAPI implementation
 │   ├── brokers/          ← OANDA live market/account layer
 │   ├── cli/              ← Main runtime/CLI implementation
@@ -49,8 +54,11 @@ trading_system/
 ├── chroma_db/            ← Vector database (auto-created, do not edit)
 ├── logs/                 ← Trade logs, agent decisions (auto-created)
 ├── journal/              ← Reserved top-level journal directory
+├── docs/                 ← Architecture and deployment notes
 └── feedback/             ← Auto-generated markdown trade review notes
 ```
+
+See [docs/architecture.md](docs/architecture.md) for the package responsibilities and runtime flow.
 
 ---
 

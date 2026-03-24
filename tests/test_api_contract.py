@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import unittest
 from unittest.mock import patch
 
@@ -9,7 +10,7 @@ FASTAPI_AVAILABLE = True
 try:
     from fastapi.testclient import TestClient
 
-    from app.api.server import app
+    from app.api.server import _trusted_hosts, app
 except ModuleNotFoundError as exc:
     FASTAPI_AVAILABLE = False
     FASTAPI_IMPORT_ERROR = exc
@@ -57,6 +58,27 @@ class ApiContractTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.json())
+
+    def test_trusted_hosts_include_render_wildcard_for_onrender_deploys(self):
+        original_public_api_base_url = os.environ.get("PUBLIC_API_BASE_URL")
+        original_render_external_hostname = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+        try:
+            os.environ["PUBLIC_API_BASE_URL"] = "https://forex-trading-system-api.onrender.com"
+            os.environ["RENDER_EXTERNAL_HOSTNAME"] = "srv-d6s14en5gffc738avmlg.onrender.com"
+            hosts = _trusted_hosts()
+        finally:
+            if original_public_api_base_url is None:
+                os.environ.pop("PUBLIC_API_BASE_URL", None)
+            else:
+                os.environ["PUBLIC_API_BASE_URL"] = original_public_api_base_url
+            if original_render_external_hostname is None:
+                os.environ.pop("RENDER_EXTERNAL_HOSTNAME", None)
+            else:
+                os.environ["RENDER_EXTERNAL_HOSTNAME"] = original_render_external_hostname
+
+        self.assertIn("*.onrender.com", hosts)
+        self.assertIn("forex-trading-system-api.onrender.com", hosts)
+        self.assertIn("srv-d6s14en5gffc738avmlg.onrender.com", hosts)
 
 
 if __name__ == "__main__":
