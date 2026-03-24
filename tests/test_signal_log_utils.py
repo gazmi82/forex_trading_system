@@ -7,15 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from app.logs.signal_logs import (
-    build_signal_log_metadata as packaged_build_signal_log_metadata,
-    infer_recorded_at as packaged_infer_recorded_at,
-    latest_signal_log_entry as packaged_latest_signal_log_entry,
-    read_signal_log_entries as packaged_read_signal_log_entries,
-    read_signal_log_entry as packaged_read_signal_log_entry,
-    write_signal_log as packaged_write_signal_log,
-)
-from signal_log_utils import (
+from app.logs import (
     build_signal_log_metadata,
     infer_recorded_at,
     latest_signal_log_entry,
@@ -24,16 +16,26 @@ from signal_log_utils import (
     read_signal_log_entry,
     write_signal_log,
 )
+from app.logs.signal_logs import (
+    build_signal_log_metadata as packaged_build_signal_log_metadata,
+    infer_recorded_at as packaged_infer_recorded_at,
+    latest_signal_log_entry as packaged_latest_signal_log_entry,
+    parse_utc_datetime as packaged_parse_utc_datetime,
+    read_signal_log_entries as packaged_read_signal_log_entries,
+    read_signal_log_entry as packaged_read_signal_log_entry,
+    write_signal_log as packaged_write_signal_log,
+)
 
 
 UTC = ZoneInfo("UTC")
 
 
 class SignalLogUtilsTests(unittest.TestCase):
-    def test_root_signal_log_utils_reexports_packaged_helpers(self):
+    def test_app_logs_init_reexports_signal_log_helpers(self):
         self.assertIs(build_signal_log_metadata, packaged_build_signal_log_metadata)
         self.assertIs(infer_recorded_at, packaged_infer_recorded_at)
         self.assertIs(latest_signal_log_entry, packaged_latest_signal_log_entry)
+        self.assertIs(parse_utc_datetime, packaged_parse_utc_datetime)
         self.assertIs(read_signal_log_entries, packaged_read_signal_log_entries)
         self.assertIs(read_signal_log_entry, packaged_read_signal_log_entry)
         self.assertIs(write_signal_log, packaged_write_signal_log)

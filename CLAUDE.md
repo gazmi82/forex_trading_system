@@ -104,12 +104,6 @@ main.py
 ~/forex_trading_system/
 ├── main.py                    ← Thin CLI entrypoint
 ├── api_server.py              ← Thin FastAPI entrypoint
-├── config.py                  ← Compatibility shim to app/core/config.py
-├── agent_runner.py            ← Compatibility shim to app/analysis/agent.py
-├── rag_pipeline.py            ← Compatibility shim to app/rag/pipeline.py
-├── oanda_connector.py         ← Compatibility shim to app/brokers/oanda.py
-├── trade_executor.py          ← Compatibility shim to app/execution/trade_executor.py
-├── fundamentals_fetcher.py    ← Compatibility shim to app/fundamentals/fetcher.py
 ├── requirements.txt           ← Dependencies
 ├── README.md                  ← Setup guide
 ├── app/
@@ -376,7 +370,7 @@ OANDA demo account successfully created and set as the primary broker.
 - Unrealized P/L: $0.00
 - Activated: March 11, 2026
 
-**Connector file:** `app/brokers/oanda.py` (`oanda_connector.py` is now a compatibility shim)
+**Connector file:** `app/brokers/oanda.py`
 
 **What it does:**
 - Fetches real-time EUR/USD bid/ask/mid/spread

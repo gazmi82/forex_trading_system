@@ -26,8 +26,8 @@ __pycache__/
 .DS_Store
 .AppleDouble
 
-# Logs (optional: comment out if you want logs in version control)
-# logs/
+# Logs and runtime artifacts
+logs/
 
 # Jupyter
 .ipynb_checkpoints/

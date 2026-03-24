@@ -4,18 +4,14 @@ import unittest
 
 import pandas as pd
 
+from app.analysis import (
+    IndicatorCalculator as PackagedIndicatorCalculator,
+    MarketStructureAnalyzer as PackagedMarketStructureAnalyzer,
+)
 from app.analysis.market_analysis import IndicatorCalculator, MarketStructureAnalyzer
 from app.brokers.oanda import (
     IndicatorCalculator as PackagedOandaIndicatorCalculator,
     MarketStructureAnalyzer as PackagedOandaMarketStructureAnalyzer,
-)
-from market_analysis import (
-    IndicatorCalculator as RootIndicatorCalculator,
-    MarketStructureAnalyzer as RootMarketStructureAnalyzer,
-)
-from oanda_connector import (
-    IndicatorCalculator as OandaIndicatorCalculator,
-    MarketStructureAnalyzer as OandaMarketStructureAnalyzer,
 )
 
 
@@ -41,13 +37,11 @@ def _frame_from_highs_lows(highs: list[float], lows: list[float]) -> pd.DataFram
 
 
 class MarketAnalysisTests(unittest.TestCase):
-    def test_root_market_analysis_reexports_shared_analysis_classes(self):
-        self.assertIs(RootIndicatorCalculator, IndicatorCalculator)
-        self.assertIs(RootMarketStructureAnalyzer, MarketStructureAnalyzer)
+    def test_app_analysis_init_reexports_shared_analysis_classes(self):
+        self.assertIs(PackagedIndicatorCalculator, IndicatorCalculator)
+        self.assertIs(PackagedMarketStructureAnalyzer, MarketStructureAnalyzer)
 
-    def test_oanda_connector_reexports_shared_analysis_classes(self):
-        self.assertIs(OandaIndicatorCalculator, IndicatorCalculator)
-        self.assertIs(OandaMarketStructureAnalyzer, MarketStructureAnalyzer)
+    def test_broker_module_reexports_shared_analysis_classes(self):
         self.assertIs(PackagedOandaIndicatorCalculator, IndicatorCalculator)
         self.assertIs(PackagedOandaMarketStructureAnalyzer, MarketStructureAnalyzer)
 

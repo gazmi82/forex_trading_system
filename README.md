@@ -22,11 +22,7 @@ finds and injects the most relevant knowledge passages into Claude's context.
 trading_system/
 ├── main.py               ← Thin CLI entry point — run this
 ├── api_server.py         ← Thin FastAPI entry point
-├── config.py             ← Compatibility shim to app/core/config.py
-├── rag_pipeline.py       ← Compatibility shim to app/rag/pipeline.py
 ├── pdf_to_markdown.py    ← Convert PDFs into cleaned Markdown for RAG
-├── agent_runner.py       ← Compatibility shim to app/analysis/agent.py
-├── fundamentals_fetcher.py ← Compatibility shim to app/fundamentals/fetcher.py
 ├── requirements.txt      ← All dependencies
 ├── app/
 │   ├── analysis/         ← Analysis pipeline
@@ -59,6 +55,11 @@ trading_system/
 ```
 
 See [docs/architecture.md](docs/architecture.md) for the package responsibilities and runtime flow.
+
+Conventions:
+- The only top-level Python entrypoints are `main.py` and `api_server.py`.
+- All implementation code lives under `app/`.
+- Prefer one local virtualenv only. The launchd runner now auto-detects `venv/` first and then `.venv/`.
 
 ---
 
@@ -337,7 +338,7 @@ Start with these — all completely free and legal:
 
 The system is configured for 12-month demo trading:
 
-- `demo_mode = True` in `app/core/config.py` (root `config.py` is only a compatibility shim)
+- `demo_mode = True` in `app/core/config.py`
 - All trades are simulated — no real money
 - Full logging active from day 1
 - Feedback loop builds agent memory over time

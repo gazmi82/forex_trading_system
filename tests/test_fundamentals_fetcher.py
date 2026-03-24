@@ -3,14 +3,14 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
+from app.fundamentals import get_auto_fundamentals as packaged_get_auto_fundamentals
 import app.fundamentals.fetcher as fetcher_module
 from app.fundamentals.fetcher import get_auto_fundamentals
-from fundamentals_fetcher import get_auto_fundamentals as root_get_auto_fundamentals
 
 
 class FundamentalsFetcherTests(unittest.TestCase):
-    def test_root_fundamentals_fetcher_reexports_packaged_helper(self):
-        self.assertIs(root_get_auto_fundamentals, get_auto_fundamentals)
+    def test_app_fundamentals_init_reexports_fetcher_helper(self):
+        self.assertIs(packaged_get_auto_fundamentals, get_auto_fundamentals)
 
     @patch("app.fundamentals.fetcher.fetch_risk_sentiment")
     @patch("app.fundamentals.fetcher.fetch_retail_sentiment")

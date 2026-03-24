@@ -4,12 +4,10 @@ import unittest
 
 from app.execution import TradeExecutor as PackagedExecutionTradeExecutor
 from app.execution.trade_executor import TradeExecutor
-from trade_executor import TradeExecutor as RootTradeExecutor
 
 
 class TradeExecutorImportTests(unittest.TestCase):
-    def test_root_trade_executor_reexports_packaged_executor(self):
-        self.assertIs(RootTradeExecutor, TradeExecutor)
+    def test_app_execution_init_reexports_executor(self):
         self.assertIs(PackagedExecutionTradeExecutor, TradeExecutor)
 
 

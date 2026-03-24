@@ -9,20 +9,10 @@ from app.rag import (
     VectorStore as PackagedVectorStore,
 )
 from app.rag.pipeline import DocumentProcessor, RAGPipeline, TextChunker, VectorStore
-from rag_pipeline import (
-    DocumentProcessor as RootDocumentProcessor,
-    RAGPipeline as RootRAGPipeline,
-    TextChunker as RootTextChunker,
-    VectorStore as RootVectorStore,
-)
 
 
 class RAGPipelineImportTests(unittest.TestCase):
-    def test_root_rag_pipeline_reexports_packaged_types(self):
-        self.assertIs(RootDocumentProcessor, DocumentProcessor)
-        self.assertIs(RootTextChunker, TextChunker)
-        self.assertIs(RootVectorStore, VectorStore)
-        self.assertIs(RootRAGPipeline, RAGPipeline)
+    def test_app_rag_init_reexports_pipeline_types(self):
         self.assertIs(PackagedDocumentProcessor, DocumentProcessor)
         self.assertIs(PackagedTextChunker, TextChunker)
         self.assertIs(PackagedVectorStore, VectorStore)
