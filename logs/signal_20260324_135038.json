@@ -1,0 +1,14 @@
+{
+  "error": "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CZN1j4cLZnGgrhYGi2bxs'}",
+  "signal": {
+    "direction": "NEUTRAL",
+    "confidence": 0
+  },
+  "do_not_trade_reason": "API error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CZN1j4cLZnGgrhYGi2bxs'}",
+  "demo_mode": true,
+  "validator_overrides": [
+    "BLOCKED: Claude API unavailable"
+  ],
+  "logged_at_utc": "2026-03-24T13:50:38.798576Z",
+  "log_filename": "signal_20260324_135038.json"
+}

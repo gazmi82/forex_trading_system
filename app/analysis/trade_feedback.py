@@ -9,6 +9,7 @@ from typing import Any
 
 from app.core.config import FEEDBACK_DIR
 from app.core.text_utils import display_pair, slugify_text
+from app.logs.signal_logs import read_signal_log_entry
 
 logger = logging.getLogger(__name__)
 
@@ -136,6 +137,8 @@ class TradeFeedbackManager:
 
     def _hydrate_trade_record_from_signal_log(self, trade_record: dict):
         filename = str(trade_record.get("signal_log_filename") or "").strip()
+        entry_id = str(trade_record.get("signal_log_entry_id") or "").strip()
+        signal_timestamp = str(trade_record.get("signal_timestamp") or "").strip()
         if not filename:
             self._append_missing_reason(
                 trade_record,
@@ -152,8 +155,11 @@ class TradeFeedbackManager:
             return trade_record
 
         try:
-            with open(signal_path, encoding="utf-8") as f:
-                signal_data = json.load(f)
+            signal_data = read_signal_log_entry(
+                signal_path,
+                entry_id=entry_id or None,
+                signal_timestamp=signal_timestamp or None,
+            )
         except Exception as exc:
             self._append_missing_reason(
                 trade_record,
@@ -161,8 +167,16 @@ class TradeFeedbackManager:
             )
             return trade_record
 
+        if not isinstance(signal_data, dict) or not signal_data:
+            self._append_missing_reason(
+                trade_record,
+                f"Linked signal log '{filename}' did not contain the exact saved analysis entry needed for this trade review.",
+            )
+            return trade_record
+
         field_map = {
             "signal_timestamp": "timestamp",
+            "signal_log_entry_id": "log_entry_id",
             "signal_strength": "signal_strength",
             "macro_bias": "macro_bias",
             "technical_analysis": "technical_analysis",

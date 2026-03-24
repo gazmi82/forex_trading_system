@@ -9,7 +9,11 @@ from zoneinfo import ZoneInfo
 
 from app.api.models import LogEnvelope
 from app.core.config import LOGS_DIR
-from app.logs.signal_logs import build_signal_log_metadata, infer_recorded_at
+from app.logs.signal_logs import (
+    build_signal_log_metadata,
+    infer_recorded_at,
+    latest_signal_log_entry,
+)
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -32,7 +36,9 @@ def latest_signal_file(
         return None
 
     def _sort_key(path: Path) -> tuple[float, float]:
-        data = read_json(path)
+        data = latest_signal_log_entry(path)
+        if data is None:
+            return (0.0, 0.0)
         modified_at = datetime.fromtimestamp(path.stat().st_mtime, tz=ZoneInfo("UTC"))
         recorded_at = infer_recorded_at(path, data, modified_at=modified_at) or modified_at
         return (recorded_at.timestamp(), modified_at.timestamp())
@@ -77,7 +83,7 @@ def log_envelope(
     now_utc: datetime,
     stale_after_seconds: int,
 ) -> LogEnvelope:
-    data = read_json(path)
+    data = latest_signal_log_entry(path) or read_json(path)
     metadata = build_signal_log_metadata(
         path,
         data,

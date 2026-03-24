@@ -6,8 +6,11 @@ from app.logs.signal_logs import (
     build_signal_log_metadata,
     infer_recorded_at,
     is_signal_failure,
+    latest_signal_log_entry,
     parse_filename_datetime,
     parse_utc_datetime,
+    read_signal_log_entries,
+    read_signal_log_entry,
     write_signal_log,
 )
 
@@ -19,7 +22,10 @@ __all__ = [
     "build_signal_log_metadata",
     "infer_recorded_at",
     "is_signal_failure",
+    "latest_signal_log_entry",
     "parse_filename_datetime",
     "parse_utc_datetime",
+    "read_signal_log_entries",
+    "read_signal_log_entry",
     "write_signal_log",
 ]

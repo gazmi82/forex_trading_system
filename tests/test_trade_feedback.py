@@ -65,7 +65,8 @@ class TradeFeedbackTests(unittest.TestCase):
                 "knowledge_sources_used": ["The Forex Trading Course"],
                 "trade_management": {"tp1_action": "Close 50% at TP1"},
                 "validator_overrides": [],
-                "log_filename": "signal_20260319_130000.json",
+                "log_filename": "signal_20260319.json",
+                "log_entry_id": "entry_130000",
                 "signal": {
                     "direction": "SELL",
                     "confidence": 74,
@@ -88,7 +89,8 @@ class TradeFeedbackTests(unittest.TestCase):
             tracked = executor.journal.load_open_trades()
             trade = next(iter(tracked.values()))
 
-            self.assertEqual(trade["signal_log_filename"], "signal_20260319_130000.json")
+            self.assertEqual(trade["signal_log_filename"], "signal_20260319.json")
+            self.assertEqual(trade["signal_log_entry_id"], "entry_130000")
             self.assertEqual(trade["reasoning"][0], signal["reasoning"][0])
             self.assertEqual(
                 trade["fundamental_context"]["next_news_event"],
@@ -129,7 +131,8 @@ class TradeFeedbackTests(unittest.TestCase):
                     "risk_reward": 2.4,
                     "order_type": "LIMIT",
                 },
-                "log_filename": "signal_20260319_130000.json",
+                "log_filename": "signal_20260319.json",
+                "log_entry_id": "entry_130000",
             }
             result = {
                 "order_id": "100",
@@ -147,7 +150,8 @@ class TradeFeedbackTests(unittest.TestCase):
                 "signal_strength": "MODERATE",
                 "key_risk": "News approaching",
                 "signal": {"direction": "SELL", "confidence": 69},
-                "log_filename": "signal_20260319_131000.json",
+                "log_filename": "signal_20260319.json",
+                "log_entry_id": "entry_131000",
             }
             executor.record_signal_snapshot_for_open_trades(loop_signal)
 
@@ -161,7 +165,11 @@ class TradeFeedbackTests(unittest.TestCase):
             self.assertEqual(len(timeline["analysis_events"]), 2)
             self.assertEqual(
                 timeline["analysis_events"][1]["signal_log_filename"],
-                "signal_20260319_131000.json",
+                "signal_20260319.json",
+            )
+            self.assertEqual(
+                timeline["analysis_events"][1]["signal_log_entry_id"],
+                "entry_131000",
             )
             self.assertEqual(
                 timeline["trade_management_events"][-1]["event_type"],
@@ -176,47 +184,69 @@ class TradeFeedbackTests(unittest.TestCase):
             log_dir.mkdir(parents=True, exist_ok=True)
             feedback_dir.mkdir(parents=True, exist_ok=True)
 
-            signal_log = log_dir / "signal_20260319_130000.json"
+            signal_log = log_dir / "signal_20260319.json"
             with open(signal_log, "w", encoding="utf-8") as f:
                 json.dump(
                     {
-                        "timestamp": "2026-03-19T13:00:00Z",
-                        "pair": "EUR/USD",
-                        "session": "London Close",
-                        "signal_strength": "MODERATE",
-                        "macro_bias": {
-                            "weekly": "BULLISH",
-                            "daily": "BEARISH",
-                            "h4": "BEARISH",
-                            "alignment": "CONFLICTING",
-                        },
-                        "technical_analysis": {
-                            "ema_bias": "BEARISH",
-                            "adx_14": 24.07,
-                            "market_regime": "RANGING",
-                            "rsi_14": 47.92,
-                            "rsi_signal": "NEUTRAL",
-                        },
-                        "ict_analysis": {
-                            "order_block": {"present": True, "type": "BEARISH", "level": 1.15374},
-                            "fair_value_gap": {"present": True, "type": "BULLISH", "lower": 1.14594, "upper": 1.14666},
-                            "liquidity": {"recent_sweep": True, "direction": "BUY_SIDE", "swept_level": 1.15274},
-                            "premium_discount": "EQUILIBRIUM",
-                        },
-                        "fundamental": {
-                            "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
-                            "dxy_direction": "RISING",
-                            "cot_bias": "BULLISH",
-                            "next_news_event": "USD Unemployment Claims in 2h 45m",
-                            "news_risk": "MEDIUM",
-                        },
-                        "reasoning": [
-                            "Recent buy-side liquidity sweep suggests institutional selling interest",
-                            "Rate differential and rising DXY supported the short bias",
-                        ],
-                        "key_risk": "Upcoming USD news could increase volatility",
-                        "knowledge_sources_used": [
-                            "The Forex Trading Course - Post-news retracement concepts",
+                        "log_type": "signal",
+                        "log_date_utc": "2026-03-19",
+                        "entries": [
+                            {
+                                "timestamp": "2026-03-19T13:00:00Z",
+                                "log_filename": signal_log.name,
+                                "log_entry_id": "entry_130000",
+                                "pair": "EUR/USD",
+                                "session": "London Close",
+                                "signal_strength": "MODERATE",
+                                "macro_bias": {
+                                    "weekly": "BULLISH",
+                                    "daily": "BEARISH",
+                                    "h4": "BEARISH",
+                                    "alignment": "CONFLICTING",
+                                },
+                                "technical_analysis": {
+                                    "ema_bias": "BEARISH",
+                                    "adx_14": 24.07,
+                                    "market_regime": "RANGING",
+                                    "rsi_14": 47.92,
+                                    "rsi_signal": "NEUTRAL",
+                                },
+                                "ict_analysis": {
+                                    "order_block": {"present": True, "type": "BEARISH", "level": 1.15374},
+                                    "fair_value_gap": {
+                                        "present": True,
+                                        "type": "BULLISH",
+                                        "lower": 1.14594,
+                                        "upper": 1.14666,
+                                    },
+                                    "liquidity": {"recent_sweep": True, "direction": "BUY_SIDE", "swept_level": 1.15274},
+                                    "premium_discount": "EQUILIBRIUM",
+                                },
+                                "fundamental": {
+                                    "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+                                    "dxy_direction": "RISING",
+                                    "cot_bias": "BULLISH",
+                                    "next_news_event": "USD Unemployment Claims in 2h 45m",
+                                    "news_risk": "MEDIUM",
+                                },
+                                "reasoning": [
+                                    "Recent buy-side liquidity sweep suggests institutional selling interest",
+                                    "Rate differential and rising DXY supported the short bias",
+                                ],
+                                "key_risk": "Upcoming USD news could increase volatility",
+                                "knowledge_sources_used": [
+                                    "The Forex Trading Course - Post-news retracement concepts",
+                                ],
+                            },
+                            {
+                                "timestamp": "2026-03-19T13:10:00Z",
+                                "log_filename": signal_log.name,
+                                "log_entry_id": "entry_131000",
+                                "pair": "EUR/USD",
+                                "session": "London Close",
+                                "reasoning": ["Later loop analysis that should not be used for the entry review"],
+                                "key_risk": "Different follow-up state",
+                            },
                         ],
                     },
                     f,
@@ -244,6 +274,7 @@ class TradeFeedbackTests(unittest.TestCase):
                 "session": "London Close",
                 "confluence": 75,
                 "signal_log_filename": signal_log.name,
+                "signal_log_entry_id": "entry_130000",
             }
 
             executor.journal.record_trade_close(trade, "CLOSED_BY_OANDA", None)
@@ -274,6 +305,8 @@ class TradeFeedbackTests(unittest.TestCase):
             content = feedback_files[0].read_text(encoding="utf-8")
 
             self.assertIn("Saved entry thesis:", content)
+            self.assertIn("Recent buy-side liquidity sweep suggests institutional selling interest", content)
+            self.assertNotIn("Later loop analysis that should not be used for the entry review", content)
             self.assertIn("The saved entry snapshot explicitly recorded the next calendar event", content)
             self.assertIn("did not completely miss the calendar", content)
             self.assertIn("DATA GAPS / WHY SOME DETAILS ARE MISSING:", content)

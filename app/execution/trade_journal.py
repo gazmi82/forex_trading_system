@@ -82,6 +82,7 @@ class TradeJournal:
             "recorded_at": datetime.now(timezone.utc).isoformat(),
             "signal_timestamp": signal.get("timestamp", ""),
             "signal_log_filename": signal.get("log_filename", ""),
+            "signal_log_entry_id": signal.get("log_entry_id", ""),
             "session": signal.get("session", ""),
             "direction": signal.get("signal", {}).get("direction", ""),
             "execution_direction": self._execution_direction(signal),
@@ -96,11 +97,19 @@ class TradeJournal:
 
     def _append_event_if_new(self, timeline: dict, section: str, event: dict) -> bool:
         events = timeline.setdefault(section, [])
+        new_entry_id = event.get("signal_log_entry_id")
         new_filename = event.get("signal_log_filename")
         new_type = event.get("event_type")
         new_timestamp = event.get("signal_timestamp")
 
-        if new_filename:
+        if new_entry_id:
+            for existing in events:
+                if (
+                    existing.get("event_type") == new_type
+                    and existing.get("signal_log_entry_id") == new_entry_id
+                ):
+                    return False
+        if new_filename and not new_entry_id:
             for existing in events:
                 if (
                     existing.get("event_type") == new_type
@@ -134,6 +143,7 @@ class TradeJournal:
             "pair": signal.get("pair", "EUR/USD"),
             "signal_timestamp": signal.get("timestamp", ""),
             "signal_log_filename": signal.get("log_filename", ""),
+            "signal_log_entry_id": signal.get("log_entry_id", ""),
             "signal_strength": signal.get("signal_strength", ""),
             "macro_bias": self._copy_json_value(signal.get("macro_bias", {})),
             "technical_analysis": self._copy_json_value(signal.get("technical_analysis", {})),
@@ -191,6 +201,7 @@ class TradeJournal:
             "confluence_score": trade.get("confluence"),
             "mechanical_confluence_score": trade.get("mechanical_confluence"),
             "signal_log_filename": trade.get("signal_log_filename", ""),
+            "signal_log_entry_id": trade.get("signal_log_entry_id", ""),
             "analysis_events": [],
             "trade_management_events": [],
             "close_summary": None,
@@ -700,6 +711,7 @@ class TradeJournal:
             "pattern_tags": pattern_tags,
             "signal_timestamp": trade.get("signal_timestamp", ""),
             "signal_log_filename": trade.get("signal_log_filename", ""),
+            "signal_log_entry_id": trade.get("signal_log_entry_id", ""),
             "signal_strength": trade.get("signal_strength", ""),
             "confidence": trade.get("confidence", 0),
             "risk_reward": trade.get("risk_reward", 0),
