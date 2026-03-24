@@ -13,9 +13,9 @@ Improvements are grouped into five pillars. Complete them in phase order
 
 ## Implementation Status
 
-- Current roadmap phase: Phase 1 (`DONE`) — ready to start Phase 2
-- Estimated current score: `50/100`
-- Item status counts: `4 DONE`, `4 PARTIAL`, `7 MISSING`
+- Current roadmap phase: Phase 2 (`PARTIAL`)
+- Estimated current score: `~52/100`
+- Item status counts: `5 DONE`, `4 PARTIAL`, `6 MISSING`
 - Legend:
   - `[DONE]` = implemented and materially satisfies the item intent and acceptance criteria
   - `[PARTIAL]` = some implementation exists, but the roadmap scope is not fully complete
@@ -179,8 +179,8 @@ The system has never been tested against historical data. Every demo
 trade is a blind experiment. Without historical validation you cannot
 distinguish a real edge from random noise or survivorship bias.
 
-### Item 2.1 — Historical Data Loader [MISSING]
-**Status:** `MISSING` — no `app/backtesting/data_loader.py` exists yet.
+### Item 2.1 — Historical Data Loader [DONE]
+**Status:** `DONE` — `HistoricalDataLoader` now fetches chunked historical candles into on-disk CSV cache and slices completed H1/H4/D context without look-ahead.
 
 **New file:** `app/backtesting/data_loader.py`
 

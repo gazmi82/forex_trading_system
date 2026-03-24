@@ -123,15 +123,39 @@ class OANDAClient:
 
         Returns: DataFrame with columns [time, open, high, low, close, volume]
         """
+        data = self._request_candles(
+            instrument,
+            {
+                "granularity": granularity,
+                "count": count,
+                "price": "M",
+            },
+        )
+        return self._candles_to_dataframe(data)
+
+    def get_candles_range(
+        self,
+        instrument: str = "EUR_USD",
+        granularity: str = "H4",
+        *,
+        start: datetime,
+        end: datetime,
+    ) -> pd.DataFrame:
+        data = self._request_candles(
+            instrument,
+            {
+                "granularity": granularity,
+                "from": start.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+                "to": end.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+                "price": "M",
+            },
+        )
+        return self._candles_to_dataframe(data)
+
+    def _request_candles(self, instrument: str, params: dict) -> dict:
         import requests
 
         url = f"{self.base_url}/instruments/{instrument}/candles"
-        params = {
-            "granularity": granularity,
-            "count": count,
-            "price": "M",
-        }
-
         last_exc: Exception | None = None
         response = None
         for attempt in range(1, 4):
@@ -143,17 +167,20 @@ class OANDAClient:
                 if attempt < 3:
                     time.sleep(2 ** attempt)  # 2 s, 4 s
         else:
+            granularity = params.get("granularity", "unknown")
             raise ConnectionError(
                 f"OANDA candle fetch failed after 3 attempts ({granularity}): {last_exc}"
             )
 
         data = response.json()
-
         if "candles" not in data:
             raise ValueError(f"No candle data: {data}")
+        return data
 
+    @staticmethod
+    def _candles_to_dataframe(data: dict) -> pd.DataFrame:
         candles = []
-        for candle in data["candles"]:
+        for candle in data.get("candles", []):
             if candle["complete"]:
                 candles.append(
                     {
@@ -167,10 +194,10 @@ class OANDAClient:
                 )
 
         df = pd.DataFrame(candles)
-        df["time"] = pd.to_datetime(df["time"])
-        df = df.set_index("time").sort_index()
-
-        return df
+        if df.empty:
+            return pd.DataFrame(columns=["open", "high", "low", "close", "volume"])
+        df["time"] = pd.to_datetime(df["time"], utc=True)
+        return df.set_index("time").sort_index()
 
     def get_account_summary(self) -> dict:
         """Get current account balance, margin, open trades."""
