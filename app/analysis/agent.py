@@ -8,10 +8,7 @@ from app.analysis.decision_logging import log_analysis, update_calibration_outco
 from app.analysis.message_builder import build_analysis_user_message
 from app.analysis.prompt import FOREX_ANALYST_SYSTEM_PROMPT
 from app.analysis.signal_pipeline import (
-    extract_json_object,
     get_runtime_issue,
-    is_allowed_session,
-    is_within_news_blackout,
     parse_signal,
     validate_signal,
 )
@@ -130,10 +127,6 @@ class ForexAnalystAgent:
                 }
             )
 
-    @staticmethod
-    def _extract_json_object(text: str):
-        return extract_json_object(text)
-
     def _parse_signal(self, raw_response: str, pair: str) -> dict:
         return parse_signal(raw_response, pair)
 
@@ -144,12 +137,6 @@ class ForexAnalystAgent:
             config=self.config,
             has_session_loss_streak=self._has_session_loss_streak,
         )
-
-    def _is_within_news_blackout(self, time_to_event) -> bool:
-        return is_within_news_blackout(time_to_event)
-
-    def _is_allowed_session(self, session: str) -> bool:
-        return is_allowed_session(session)
 
     def _has_session_loss_streak(self, session: str, limit: int = 2) -> bool:
         return self.feedback.has_session_loss_streak(session, limit)
