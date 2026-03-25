@@ -207,7 +207,19 @@ class IndicatorCalculator:
                 if is_bearish and strong_move:
                     ob_low = round(candle["low"], 5)
                     ob_high = round(candle["high"], 5)
-                    return f"{ob_low}–{ob_high} (4H, valid)"
+                    status = IndicatorCalculator._order_block_status(
+                        lookback,
+                        candle_index=i,
+                        direction=direction,
+                        ob_low=ob_low,
+                        ob_high=ob_high,
+                    )
+                    return IndicatorCalculator._format_order_block(
+                        ob_low=ob_low,
+                        ob_high=ob_high,
+                        status=status,
+                        candles_ago=(len(lookback) - 1 - i),
+                    )
 
         elif direction == "bearish":
             for i in range(len(lookback) - 3, 2, -1):
@@ -221,9 +233,58 @@ class IndicatorCalculator:
                 if is_bullish and strong_move:
                     ob_low = round(candle["low"], 5)
                     ob_high = round(candle["high"], 5)
-                    return f"{ob_low}–{ob_high} (4H, valid)"
+                    status = IndicatorCalculator._order_block_status(
+                        lookback,
+                        candle_index=i,
+                        direction=direction,
+                        ob_low=ob_low,
+                        ob_high=ob_high,
+                    )
+                    return IndicatorCalculator._format_order_block(
+                        ob_low=ob_low,
+                        ob_high=ob_high,
+                        status=status,
+                        candles_ago=(len(lookback) - 1 - i),
+                    )
 
         return "None identified in last 50 candles"
+
+    @staticmethod
+    def _order_block_status(
+        df: pd.DataFrame,
+        *,
+        candle_index: int,
+        direction: str,
+        ob_low: float,
+        ob_high: float,
+    ) -> str:
+        """
+        Mark an identified order block as mitigated when later closes trade
+        back through the invalidation edge of the block.
+        """
+        subsequent = df.iloc[candle_index + 1:]
+        if subsequent.empty:
+            return "valid"
+
+        closes = subsequent["close"].astype(float)
+        if direction == "bullish" and (closes < ob_low).any():
+            return "MITIGATED"
+        if direction == "bearish" and (closes > ob_high).any():
+            return "MITIGATED"
+        return "valid"
+
+    @staticmethod
+    def _format_order_block(
+        *,
+        ob_low: float,
+        ob_high: float,
+        status: str,
+        candles_ago: int,
+    ) -> str:
+        if status == "MITIGATED":
+            return f"{ob_low}–{ob_high} (4H, MITIGATED)"
+        candle_label = "candle" if candles_ago == 1 else "candles"
+        return f"{ob_low}–{ob_high} (4H, valid, {candles_ago} {candle_label} ago)"
 
     @staticmethod
     def _find_fvg(df: pd.DataFrame, direction: str) -> str:

@@ -151,7 +151,7 @@ def _score_order_block(direction: str, indicators: dict) -> int:
     ORDER BLOCK (max 20)
       +20  Valid OB exists that is aligned with the trade direction.
            BUY → bullish OB; SELL → bearish OB.
-           "valid" must appear in the string returned by _find_order_block.
+           Mitigated order blocks receive zero points.
     """
     if direction == "BUY":
         ob_str = str(indicators.get("bullish_ob") or "")
@@ -160,7 +160,10 @@ def _score_order_block(direction: str, indicators: dict) -> int:
     else:
         return 0
 
-    return _OB_MAX if "valid" in ob_str.lower() else 0
+    ob_text = ob_str.lower()
+    if "mitigated" in ob_text:
+        return 0
+    return _OB_MAX if "valid" in ob_text else 0
 
 
 def _score_fvg(direction: str, indicators: dict) -> int:

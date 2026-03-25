@@ -64,6 +64,40 @@ class MarketAnalysisTests(unittest.TestCase):
 
         self.assertEqual(result, "1.15003–1.1508 (1H, unfilled)")
 
+    def test_find_bullish_order_block_marks_recent_valid_zone(self):
+        df = _frame(
+            [
+                {"open": 1.1020, "high": 1.1024, "low": 1.1014, "close": 1.1019},
+                {"open": 1.1019, "high": 1.1021, "low": 1.1012, "close": 1.1015},
+                {"open": 1.1015, "high": 1.1019, "low": 1.1009, "close": 1.1012},
+                {"open": 1.1016, "high": 1.1018, "low": 1.1, "close": 1.1003},
+                {"open": 1.1004, "high": 1.1026, "low": 1.1002, "close": 1.1023},
+                {"open": 1.1023, "high": 1.1039, "low": 1.1021, "close": 1.1037},
+                {"open": 1.1037, "high": 1.1052, "low": 1.1035, "close": 1.1049},
+            ]
+        )
+
+        result = IndicatorCalculator._find_order_block(df, "bullish")
+
+        self.assertEqual(result, "1.1–1.1018 (4H, valid, 3 candles ago)")
+
+    def test_find_bearish_order_block_marks_mitigated_zone(self):
+        df = _frame(
+            [
+                {"open": 1.0990, "high": 1.0994, "low": 1.0988, "close": 1.0991},
+                {"open": 1.0991, "high": 1.0996, "low": 1.0989, "close": 1.0992},
+                {"open": 1.0992, "high": 1.0999, "low": 1.0990, "close": 1.0993},
+                {"open": 1.0992, "high": 1.101, "low": 1.0989, "close": 1.1008},
+                {"open": 1.1008, "high": 1.1009, "low": 1.0993, "close": 1.0994},
+                {"open": 1.0994, "high": 1.0995, "low": 1.0962, "close": 1.0965},
+                {"open": 1.0965, "high": 1.1014, "low": 1.0963, "close": 1.1012},
+            ]
+        )
+
+        result = IndicatorCalculator._find_order_block(df, "bearish")
+
+        self.assertEqual(result, "1.0989–1.101 (4H, MITIGATED)")
+
     def test_ote_zone_returns_bullish_retracement_band(self):
         rows = []
         for i in range(20):

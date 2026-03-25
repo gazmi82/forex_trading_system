@@ -14,8 +14,8 @@ Improvements are grouped into five pillars. Complete them in phase order
 ## Implementation Status
 
 - Current roadmap phase: Phase 5 (`PARTIAL`)
-- Estimated current score: `72/100`
-- Item status counts: `12 DONE`, `2 PARTIAL`, `1 MISSING`
+- Estimated current score: `73/100`
+- Item status counts: `13 DONE`, `1 PARTIAL`, `1 MISSING`
 - Legend:
   - `[DONE]` = implemented and materially satisfies the item intent and acceptance criteria
   - `[PARTIAL]` = some implementation exists, but the roadmap scope is not fully complete
@@ -32,7 +32,7 @@ Improvements are grouped into five pillars. Complete them in phase order
 | Performance visibility | Edge report and weekly summary available | Win rate by tag, session, grade |
 | Trailing stop          | ATR-based from entry-time 1H ATR       | ATR-based                           |
 | Weekly loss limit      | Enforced in validator + executor       | Enforced in validator + executor    |
-| ICT OB detection       | Basic (last bearish candle heuristic)  | Mitigation-aware + displacement     |
+| ICT OB detection       | Mitigation-aware, displacement pending | Mitigation-aware + displacement     |
 | FVG detection          | Unfilled check only                    | Partial and full fill tracking      |
 
 ---
@@ -360,8 +360,8 @@ In reality, an OB is invalidated once price trades back through it
 (mitigated). FVG detection marks gaps as `unfilled` but never updates
 when price partially or fully fills them.
 
-### Item 5.1 — Order Block Mitigation [PARTIAL]
-**Status:** `PARTIAL` — order blocks are detected and scored, but the detector does not yet walk forward to mark blocks as `MITIGATED`.
+### Item 5.1 — Order Block Mitigation [DONE]
+**Status:** `DONE` — order blocks now walk forward through later closes, report `valid` vs `MITIGATED`, and mitigated blocks receive zero confluence points.
 
 **File:** `app/analysis/market_analysis.py` (`_find_order_block`)
 

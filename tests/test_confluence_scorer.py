@@ -156,12 +156,17 @@ class TestTrendAlignment(unittest.TestCase):
 class TestOrderBlock(unittest.TestCase):
     def test_valid_bullish_ob_buy_gives_20(self):
         self.assertEqual(
-            _score_order_block("BUY", {"bullish_ob": "1.0790–1.0810 (4H, valid)"}), 20
+            _score_order_block("BUY", {"bullish_ob": "1.0790–1.0810 (4H, valid, 3 candles ago)"}), 20
         )
 
     def test_valid_bearish_ob_sell_gives_20(self):
         self.assertEqual(
-            _score_order_block("SELL", {"bearish_ob": "1.0790–1.0810 (4H, valid)"}), 20
+            _score_order_block("SELL", {"bearish_ob": "1.0790–1.0810 (4H, valid, 4 candles ago)"}), 20
+        )
+
+    def test_mitigated_ob_gives_0(self):
+        self.assertEqual(
+            _score_order_block("BUY", {"bullish_ob": "1.0790–1.0810 (4H, MITIGATED)"}), 0
         )
 
     def test_no_ob_gives_0(self):
