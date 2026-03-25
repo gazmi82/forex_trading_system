@@ -24,7 +24,7 @@ import json
 import logging
 import argparse
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 logging.basicConfig(
     level=logging.INFO,
@@ -218,6 +218,75 @@ def run_live_data_check(oanda_builder=None):
     return True
 
 
+def _parse_backfill_datetime(value: str) -> datetime:
+    text = (value or "").strip()
+    if not text:
+        raise ValueError("empty datetime")
+    if len(text) == 10:
+        return datetime.strptime(text, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    parsed = datetime.fromisoformat(text)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def run_historical_backfill(
+    oanda_builder,
+    *,
+    instrument: str,
+    start: str,
+    end: str,
+    granularities: str,
+    output_dir: str,
+    force_refresh: bool = False,
+):
+    print("\n" + "=" * 60)
+    print("📦 HISTORICAL OANDA BACKFILL")
+    print("=" * 60)
+    if not oanda_builder:
+        print_live_data_warning("Backfill mode requires a live OANDA connection")
+        return False
+
+    from app.backtesting import HistoricalDataLoader, HistoricalDatasetExporter
+
+    start_dt = _parse_backfill_datetime(start)
+    end_dt = _parse_backfill_datetime(end)
+    granularity_list = [item.strip().upper() for item in granularities.split(",") if item.strip()]
+    if not granularity_list:
+        raise ValueError("No granularities specified")
+
+    base_dir = Path(output_dir)
+    loader = HistoricalDataLoader(oanda_builder.client, cache_dir=base_dir)
+    exporter = HistoricalDatasetExporter(loader, output_root=base_dir / "raw", meta_root=base_dir / "meta")
+
+    print(f"  Instrument:   {instrument}")
+    print(f"  Start:        {start_dt.isoformat()}")
+    print(f"  End:          {end_dt.isoformat()}")
+    print(f"  Granularity:  {', '.join(granularity_list)}")
+    print(f"  Output root:  {base_dir}")
+    if force_refresh:
+        print("  Mode:         force refresh")
+
+    exported = exporter.export_bundle(
+        instrument,
+        start=start_dt,
+        end=end_dt,
+        granularities=granularity_list,
+        force_refresh=force_refresh,
+        progress_callback=lambda item: print(f"  ✓ {item.granularity}: {item.rows} rows → {item.path}"),
+    )
+
+    print("\n✅ Historical datasets saved:")
+    for item in exported:
+        print(f"  {item.granularity}: {item.rows} rows → {item.path}")
+
+    manifest_path = base_dir / "meta" / instrument.replace("/", "_").upper() / f"{instrument.replace('/', '_').upper()}_history_manifest.json"
+    print(f"\n✅ Manifest saved to: {manifest_path}")
+    return True
+
+
 def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
     print("\n" + "="*60)
     print("🔄 DEMO LOOP MODE")
@@ -318,11 +387,23 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check"], default="test")
+    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","backfill"], default="test")
     parser.add_argument("--dry-run", action="store_true",
                         help="Run --mode test without placing any orders on OANDA")
     parser.add_argument("--force-outside-session", action="store_true",
                         help="Allow --mode test to run outside kill-zone entry windows")
+    parser.add_argument("--instrument", default="EUR_USD",
+                        help="Instrument for live checks or historical backfill (default: EUR_USD)")
+    parser.add_argument("--history-start", default="2024-01-01",
+                        help="Backfill start date/datetime in UTC (default: 2024-01-01)")
+    parser.add_argument("--history-end", default="2026-01-01",
+                        help="Backfill end date/datetime in UTC, exclusive (default: 2026-01-01)")
+    parser.add_argument("--history-granularities", default="M1,H1,H4,D,W",
+                        help="Comma-separated OANDA granularities for backfill (default: M1,H1,H4,D,W)")
+    parser.add_argument("--history-output-dir", default="backtest_data",
+                        help="Root directory for historical backfill output (default: backtest_data)")
+    parser.add_argument("--force-refresh", action="store_true",
+                        help="Refetch historical datasets even if local CSVs already exist")
     args = parser.parse_args()
 
     print("\n" + "="*60)
@@ -362,7 +443,7 @@ def main():
 
     oanda_builder = None
     executor = None
-    if args.mode in {"test", "demo", "check"}:
+    if args.mode in {"test", "demo", "check", "backfill"}:
         oanda_builder = setup_oanda(demo_mode=TRADING_CONFIG["demo_mode"])
         if oanda_builder is None:
             sys.exit(1)
@@ -388,6 +469,18 @@ def main():
         if ok is False:
             sys.exit(1)
     elif args.mode == "demo":   run_demo_loop(agent, oanda_builder, executor)
+    elif args.mode == "backfill":
+        ok = run_historical_backfill(
+            oanda_builder,
+            instrument=args.instrument,
+            start=args.history_start,
+            end=args.history_end,
+            granularities=args.history_granularities,
+            output_dir=args.history_output_dir,
+            force_refresh=args.force_refresh,
+        )
+        if ok is False:
+            sys.exit(1)
 
 
 if __name__ == "__main__":

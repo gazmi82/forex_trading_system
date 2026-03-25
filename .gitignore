@@ -10,6 +10,9 @@ env/
 # ChromaDB vector store (rebuild with: python main.py --mode ingest)
 chroma_db/
 
+# Historical backtest datasets generated from OANDA
+/backtest_data/
+
 # API keys and secrets — NEVER commit these
 .env
 *.env

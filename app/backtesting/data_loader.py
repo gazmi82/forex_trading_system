@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+import re
 from typing import Iterable, Mapping
 
 import pandas as pd
@@ -24,6 +25,10 @@ _DEFAULT_LOOKBACK_BARS = {
     "H4": 200,
     "D": 200,
 }
+_RAW_DATASET_PATTERN = re.compile(
+    r"^(?P<instrument>[A-Z0-9_]+)_(?P<granularity>[A-Z0-9]+)_M_"
+    r"(?P<start>\d{8}T\d{6}Z)_(?P<end>\d{8}T\d{6}Z)\.csv$"
+)
 
 
 @dataclass(frozen=True)
@@ -52,6 +57,7 @@ class HistoricalDataLoader:
         self.client = oanda_client
         self.cache_dir = Path(cache_dir or "backtest_data")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.raw_dir = self.cache_dir / "raw"
 
     def load_candles(
         self,
@@ -69,29 +75,22 @@ class HistoricalDataLoader:
             raise ValueError("start must be earlier than end")
         _granularity_delta(granularity)
 
+        if not force_refresh:
+            raw_frame = self._read_raw_dataset_covering(
+                instrument,
+                granularity,
+                start=start_utc,
+                end=end_utc,
+            )
+            if raw_frame is not None:
+                return raw_frame
+
         cache_key = CacheKey(instrument, granularity, start_utc, end_utc)
         cache_path = self.cache_dir / cache_key.to_filename()
         if cache_path.exists() and not force_refresh:
             return self._read_cache(cache_path)
 
-        frames = []
-        for chunk_start, chunk_end in self._chunk_ranges(granularity, start_utc, end_utc):
-            frame = self.client.get_candles_range(
-                instrument,
-                granularity,
-                start=chunk_start,
-                end=chunk_end,
-            )
-            if frame is not None and not frame.empty:
-                frames.append(_normalise_frame(frame))
-
-        if frames:
-            data = pd.concat(frames).sort_index()
-            data = data[~data.index.duplicated(keep="last")]
-        else:
-            data = pd.DataFrame(columns=["open", "high", "low", "close", "volume"])
-            data.index = pd.DatetimeIndex([], tz=timezone.utc, name="time")
-
+        data = self.fetch_range(instrument, granularity, start=start_utc, end=end_utc)
         data.to_csv(cache_path, index_label="time")
         return data
 
@@ -173,6 +172,32 @@ class HistoricalDataLoader:
         frame = pd.read_csv(path, parse_dates=["time"], index_col="time")
         return _normalise_frame(frame)
 
+    def fetch_range(
+        self,
+        instrument: str,
+        granularity: str,
+        *,
+        start: datetime,
+        end: datetime,
+    ) -> pd.DataFrame:
+        frames = []
+        for chunk_start, chunk_end in self._chunk_ranges(granularity, start, end):
+            frame = self.client.get_candles_range(
+                instrument,
+                granularity,
+                start=chunk_start,
+                end=chunk_end,
+            )
+            if frame is not None and not frame.empty:
+                frames.append(_normalise_frame(frame))
+
+        if not frames:
+            return _empty_frame()
+
+        data = pd.concat(frames).sort_index()
+        data = data[~data.index.duplicated(keep="last")]
+        return data
+
     def _chunk_ranges(
         self,
         granularity: str,
@@ -190,6 +215,39 @@ class HistoricalDataLoader:
             cursor = chunk_end
 
         return chunks
+
+    def _read_raw_dataset_covering(
+        self,
+        instrument: str,
+        granularity: str,
+        *,
+        start: datetime,
+        end: datetime,
+    ) -> pd.DataFrame | None:
+        instrument_slug = instrument.replace("/", "_").upper()
+        dataset_dir = self.raw_dir / instrument_slug
+        if not dataset_dir.exists():
+            return None
+
+        best_path: Path | None = None
+        best_span: timedelta | None = None
+        for path in dataset_dir.glob(f"{instrument_slug}_{granularity.upper()}_M_*.csv"):
+            match = _RAW_DATASET_PATTERN.match(path.name)
+            if not match:
+                continue
+            dataset_start = datetime.strptime(match.group("start"), "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
+            dataset_end = datetime.strptime(match.group("end"), "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
+            if dataset_start <= start and dataset_end >= end:
+                span = dataset_end - dataset_start
+                if best_span is None or span < best_span:
+                    best_path = path
+                    best_span = span
+
+        if best_path is None:
+            return None
+
+        frame = self._read_cache(best_path)
+        return frame[(frame.index >= start) & (frame.index < end)]
 
 
 def _ensure_utc(value: datetime) -> datetime:
