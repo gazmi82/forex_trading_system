@@ -203,6 +203,16 @@ class TestFVG(unittest.TestCase):
     def test_empty_fvg_gives_0(self):
         self.assertEqual(_score_fvg("BUY", {}), 0)
 
+    def test_partial_fvg_gives_half_points(self):
+        self.assertEqual(
+            _score_fvg("BUY", {"bullish_fvg": "1.0800–1.0815 (1H, partial)"}), 8
+        )
+
+    def test_filled_fvg_gives_0(self):
+        self.assertEqual(
+            _score_fvg("SELL", {"bearish_fvg": "1.0800–1.0815 (1H, filled)"}), 0
+        )
+
 
 class TestLiquiditySweep(unittest.TestCase):
     def test_ssl_sweep_gives_15(self):

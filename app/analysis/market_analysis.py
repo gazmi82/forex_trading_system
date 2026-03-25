@@ -203,8 +203,13 @@ class IndicatorCalculator:
                 strong_move = (next_3["close"].max() - candle["low"]) > (
                     candle["high"] - candle["low"]
                 ) * 2
+                displacement_ok = IndicatorCalculator._has_valid_displacement(
+                    lookback,
+                    ob_index=i,
+                    direction=direction,
+                )
 
-                if is_bearish and strong_move:
+                if is_bearish and strong_move and displacement_ok:
                     ob_low = round(candle["low"], 5)
                     ob_high = round(candle["high"], 5)
                     status = IndicatorCalculator._order_block_status(
@@ -229,8 +234,13 @@ class IndicatorCalculator:
                 strong_move = (candle["high"] - next_3["close"].min()) > (
                     candle["high"] - candle["low"]
                 ) * 2
+                displacement_ok = IndicatorCalculator._has_valid_displacement(
+                    lookback,
+                    ob_index=i,
+                    direction=direction,
+                )
 
-                if is_bullish and strong_move:
+                if is_bullish and strong_move and displacement_ok:
                     ob_low = round(candle["low"], 5)
                     ob_high = round(candle["high"], 5)
                     status = IndicatorCalculator._order_block_status(
@@ -248,6 +258,58 @@ class IndicatorCalculator:
                     )
 
         return "None identified in last 50 candles"
+
+    @staticmethod
+    def _has_valid_displacement(
+        df: pd.DataFrame,
+        *,
+        ob_index: int,
+        direction: str,
+    ) -> bool:
+        """
+        Confirm the first candle after the candidate order block shows
+        institutional-style displacement instead of a weak grind:
+        - closes in the top/bottom 25% of its range in the move direction
+        - body size is at least 1.5x the recent ATR baseline
+        """
+        displacement_index = ob_index + 1
+        if displacement_index >= len(df):
+            return False
+
+        candle = df.iloc[displacement_index]
+        open_price = float(candle["open"])
+        high = float(candle["high"])
+        low = float(candle["low"])
+        close = float(candle["close"])
+        candle_range = high - low
+        if candle_range <= 0:
+            return False
+
+        body_size = abs(close - open_price)
+        atr_baseline = IndicatorCalculator._displacement_atr_baseline(
+            df.iloc[max(0, displacement_index - 14):displacement_index]
+        )
+        if atr_baseline <= 0 or body_size < (1.5 * atr_baseline):
+            return False
+
+        if direction == "bullish":
+            return close > open_price and close >= high - (candle_range * 0.25)
+        if direction == "bearish":
+            return close < open_price and close <= low + (candle_range * 0.25)
+        return False
+
+    @staticmethod
+    def _displacement_atr_baseline(df: pd.DataFrame) -> float:
+        """
+        Use the recent average true range before the displacement candle as
+        the body-size baseline. Short synthetic test windows fall back to the
+        mean available true range instead of requiring 14 full candles.
+        """
+        if df is None or len(df) < 2:
+            return 0.0
+        tr = IndicatorCalculator._true_range(df).tail(14)
+        value = tr.mean()
+        return round(float(value), 5) if pd.notna(value) else 0.0
 
     @staticmethod
     def _order_block_status(
@@ -299,15 +361,72 @@ class IndicatorCalculator:
                 # Gap exists between c1 high and c3 low, AND c2 (impulse) never
                 # breached back below c1's high — confirming a clean unvisited gap.
                 if c1["high"] < c3["low"] and c2["low"] >= c1["high"]:
-                    return f"{round(c1['high'], 5)}–{round(c3['low'], 5)} (1H, unfilled)"
+                    gap_low = round(c1["high"], 5)
+                    gap_high = round(c3["low"], 5)
+                    status = IndicatorCalculator._fvg_fill_status(
+                        lookback,
+                        gap_index=i + 1,
+                        direction=direction,
+                        gap_low=gap_low,
+                        gap_high=gap_high,
+                    )
+                    return f"{gap_low}–{gap_high} (1H, {status})"
 
             elif direction == "bearish":
                 # Gap exists between c3 high and c1 low, AND c2 (impulse) never
                 # breached back above c1's low — confirming a clean unvisited gap.
                 if c1["low"] > c3["high"] and c2["high"] <= c1["low"]:
-                    return f"{round(c3['high'], 5)}–{round(c1['low'], 5)} (1H, unfilled)"
+                    gap_low = round(c3["high"], 5)
+                    gap_high = round(c1["low"], 5)
+                    status = IndicatorCalculator._fvg_fill_status(
+                        lookback,
+                        gap_index=i + 1,
+                        direction=direction,
+                        gap_low=gap_low,
+                        gap_high=gap_high,
+                    )
+                    return f"{gap_low}–{gap_high} (1H, {status})"
 
         return "None identified"
+
+    @staticmethod
+    def _fvg_fill_status(
+        df: pd.DataFrame,
+        *,
+        gap_index: int,
+        direction: str,
+        gap_low: float,
+        gap_high: float,
+    ) -> str:
+        """
+        Classify the gap as:
+        - unfilled: no later candle trades back into it
+        - partial: price enters the gap but does not close through the far edge
+        - filled: a later close trades through the far edge
+        """
+        subsequent = df.iloc[gap_index + 1:]
+        if subsequent.empty:
+            return "unfilled"
+
+        entered_gap = False
+        if direction == "bullish":
+            for candle in subsequent.itertuples():
+                low = float(candle.low)
+                close = float(candle.close)
+                if low < gap_high:
+                    entered_gap = True
+                if close <= gap_low:
+                    return "filled"
+        elif direction == "bearish":
+            for candle in subsequent.itertuples():
+                high = float(candle.high)
+                close = float(candle.close)
+                if high > gap_low:
+                    entered_gap = True
+                if close >= gap_high:
+                    return "filled"
+
+        return "partial" if entered_gap else "unfilled"
 
     @staticmethod
     def _find_liquidity_sweep(df: pd.DataFrame) -> str:

@@ -169,8 +169,9 @@ def _score_order_block(direction: str, indicators: dict) -> int:
 def _score_fvg(direction: str, indicators: dict) -> int:
     """
     FAIR VALUE GAP (max 15)
-      +15  Relevant FVG (bullish for BUY, bearish for SELL) identified and unfilled.
-      +0   No FVG or FVG string indicates "None".
+      +15  Relevant FVG identified and still unfilled.
+      +8   Gap has been partially filled.
+      +0   No FVG or the gap has been fully filled.
     """
     if direction == "BUY":
         fvg_str = str(indicators.get("bullish_fvg") or "")
@@ -182,7 +183,14 @@ def _score_fvg(direction: str, indicators: dict) -> int:
     if not fvg_str:
         return 0
     none_indicators = ("none identified", "no fvg")
-    return 0 if fvg_str.lower().startswith(none_indicators) else _FVG_MAX
+    fvg_text = fvg_str.lower()
+    if fvg_text.startswith(none_indicators) or "filled" in fvg_text and "unfilled" not in fvg_text and "partial" not in fvg_text:
+        return 0
+    if "partial" in fvg_text:
+        return round(_FVG_MAX / 2)
+    if "unfilled" in fvg_text:
+        return _FVG_MAX
+    return 0
 
 
 def _score_liquidity_sweep(indicators: dict) -> int:

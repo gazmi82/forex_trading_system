@@ -13,9 +13,9 @@ Improvements are grouped into five pillars. Complete them in phase order
 
 ## Implementation Status
 
-- Current roadmap phase: Phase 5 (`PARTIAL`)
-- Estimated current score: `73/100`
-- Item status counts: `13 DONE`, `1 PARTIAL`, `1 MISSING`
+- Current roadmap phase: Phase 5 (`DONE`)
+- Estimated current score: `75/100`
+- Item status counts: `15 DONE`, `0 PARTIAL`, `0 MISSING`
 - Legend:
   - `[DONE]` = implemented and materially satisfies the item intent and acceptance criteria
   - `[PARTIAL]` = some implementation exists, but the roadmap scope is not fully complete
@@ -32,8 +32,8 @@ Improvements are grouped into five pillars. Complete them in phase order
 | Performance visibility | Edge report and weekly summary available | Win rate by tag, session, grade |
 | Trailing stop          | ATR-based from entry-time 1H ATR       | ATR-based                           |
 | Weekly loss limit      | Enforced in validator + executor       | Enforced in validator + executor    |
-| ICT OB detection       | Mitigation-aware, displacement pending | Mitigation-aware + displacement     |
-| FVG detection          | Unfilled check only                    | Partial and full fill tracking      |
+| ICT OB detection       | Mitigation-aware + displacement        | Mitigation-aware + displacement     |
+| FVG detection          | Partial and full fill tracking         | Partial and full fill tracking      |
 
 ---
 
@@ -376,8 +376,8 @@ A MITIGATED OB receives zero confluence points in the mechanical scorer.
 
 ---
 
-### Item 5.2 — FVG Fill Status [PARTIAL]
-**Status:** `PARTIAL` — FVG detection exists and reports `unfilled`, but it does not yet distinguish `partial` vs `filled`, and the scorer does not apply reduced points.
+### Item 5.2 — FVG Fill Status [DONE]
+**Status:** `DONE` — FVG detection now distinguishes `unfilled`, `partial`, and `filled`, and the scorer applies full, reduced, or zero points accordingly.
 
 **File:** `app/analysis/market_analysis.py` (`_find_fvg`)
 
@@ -391,8 +391,8 @@ Fully filled FVG = zero points. Partial fill = half points.
 
 ---
 
-### Item 5.3 — Displacement Candle Validation [MISSING]
-**Status:** `MISSING` — order block validation still relies on the simpler move-magnitude heuristic and does not enforce displacement-body rules.
+### Item 5.3 — Displacement Candle Validation [DONE]
+**Status:** `DONE` — order block validation now requires a strong first displacement candle with directional close placement and body size relative to recent ATR.
 
 **File:** `app/analysis/market_analysis.py` (`_find_order_block`)
 
