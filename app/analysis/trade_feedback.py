@@ -147,13 +147,6 @@ class TradeFeedbackManager:
             return trade_record
 
         signal_path = self.log_dir / filename
-        if not signal_path.exists():
-            self._append_missing_reason(
-                trade_record,
-                f"Linked signal log '{filename}' was not found in the runtime log directory, so some entry-time context could not be reloaded.",
-            )
-            return trade_record
-
         try:
             signal_data = read_signal_log_entry(
                 signal_path,
@@ -170,7 +163,7 @@ class TradeFeedbackManager:
         if not isinstance(signal_data, dict) or not signal_data:
             self._append_missing_reason(
                 trade_record,
-                f"Linked signal log '{filename}' did not contain the exact saved analysis entry needed for this trade review.",
+                f"Linked signal log '{filename}' was not found or did not contain the exact saved analysis entry needed for this trade review.",
             )
             return trade_record
 
