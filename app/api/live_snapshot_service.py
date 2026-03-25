@@ -13,6 +13,7 @@ from fastapi import HTTPException
 
 from app.api.log_queries import latest_snapshot_file, read_json
 from app.brokers.oanda import MarketDataBuilder, OANDAClient
+from app.core.runtime_logging import record_runtime_event
 
 logger = logging.getLogger(__name__)
 
@@ -45,11 +46,25 @@ class LiveSnapshotService:
         try:
             builder = self.get_oanda_builder()
         except Exception as exc:
+            record_runtime_event(
+                component="api.live_snapshot_service",
+                action="get_oanda_builder",
+                message="Live snapshot could not initialize OANDA builder",
+                exc=exc,
+                log_dir=self.logs_dir,
+            )
             raise HTTPException(status_code=503, detail=f"OANDA unavailable: {exc}") from exc
 
         try:
             snapshot = builder.build_market_data("EUR_USD")
         except Exception as exc:
+            record_runtime_event(
+                component="api.live_snapshot_service",
+                action="build_live_snapshot",
+                message="Live snapshot build failed",
+                exc=exc,
+                log_dir=self.logs_dir,
+            )
             raise HTTPException(status_code=502, detail=f"Live snapshot build failed: {exc}") from exc
 
         if persist:
@@ -86,6 +101,13 @@ class LiveSnapshotService:
             snapshot = self.build_live_snapshot(persist=persist)
         except Exception as exc:
             logger.warning(f"Background live snapshot refresh failed: {exc}")
+            record_runtime_event(
+                component="api.live_snapshot_service",
+                action="refresh_snapshot_cache",
+                message="Background live snapshot refresh failed",
+                exc=exc,
+                log_dir=self.logs_dir,
+            )
             return None
         else:
             return self.cache_snapshot(snapshot)

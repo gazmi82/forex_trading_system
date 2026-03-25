@@ -18,6 +18,7 @@ from pathlib import Path
 import requests
 
 from app.analysis.scheduler import ALLOWED_ENTRY_SESSIONS
+from app.core.runtime_logging import record_runtime_event
 from app.execution.trade_journal import TradeJournal
 
 logger = logging.getLogger(__name__)
@@ -143,6 +144,18 @@ class TradeExecutor:
         except Exception as exc:
             result["reason"] = f"Order placement failed: {exc}"
             logger.error(f"Order error: {exc}")
+            record_runtime_event(
+                component="execution.trade_executor",
+                action="execute_signal",
+                message="Order placement failed",
+                context={
+                    "direction": direction,
+                    "execution_direction": execution_direction,
+                    "session": signal.get("session", ""),
+                },
+                exc=exc,
+                log_dir=self.log_dir,
+            )
 
         return result
 
@@ -348,6 +361,14 @@ class TradeExecutor:
             recent_extremes = self._get_recent_monitor_extremes()
         except Exception as exc:
             logger.error(f"Monitor fetch error: {exc}")
+            record_runtime_event(
+                component="execution.trade_executor",
+                action="monitor_open_trades",
+                message="Trade monitor failed to fetch live state",
+                context={"instrument": self.INSTRUMENT},
+                exc=exc,
+                log_dir=self.log_dir,
+            )
             return actions
 
         now = datetime.now(timezone.utc)
@@ -628,6 +649,14 @@ class TradeExecutor:
                 return data.get("tradeOpenedID")
         except Exception as exc:
             logger.error(f"Order status check failed: {exc}")
+            record_runtime_event(
+                component="execution.trade_executor",
+                action="check_order_filled",
+                message="Pending-order status check failed",
+                context={"order_id": order_id},
+                exc=exc,
+                log_dir=self.log_dir,
+            )
         return None
 
     def _close_partial(self, trade_id: str, units: int):
@@ -641,6 +670,18 @@ class TradeExecutor:
         )
         if response.status_code != 200:
             logger.error(f"Partial close {trade_id} failed: {response.text}")
+            record_runtime_event(
+                component="execution.trade_executor",
+                action="close_partial",
+                message="Partial close request failed",
+                context={
+                    "trade_id": trade_id,
+                    "units": units,
+                    "status_code": response.status_code,
+                    "response_text": response.text,
+                },
+                log_dir=self.log_dir,
+            )
 
     def _move_sl_to_entry(self, trade_id: str, entry_price: float):
         """Move stop loss to entry price (breakeven)."""
@@ -657,6 +698,18 @@ class TradeExecutor:
         response = requests.put(url, headers=self.client.headers, json=body, timeout=10)
         if response.status_code != 200:
             logger.error(f"SL move {trade_id} failed: {response.text}")
+            record_runtime_event(
+                component="execution.trade_executor",
+                action="move_stop_loss",
+                message="Stop-loss modification failed",
+                context={
+                    "trade_id": trade_id,
+                    "entry_price": round(entry_price, 5),
+                    "status_code": response.status_code,
+                    "response_text": response.text,
+                },
+                log_dir=self.log_dir,
+            )
 
     def _close_trade(self, trade_id: str):
         """Close entire trade at market."""
@@ -667,3 +720,14 @@ class TradeExecutor:
         response = requests.put(url, headers=self.client.headers, timeout=10)
         if response.status_code != 200:
             logger.error(f"Trade close {trade_id} failed: {response.text}")
+            record_runtime_event(
+                component="execution.trade_executor",
+                action="close_trade",
+                message="Full trade close request failed",
+                context={
+                    "trade_id": trade_id,
+                    "status_code": response.status_code,
+                    "response_text": response.text,
+                },
+                log_dir=self.log_dir,
+            )

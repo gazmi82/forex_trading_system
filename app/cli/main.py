@@ -26,11 +26,9 @@ import argparse
 from pathlib import Path
 from datetime import datetime, timezone
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
+from app.core.runtime_logging import configure_app_logging
+
+configure_app_logging(Path("logs"))
 
 # Keep third-party model download chatter out of the console.
 # Real failures still surface through our own exception handling.

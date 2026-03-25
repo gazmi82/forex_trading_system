@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from app.core.config import FEEDBACK_DIR
+from app.core.runtime_logging import record_runtime_event
 from app.core.text_utils import display_pair, slugify_text
 from app.logs.signal_logs import read_signal_log_entry
 
@@ -161,6 +162,18 @@ class TradeFeedbackManager:
                 signal_timestamp=signal_timestamp or None,
             )
         except Exception as exc:
+            record_runtime_event(
+                component="analysis.trade_feedback",
+                action="hydrate_trade_record",
+                message="Signal log reload failed during trade feedback hydration",
+                context={
+                    "filename": filename,
+                    "entry_id": entry_id,
+                    "signal_timestamp": signal_timestamp,
+                },
+                exc=exc,
+                log_dir=self.log_dir,
+            )
             self._append_missing_reason(
                 trade_record,
                 f"Linked signal log '{filename}' could not be parsed ({exc}), so fallback narrative data was unavailable.",
@@ -168,6 +181,17 @@ class TradeFeedbackManager:
             return trade_record
 
         if not isinstance(signal_data, dict) or not signal_data:
+            record_runtime_event(
+                component="analysis.trade_feedback",
+                action="hydrate_trade_record",
+                message="Linked signal log entry was missing during trade feedback hydration",
+                context={
+                    "filename": filename,
+                    "entry_id": entry_id,
+                    "signal_timestamp": signal_timestamp,
+                },
+                log_dir=self.log_dir,
+            )
             self._append_missing_reason(
                 trade_record,
                 f"Linked signal log '{filename}' was not found or did not contain the exact saved analysis entry needed for this trade review.",

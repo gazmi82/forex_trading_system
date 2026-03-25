@@ -39,6 +39,7 @@ from app.api.models import (
 )
 from app.brokers.oanda import MarketDataBuilder
 from app.core.config import LOGS_DIR, TRADING_CONFIG
+from app.core.runtime_logging import configure_app_logging
 from app.logs.signal_logs import write_signal_log
 
 DEFAULT_CORS_ORIGINS = [
@@ -51,6 +52,7 @@ DEFAULT_CORS_ORIGINS = [
 SIGNAL_STALE_AFTER_SECONDS = int(os.getenv("SIGNAL_STALE_AFTER_SECONDS", "3600"))
 
 logger = logging.getLogger(__name__)
+configure_app_logging(LOGS_DIR)
 _snapshot_service = LiveSnapshotService(logs_dir=LOGS_DIR, trading_config=TRADING_CONFIG)
 
 

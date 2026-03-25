@@ -25,6 +25,7 @@ from typing import Optional
 import pandas as pd
 
 from app.analysis.market_analysis import IndicatorCalculator, MarketStructureAnalyzer
+from app.core.runtime_logging import record_runtime_event
 from app.logs.closed_trade_stats import weekly_pnl_pct_from_closed_trades
 
 logger = logging.getLogger(__name__)
@@ -168,12 +169,34 @@ class OANDAClient:
                     time.sleep(2 ** attempt)  # 2 s, 4 s
         else:
             granularity = params.get("granularity", "unknown")
+            record_runtime_event(
+                component="brokers.oanda",
+                action="request_candles",
+                message="OANDA candle fetch failed after retries",
+                context={
+                    "instrument": instrument,
+                    "granularity": granularity,
+                    "params": params,
+                    "attempts": 3,
+                },
+                exc=last_exc,
+            )
             raise ConnectionError(
                 f"OANDA candle fetch failed after 3 attempts ({granularity}): {last_exc}"
             )
 
         data = response.json()
         if "candles" not in data:
+            record_runtime_event(
+                component="brokers.oanda",
+                action="request_candles",
+                message="OANDA candle response did not contain candles",
+                context={
+                    "instrument": instrument,
+                    "params": params,
+                    "response": data,
+                },
+            )
             raise ValueError(f"No candle data: {data}")
         return data
 
@@ -272,116 +295,128 @@ class MarketDataBuilder:
         """
         print(f"\n📡 Fetching live data for {pair}...")
 
-        print("  Fetching candles, price, and account state in parallel...")
-        # Keep live loop latency down by fetching independent broker reads together.
-        with ThreadPoolExecutor(max_workers=8) as executor:
-            futures = {
-                "df_4h": executor.submit(self.client.get_candles, pair, "H4", count=200),
-                "df_1h": executor.submit(self.client.get_candles, pair, "H1", count=200),
-                "df_15m": executor.submit(self.client.get_candles, pair, "M15", count=200),
-                "df_daily": executor.submit(self.client.get_candles, pair, "D", count=200),
-                "df_weekly": executor.submit(self.client.get_candles, pair, "W", count=52),
-                "price_data": executor.submit(self.client.get_current_price, pair),
-                "account": executor.submit(self.client.get_account_summary),
-                "open_trades": executor.submit(self.client.get_open_trades),
+        try:
+            print("  Fetching candles, price, and account state in parallel...")
+            # Keep live loop latency down by fetching independent broker reads together.
+            with ThreadPoolExecutor(max_workers=8) as executor:
+                futures = {
+                    "df_4h": executor.submit(self.client.get_candles, pair, "H4", count=200),
+                    "df_1h": executor.submit(self.client.get_candles, pair, "H1", count=200),
+                    "df_15m": executor.submit(self.client.get_candles, pair, "M15", count=200),
+                    "df_daily": executor.submit(self.client.get_candles, pair, "D", count=200),
+                    "df_weekly": executor.submit(self.client.get_candles, pair, "W", count=52),
+                    "price_data": executor.submit(self.client.get_current_price, pair),
+                    "account": executor.submit(self.client.get_account_summary),
+                    "open_trades": executor.submit(self.client.get_open_trades),
+                }
+
+                df_4h = futures["df_4h"].result()
+                df_1h = futures["df_1h"].result()
+                df_15m = futures["df_15m"].result()
+                df_daily = futures["df_daily"].result()
+                df_weekly = futures["df_weekly"].result()
+                price_data = futures["price_data"].result()
+                account = futures["account"].result()
+                open_trades = futures["open_trades"].result()
+
+            current_price = price_data["mid"]
+            print(f"  Current price: {current_price} (spread: {price_data['spread_pips']} pips)")
+
+            weekly_struct = self.structure.analyze(df_weekly, "Weekly")
+            daily_struct = self.structure.analyze(df_daily, "Daily")
+            h4_struct = self.structure.analyze(df_4h, "4H")
+            h1_struct = self.structure.analyze(df_1h, "1H")
+            m15_struct = self.structure.analyze(df_15m, "15M")
+
+            print("  Calculating indicators...")
+            indicators = IndicatorCalculator.calculate_all(df_4h, df_1h, df_daily)
+
+            current_day = df_daily.index[-1]
+            month_mask = (
+                (df_daily.index.year == current_day.year)
+                & (df_daily.index.month == current_day.month)
+            )
+            ohlcv = {
+                "day_open": round(df_daily["open"].iloc[-1], 5),
+                "week_open": round(df_weekly["open"].iloc[-1], 5),
+                "month_open": round(df_daily.loc[month_mask, "open"].iloc[0], 5),
+                "prev_day_high": round(df_daily["high"].iloc[-2], 5),
+                "prev_day_low": round(df_daily["low"].iloc[-2], 5),
+                "prev_week_high": round(df_weekly["high"].iloc[-2], 5),
+                "prev_week_low": round(df_weekly["low"].iloc[-2], 5),
+                "weekly_structure": weekly_struct["structure"],
+                "daily_structure": daily_struct["structure"],
+                "h4_structure": h4_struct["structure"],
+                "h1_structure": h1_struct["structure"],
+                "m15_structure": m15_struct["structure"],
+                "weekly_trend": weekly_struct["trend"],
+                "daily_trend": daily_struct["trend"],
+                "h4_trend": h4_struct["trend"],
+                "h1_trend": h1_struct["trend"],
+                "m15_trend": m15_struct["trend"],
             }
 
-            df_4h = futures["df_4h"].result()
-            df_1h = futures["df_1h"].result()
-            df_15m = futures["df_15m"].result()
-            df_daily = futures["df_daily"].result()
-            df_weekly = futures["df_weekly"].result()
-            price_data = futures["price_data"].result()
-            account = futures["account"].result()
-            open_trades = futures["open_trades"].result()
+            session_info = self._get_session_info()
+            fundamental = self._get_fundamental_data(session_info, ohlcv)
 
-        current_price = price_data["mid"]
-        print(f"  Current price: {current_price} (spread: {price_data['spread_pips']} pips)")
+            equity = account_equity or account["equity"]
 
-        weekly_struct = self.structure.analyze(df_weekly, "Weekly")
-        daily_struct = self.structure.analyze(df_daily, "Daily")
-        h4_struct = self.structure.analyze(df_4h, "4H")
-        h1_struct = self.structure.analyze(df_1h, "1H")
-        m15_struct = self.structure.analyze(df_15m, "15M")
+            open_risk_pct = 0.0
+            if open_trades:
+                open_risk_pct = round(
+                    sum(abs(trade["unrealized_pl"]) for trade in open_trades) / equity * 100,
+                    2,
+                )
 
-        print("  Calculating indicators...")
-        indicators = IndicatorCalculator.calculate_all(df_4h, df_1h, df_daily)
-
-        current_day = df_daily.index[-1]
-        month_mask = (
-            (df_daily.index.year == current_day.year)
-            & (df_daily.index.month == current_day.month)
-        )
-        ohlcv = {
-            "day_open": round(df_daily["open"].iloc[-1], 5),
-            "week_open": round(df_weekly["open"].iloc[-1], 5),
-            "month_open": round(df_daily.loc[month_mask, "open"].iloc[0], 5),
-            "prev_day_high": round(df_daily["high"].iloc[-2], 5),
-            "prev_day_low": round(df_daily["low"].iloc[-2], 5),
-            "prev_week_high": round(df_weekly["high"].iloc[-2], 5),
-            "prev_week_low": round(df_weekly["low"].iloc[-2], 5),
-            "weekly_structure": weekly_struct["structure"],
-            "daily_structure": daily_struct["structure"],
-            "h4_structure": h4_struct["structure"],
-            "h1_structure": h1_struct["structure"],
-            "m15_structure": m15_struct["structure"],
-            "weekly_trend": weekly_struct["trend"],
-            "daily_trend": daily_struct["trend"],
-            "h4_trend": h4_struct["trend"],
-            "h1_trend": h1_struct["trend"],
-            "m15_trend": m15_struct["trend"],
-        }
-
-        session_info = self._get_session_info()
-        fundamental = self._get_fundamental_data(session_info, ohlcv)
-
-        equity = account_equity or account["equity"]
-
-        open_risk_pct = 0.0
-        if open_trades:
-            open_risk_pct = round(
-                sum(abs(trade["unrealized_pl"]) for trade in open_trades) / equity * 100,
-                2,
+            start_bal = self._get_daily_start_balance(account["balance"])
+            daily_pnl_pct = (
+                round((account["balance"] - start_bal) / start_bal * 100, 2)
+                if start_bal > 0
+                else 0.0
             )
+            weekly_pnl_pct = 0.0
+            if self.log_dir:
+                weekly_pnl_pct = weekly_pnl_pct_from_closed_trades(
+                    self.log_dir / "closed_trades.jsonl",
+                    account["balance"],
+                )
 
-        start_bal = self._get_daily_start_balance(account["balance"])
-        daily_pnl_pct = (
-            round((account["balance"] - start_bal) / start_bal * 100, 2)
-            if start_bal > 0
-            else 0.0
-        )
-        weekly_pnl_pct = 0.0
-        if self.log_dir:
-            weekly_pnl_pct = weekly_pnl_pct_from_closed_trades(
-                self.log_dir / "closed_trades.jsonl",
-                account["balance"],
+            portfolio = {
+                "balance": account["balance"],
+                "equity": equity,
+                "open_trades": len(open_trades),
+                "open_risk_pct": open_risk_pct,
+                "daily_pnl_pct": daily_pnl_pct,
+                "weekly_pnl_pct": weekly_pnl_pct,
+                "trades_today": len(open_trades) + self._count_closed_today(),
+                "usd_exposure": self._calculate_usd_exposure(open_trades),
+                "margin_used_pct": round(account["margin_used"] / equity * 100, 2),
+            }
+
+            print(f"  ✅ Live data ready — Account: ${equity:,.2f}")
+
+            return {
+                "pair": pair.replace("_", "/"),
+                "price": current_price,
+                "spread": price_data["spread_pips"],
+                "demo_mode": self.client.practice,
+                "ohlcv": ohlcv,
+                "indicators": indicators,
+                "fundamental": fundamental,
+                "portfolio": portfolio,
+                "fetch_time": datetime.now(timezone.utc).isoformat(),
+            }
+        except Exception as exc:
+            logger.error("Live market_data build failed for %s: %s", pair, exc)
+            record_runtime_event(
+                component="brokers.oanda",
+                action="build_market_data",
+                message="Live market_data build failed",
+                context={"pair": pair},
+                exc=exc,
+                log_dir=self.log_dir,
             )
-
-        portfolio = {
-            "balance": account["balance"],
-            "equity": equity,
-            "open_trades": len(open_trades),
-            "open_risk_pct": open_risk_pct,
-            "daily_pnl_pct": daily_pnl_pct,
-            "weekly_pnl_pct": weekly_pnl_pct,
-            "trades_today": len(open_trades) + self._count_closed_today(),
-            "usd_exposure": self._calculate_usd_exposure(open_trades),
-            "margin_used_pct": round(account["margin_used"] / equity * 100, 2),
-        }
-
-        print(f"  ✅ Live data ready — Account: ${equity:,.2f}")
-
-        return {
-            "pair": pair.replace("_", "/"),
-            "price": current_price,
-            "spread": price_data["spread_pips"],
-            "demo_mode": self.client.practice,
-            "ohlcv": ohlcv,
-            "indicators": indicators,
-            "fundamental": fundamental,
-            "portfolio": portfolio,
-            "fetch_time": datetime.now(timezone.utc).isoformat(),
-        }
+            raise
 
     def _get_daily_start_balance(self, current_balance: float) -> float:
         """
