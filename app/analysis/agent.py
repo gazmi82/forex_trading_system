@@ -13,6 +13,7 @@ from app.analysis.signal_pipeline import (
     validate_signal,
 )
 from app.analysis.trade_feedback import TradeFeedbackManager
+from app.core.runtime_logging import record_runtime_event
 
 
 logger = logging.getLogger(__name__)
@@ -126,6 +127,17 @@ class ForexAnalystAgent:
 
         except Exception as exc:
             logger.error("Claude API call failed: %s", exc)
+            record_runtime_event(
+                component="analysis.agent",
+                action="claude_api_call",
+                message="Claude API call failed; returning neutral fallback payload",
+                context={
+                    "model": self.config.get("model", "claude-sonnet-4-20250514"),
+                    "max_tokens": self.config.get("max_tokens", 2000),
+                },
+                exc=exc,
+                log_dir=self.log_dir,
+            )
             return json.dumps(
                 {
                     "error": str(exc),
@@ -187,6 +199,19 @@ class ForexAnalystAgent:
             return response.content[0].text.strip()[:300]
         except Exception as exc:
             logger.warning("Trade lesson generation failed: %s", exc)
+            record_runtime_event(
+                component="analysis.agent",
+                action="generate_trade_lesson",
+                message="Trade lesson generation failed; continuing without lesson text",
+                context={
+                    "pair": feedback_record.get("pair", ""),
+                    "direction": feedback_record.get("direction", ""),
+                    "session": feedback_record.get("session", ""),
+                    "outcome": feedback_record.get("outcome", ""),
+                },
+                exc=exc,
+                log_dir=self.log_dir,
+            )
             return ""
 
     def record_trade_outcome(self, trade_record: dict):
