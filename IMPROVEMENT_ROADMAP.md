@@ -14,8 +14,8 @@ Improvements are grouped into five pillars. Complete them in phase order
 ## Implementation Status
 
 - Current roadmap phase: Phase 2 (`PARTIAL`)
-- Estimated current score: `~52/100`
-- Item status counts: `5 DONE`, `4 PARTIAL`, `6 MISSING`
+- Estimated current score: `~55/100`
+- Item status counts: `6 DONE`, `4 PARTIAL`, `5 MISSING`
 - Legend:
   - `[DONE]` = implemented and materially satisfies the item intent and acceptance criteria
   - `[PARTIAL]` = some implementation exists, but the roadmap scope is not fully complete
@@ -197,8 +197,8 @@ Class `HistoricalDataLoader`:
 
 ---
 
-### Item 2.2 — Signal Replay Engine [MISSING]
-**Status:** `MISSING` — no historical signal replay engine exists yet.
+### Item 2.2 — Signal Replay Engine [PARTIAL]
+**Status:** `PARTIAL` — a local-data-only replay engine now rebuilds historical market context from CSV datasets, walks every NY session window, and emits one mechanical signal record per window. Historical macro series (DXY/COT/rates/news) are not loaded yet, so replay currently runs in `PRICE_ONLY` mode with those components neutralized.
 
 **New file:** `app/backtesting/signal_replayer.py`
 

@@ -107,6 +107,13 @@ class ForexAnalystAgent:
         )
 
     def _call_claude(self, user_message: str) -> str:
+        """
+        Return Claude's raw text response.
+
+        The fallback path deliberately serializes API failures into a neutral
+        JSON payload so parsing, validation, logging, and UI output can all
+        stay on the same downstream code path.
+        """
         try:
             response = self.client.messages.create(
                 model=self.config.get("model", "claude-sonnet-4-20250514"),
@@ -183,6 +190,13 @@ class ForexAnalystAgent:
             return ""
 
     def record_trade_outcome(self, trade_record: dict):
+        """
+        Persist a closed-trade outcome into both learning systems.
+
+        1. TradeFeedbackManager stores the human-readable lesson/memory.
+        2. The calibration log is updated so mechanical vs Claude scoring can
+           be evaluated against actual outcomes later.
+        """
         lesson = self._generate_trade_lesson(trade_record)
         if lesson:
             trade_record = dict(trade_record)

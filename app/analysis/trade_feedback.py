@@ -136,6 +136,13 @@ class TradeFeedbackManager:
         trade_record["missing_detail_reasons"] = reasons
 
     def _hydrate_trade_record_from_signal_log(self, trade_record: dict):
+        """
+        Reload the exact saved analysis entry linked to a closed trade.
+
+        Trade review should use the persisted signal snapshot, not whatever the
+        current code would reconstruct today. That is why this lookup prefers
+        the saved `log_entry_id` and timestamp before falling back to filename.
+        """
         filename = str(trade_record.get("signal_log_filename") or "").strip()
         entry_id = str(trade_record.get("signal_log_entry_id") or "").strip()
         signal_timestamp = str(trade_record.get("signal_timestamp") or "").strip()

@@ -230,6 +230,16 @@ def read_signal_log_entry(
     entry_id: str | None = None,
     signal_timestamp: str | None = None,
 ) -> dict[str, Any] | None:
+    """
+    Return one concrete analysis entry from either a daily aggregate file or a
+    legacy timestamped file reference.
+
+    Resolution order matters:
+    1. explicit log_entry_id
+    2. explicit signal timestamp
+    3. legacy filename mapping after consolidation
+    4. latest entry in the resolved container
+    """
     resolved_path = _resolve_signal_log_path(path)
     entries = read_signal_log_entries(resolved_path)
     if not entries:
@@ -259,6 +269,12 @@ def consolidate_signal_logs(
     log_dir: Path | None = None,
     date_slug: str | None = None,
 ) -> Path | None:
+    """
+    Merge legacy per-analysis files for one UTC day into the daily aggregate.
+
+    This is intentionally safe to run repeatedly. Already-migrated files are
+    archived and duplicate entries are ignored by identity checks.
+    """
     output_dir = log_dir or Path("logs")
     target_date_slug = date_slug or datetime.now(tz=UTC).strftime("%Y%m%d")
     daily_path = _daily_output_file(output_dir, prefix, target_date_slug)
@@ -287,7 +303,13 @@ def consolidate_signal_logs(
 
 
 def write_signal_log(signal: Mapping[str, Any], prefix: str = "signal", log_dir: Path | None = None) -> Path:
-    """Persist any analysis result, including fallback/API-failure payloads."""
+    """
+    Append one analysis result into the daily JSON container for its UTC date.
+
+    The function also mutates dict inputs in place with `logged_at_utc`,
+    `log_filename`, and `log_entry_id` so callers can carry an exact reference
+    into trade timelines and feedback records.
+    """
     timestamp = datetime.now(tz=UTC)
     date_slug = timestamp.strftime("%Y%m%d")
     output_dir = log_dir or Path("logs")
@@ -300,6 +322,8 @@ def write_signal_log(signal: Mapping[str, Any], prefix: str = "signal", log_dir:
     payload["log_entry_id"] = _timestamp_slug(timestamp)
 
     container = _load_container(output_file, prefix, date_slug)
+    # Always fold older timestamped files into the daily container before writing
+    # the new entry so readers only need one canonical location going forward.
     _consolidate_legacy_logs(
         output_dir=output_dir,
         prefix=prefix,
@@ -371,6 +395,13 @@ def build_signal_log_metadata(
     now_utc: datetime,
     stale_after_seconds: int,
 ) -> dict[str, Any]:
+    """
+    Classify the freshness and health of a signal log for API/dashboard use.
+
+    Metadata is derived from the newest entry inside an aggregate file when
+    available, so a daily container reflects the latest loop state rather than
+    its filesystem creation time.
+    """
     modified_at = datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
     entries = _coerce_signal_entries(data)
     metadata_source = data

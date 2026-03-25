@@ -45,6 +45,15 @@ class CacheKey:
         return f"{instrument_slug}_{self.granularity}_{start_slug}_{end_slug}.csv"
 
 
+@dataclass(frozen=True)
+class RawDatasetInfo:
+    instrument: str
+    granularity: str
+    start: datetime
+    end: datetime
+    path: Path
+
+
 class HistoricalDataLoader:
     """
     Fetches and caches historical candle data for backtesting, then slices
@@ -67,7 +76,15 @@ class HistoricalDataLoader:
         start: datetime,
         end: datetime,
         force_refresh: bool = False,
+        allow_remote: bool = True,
     ) -> pd.DataFrame:
+        """
+        Load one historical candle range with a clear precedence order.
+
+        1. covering raw dataset in `backtest_data/raw`
+        2. exact cached slice in `backtest_data/`
+        3. remote OANDA fetch, only when explicitly allowed
+        """
         granularity = granularity.upper()
         start_utc = _ensure_utc(start)
         end_utc = _ensure_utc(end)
@@ -90,6 +107,12 @@ class HistoricalDataLoader:
         if cache_path.exists() and not force_refresh:
             return self._read_cache(cache_path)
 
+        if not allow_remote:
+            raise FileNotFoundError(
+                f"No local historical dataset covers {instrument} {granularity} "
+                f"{start_utc.isoformat()} → {end_utc.isoformat()}"
+            )
+
         data = self.fetch_range(instrument, granularity, start=start_utc, end=end_utc)
         data.to_csv(cache_path, index_label="time")
         return data
@@ -102,6 +125,7 @@ class HistoricalDataLoader:
         end: datetime,
         granularities: Iterable[str] = ("D", "H4", "H1"),
         force_refresh: bool = False,
+        allow_remote: bool = True,
     ) -> dict[str, pd.DataFrame]:
         return {
             granularity.upper(): self.load_candles(
@@ -110,6 +134,7 @@ class HistoricalDataLoader:
                 start=start,
                 end=end,
                 force_refresh=force_refresh,
+                allow_remote=allow_remote,
             )
             for granularity in granularities
         }
@@ -121,6 +146,7 @@ class HistoricalDataLoader:
         as_of: datetime,
         lookback_bars: Mapping[str, int] | None = None,
         force_refresh: bool = False,
+        allow_remote: bool = True,
     ) -> dict[str, pd.DataFrame]:
         as_of_utc = _ensure_utc(as_of)
         requested = {
@@ -137,8 +163,48 @@ class HistoricalDataLoader:
                 start=start,
                 end=as_of_utc,
                 force_refresh=force_refresh,
+                allow_remote=allow_remote,
             )
         return self.slice_context(datasets, as_of=as_of_utc, lookback_bars=requested)
+
+    def find_covering_raw_dataset(
+        self,
+        instrument: str,
+        granularity: str,
+        *,
+        start: datetime,
+        end: datetime,
+    ) -> RawDatasetInfo | None:
+        instrument_slug = instrument.replace("/", "_").upper()
+        dataset_dir = self.raw_dir / instrument_slug
+        if not dataset_dir.exists():
+            return None
+
+        best_match: RawDatasetInfo | None = None
+        best_span: timedelta | None = None
+        for path in dataset_dir.glob(f"{instrument_slug}_{granularity.upper()}_M_*.csv"):
+            match = _RAW_DATASET_PATTERN.match(path.name)
+            if not match:
+                continue
+            dataset_start = datetime.strptime(
+                match.group("start"), "%Y%m%dT%H%M%SZ"
+            ).replace(tzinfo=timezone.utc)
+            dataset_end = datetime.strptime(
+                match.group("end"), "%Y%m%dT%H%M%SZ"
+            ).replace(tzinfo=timezone.utc)
+            if dataset_start <= start and dataset_end >= end:
+                span = dataset_end - dataset_start
+                if best_span is None or span < best_span:
+                    best_match = RawDatasetInfo(
+                        instrument=instrument_slug,
+                        granularity=granularity.upper(),
+                        start=dataset_start,
+                        end=dataset_end,
+                        path=path,
+                    )
+                    best_span = span
+
+        return best_match
 
     @staticmethod
     def slice_context(
@@ -224,29 +290,16 @@ class HistoricalDataLoader:
         start: datetime,
         end: datetime,
     ) -> pd.DataFrame | None:
-        instrument_slug = instrument.replace("/", "_").upper()
-        dataset_dir = self.raw_dir / instrument_slug
-        if not dataset_dir.exists():
+        dataset = self.find_covering_raw_dataset(
+            instrument,
+            granularity,
+            start=start,
+            end=end,
+        )
+        if dataset is None:
             return None
 
-        best_path: Path | None = None
-        best_span: timedelta | None = None
-        for path in dataset_dir.glob(f"{instrument_slug}_{granularity.upper()}_M_*.csv"):
-            match = _RAW_DATASET_PATTERN.match(path.name)
-            if not match:
-                continue
-            dataset_start = datetime.strptime(match.group("start"), "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
-            dataset_end = datetime.strptime(match.group("end"), "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
-            if dataset_start <= start and dataset_end >= end:
-                span = dataset_end - dataset_start
-                if best_span is None or span < best_span:
-                    best_path = path
-                    best_span = span
-
-        if best_path is None:
-            return None
-
-        frame = self._read_cache(best_path)
+        frame = self._read_cache(dataset.path)
         return frame[(frame.index >= start) & (frame.index < end)]
 
 

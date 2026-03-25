@@ -263,10 +263,17 @@ class MarketDataBuilder:
         """
         Fetches all live data and builds the complete market_data dict.
         Fails closed if required live data cannot be fetched.
+
+        Output shape mirrors what the agent and validator expect live:
+        - ohlcv: structure and prior reference levels
+        - indicators: deterministic TA / ICT levels
+        - fundamental: macro and session context
+        - portfolio: risk state used by execution guards
         """
         print(f"\n📡 Fetching live data for {pair}...")
 
         print("  Fetching candles, price, and account state in parallel...")
+        # Keep live loop latency down by fetching independent broker reads together.
         with ThreadPoolExecutor(max_workers=8) as executor:
             futures = {
                 "df_4h": executor.submit(self.client.get_candles, pair, "H4", count=200),

@@ -232,6 +232,12 @@ class TradeJournal:
             self._write_timeline(filename, timeline)
 
     def record_signal_snapshot_for_open_trades(self, signal: dict):
+        """
+        Attach the latest loop analysis to every matching open trade timeline.
+
+        This keeps post-trade review anchored to what the system knew while the
+        trade was live, not only to the original entry signal.
+        """
         tracked = self.load_open_trades()
         if not tracked:
             return

@@ -120,6 +120,14 @@ def validate_signal(
     config: Mapping[str, Any],
     has_session_loss_streak: Callable[[str, int], bool],
 ) -> dict[str, Any]:
+    """
+    Apply all deterministic runtime gates after Claude returns.
+
+    This function is the single place where a proposed signal becomes either
+    executable or blocked. It preserves Claude's original payload, computes the
+    mechanical score, and records explicit override reasons instead of mutating
+    the proposal into an ambiguous partial state.
+    """
     port = market_data.get("portfolio", {})
     fund = market_data.get("fundamental", {})
     sig = signal.get("signal", {})
