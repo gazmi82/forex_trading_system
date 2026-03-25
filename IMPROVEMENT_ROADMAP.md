@@ -1,5 +1,5 @@
 # Improvement Roadmap — Score 38 → 75
-## Forex Trading System | Last updated: March 24, 2026
+## Forex Trading System | Last updated: March 25, 2026
 
 This document defines every improvement required to raise the system
 confidence score from 38/100 to 75/100. Each item includes the problem
@@ -13,9 +13,9 @@ Improvements are grouped into five pillars. Complete them in phase order
 
 ## Implementation Status
 
-- Current roadmap phase: Phase 2 (`PARTIAL`)
-- Estimated current score: `~55/100`
-- Item status counts: `6 DONE`, `4 PARTIAL`, `5 MISSING`
+- Current roadmap phase: Phase 3 (`PARTIAL`)
+- Estimated current score: `60/100`
+- Item status counts: `9 DONE`, `3 PARTIAL`, `3 MISSING`
 - Legend:
   - `[DONE]` = implemented and materially satisfies the item intent and acceptance criteria
   - `[PARTIAL]` = some implementation exists, but the roadmap scope is not fully complete
@@ -197,8 +197,8 @@ Class `HistoricalDataLoader`:
 
 ---
 
-### Item 2.2 — Signal Replay Engine [PARTIAL]
-**Status:** `PARTIAL` — a local-data-only replay engine now rebuilds historical market context from CSV datasets, walks every NY session window, and emits one mechanical signal record per window. Historical macro series (DXY/COT/rates/news) are not loaded yet, so replay currently runs in `PRICE_ONLY` mode with those components neutralized.
+### Item 2.2 — Signal Replay Engine [DONE]
+**Status:** `DONE` — the replay engine rebuilds historical market context from CSV datasets, walks every NY session window, and emits one mechanical signal record per window without calling Claude. It currently neutralizes unavailable historical macro feeds, but the roadmap acceptance criteria for replay speed, no-lookahead behavior, and signal output shape are satisfied.
 
 **New file:** `app/backtesting/signal_replayer.py`
 
@@ -223,8 +223,8 @@ mechanical scorer. Claude is non-deterministic and costs money.
 
 ---
 
-### Item 2.3 — Outcome Simulator [MISSING]
-**Status:** `MISSING` — there is no backtest outcome simulator mirroring the live executor rules.
+### Item 2.3 — Outcome Simulator [DONE]
+**Status:** `DONE` — replayed signals can now be simulated into closed-trade style records using historical M1 candles, TP1 partials, breakeven move, trailing-stop logic, and time-stop handling.
 
 **New file:** `app/backtesting/outcome_simulator.py`
 
@@ -232,7 +232,8 @@ Given a `BacktestSignal`, walk forward through subsequent candles and
 determine the outcome following the live executor's rules exactly:
 - Entry fills when price touches the entry zone midpoint.
 - TP1 hit → close `tp1_close_percent`, move SL to entry.
-- After TP1 → apply ATR-based trailing stop.
+- After TP1 → apply the current live trailing-stop rule
+  (entry-to-TP1 distance, until Phase 4 upgrades it to ATR-based).
 - Time stop → close at session's configured hours if < -0.5R.
 - Final close at TP2 or SL.
 
@@ -248,8 +249,8 @@ can read both live and backtest results.
 
 ---
 
-### Item 2.4 — Backtest Performance Report [MISSING]
-**Status:** `MISSING` — no backtest reporting pipeline or `backtest_results/report.json` output exists yet.
+### Item 2.4 — Backtest Performance Report [DONE]
+**Status:** `DONE` — simulated backtest trades now roll into a `backtest_results/report.json` file with expectancy, session breakdown, score buckets, drawdown, consecutive losses, and profit factor.
 
 **New file:** `app/backtesting/report.py`
 

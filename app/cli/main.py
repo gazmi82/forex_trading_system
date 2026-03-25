@@ -328,6 +328,69 @@ def run_signal_replay(
     return True
 
 
+def run_full_backtest(
+    *,
+    instrument: str,
+    start: str,
+    end: str,
+    data_dir: str,
+    output_dir: str,
+):
+    print("\n" + "=" * 60)
+    print("🧪 FULL BACKTEST")
+    print("=" * 60)
+
+    from app.backtesting import (
+        BacktestReportGenerator,
+        HistoricalDataLoader,
+        OutcomeSimulator,
+        SignalReplayEngine,
+    )
+
+    start_dt = _parse_backfill_datetime(start)
+    end_dt = _parse_backfill_datetime(end)
+    data_root = Path(data_dir)
+    output_root = Path(output_dir)
+
+    loader = HistoricalDataLoader(None, cache_dir=data_root)
+    replayer = SignalReplayEngine(loader, output_root=output_root)
+    simulator = OutcomeSimulator(loader, output_root=output_root)
+    reporter = BacktestReportGenerator(output_root=output_root)
+
+    print(f"  Instrument:   {instrument}")
+    print(f"  Start:        {start_dt.isoformat()}")
+    print(f"  End:          {end_dt.isoformat()}")
+    print(f"  Data root:    {data_root}")
+    print(f"  Output root:  {output_root}")
+    print("  Mode:         local historical datasets only")
+
+    replay_summary = replayer.replay(
+        instrument,
+        start=start_dt,
+        end=end_dt,
+        local_only=True,
+    )
+    print(f"  ✓ Replay:     {replay_summary.total_windows} windows → {replay_summary.output_path}")
+
+    simulation_summary = simulator.simulate(
+        Path(replay_summary.output_path),
+        instrument=instrument,
+        local_only=True,
+    )
+    print(
+        f"  ✓ Simulation: {simulation_summary.filled_trades} filled / "
+        f"{simulation_summary.tradable_signals} tradable → {simulation_summary.output_path}"
+    )
+
+    report_summary = reporter.generate(Path(simulation_summary.output_path))
+    print("\n✅ Backtest complete:")
+    print(f"  Expectancy:   {report_summary.expectancy_r}R")
+    print(f"  Win rate:     {round(report_summary.win_rate * 100, 2)}%")
+    print(f"  Profit factor:{report_summary.profit_factor}")
+    print(f"  Report file:  {report_summary.output_path}")
+    return True
+
+
 def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
     print("\n" + "="*60)
     print("🔄 DEMO LOOP MODE")
@@ -428,7 +491,7 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","backfill","replay"], default="test")
+    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","backfill","replay","backtest"], default="test")
     parser.add_argument("--dry-run", action="store_true",
                         help="Run --mode test without placing any orders on OANDA")
     parser.add_argument("--force-outside-session", action="store_true",
@@ -447,6 +510,8 @@ def main():
                         help="Root directory containing historical replay datasets (default: backtest_data)")
     parser.add_argument("--replay-output-dir", default="backtest_results",
                         help="Root directory for replay output files (default: backtest_results)")
+    parser.add_argument("--backtest-output-dir", default="backtest_results",
+                        help="Root directory for full backtest output files (default: backtest_results)")
     parser.add_argument("--force-refresh", action="store_true",
                         help="Refetch historical datasets even if local CSVs already exist")
     args = parser.parse_args()
@@ -533,6 +598,16 @@ def main():
             end=args.history_end,
             data_dir=args.replay_data_dir,
             output_dir=args.replay_output_dir,
+        )
+        if ok is False:
+            sys.exit(1)
+    elif args.mode == "backtest":
+        ok = run_full_backtest(
+            instrument=args.instrument,
+            start=args.history_start,
+            end=args.history_end,
+            data_dir=args.replay_data_dir,
+            output_dir=args.backtest_output_dir,
         )
         if ok is False:
             sys.exit(1)

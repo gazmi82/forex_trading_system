@@ -162,6 +162,5 @@ class TradeExecutorMonitoringTests(unittest.TestCase):
         self.assertTrue(any("Trailing stop" in item for item in actions))
         self.assertEqual(trade["stop_loss"], 1.15274)
 
-
 if __name__ == "__main__":
     unittest.main()
