@@ -237,7 +237,7 @@ No markdown, no preamble. Pure JSON only.
   "trade_management": {
     "tp1_action": "Close 50% at TP1, move SL to entry",
     "tp2_action": "Trail remaining 50% to TP2",
-    "time_stop": "Close if -0.5R after 8 hours"
+    "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
   },
   "do_not_trade_reason": null
 }

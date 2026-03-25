@@ -122,7 +122,23 @@ TRADING_CONFIG = {
     # Position management
     "tp1_close_percent":    0.50,       # Fraction of position to close at TP1 (0.50 = 50%)
     "tp2_trail":            True,       # Trail remaining position after TP1; False = fixed TP2 only
-    "time_stop_hours":      8,          # Close if -0.5R after N hours
+    "trail_atr_multiplier": 1.0,        # ATR(1H) multiplier for the post-TP1 trailing stop
+    "adaptive_time_stop":   True,       # Extend the session time stop when the thesis quality supports patience
+    "time_stop_hours": {
+        "London Kill Zone": 4,
+        "NY Kill Zone":     6,
+        "London Close":     3,
+        "default":          8,
+    },
+    "adaptive_time_stop_extensions": {
+        "trend_aligned_hours": 1.0,
+        "macro_aligned_hours": 0.5,
+        "trending_hours": 0.5,
+        "high_volatility_hours": 1.0,
+        "strong_signal_hours": 0.5,
+        "strong_signal_threshold": 85,
+        "max_total_hours": 2.0,
+    },
 
     # Session filter (EST times)
     "trade_sessions": {

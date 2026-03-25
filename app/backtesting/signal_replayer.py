@@ -147,6 +147,7 @@ class SignalReplayEngine:
         execution_allowed = direction != "NEUTRAL" and replay_result["confluence_score"] >= self.min_confidence
         execution_direction = direction if execution_allowed else "NEUTRAL"
         overrides = []
+        indicators = market_data.get("indicators", {})
         if direction == "NEUTRAL":
             overrides.append("BLOCKED: No mechanical directional edge at this window")
         elif replay_result["confluence_score"] < self.min_confidence:
@@ -184,6 +185,12 @@ class SignalReplayEngine:
             "do_not_trade_reason": risk_reason,
             "validator_overrides": overrides,
             "signal": signal_payload,
+            "technical_analysis": {
+                "atr_1h": indicators.get("atr_1h"),
+                "adx_14": indicators.get("adx_4h"),
+                "rsi_14": indicators.get("rsi_1h"),
+                "market_regime": indicators.get("market_regime"),
+            },
             "market_data": {
                 "price": market_data["price"],
                 "spread": market_data["spread"],

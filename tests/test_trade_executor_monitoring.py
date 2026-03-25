@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -34,12 +34,16 @@ class _RecordingTradeExecutor(TradeExecutor):
         super().__init__(*args, **kwargs)
         self.partial_calls: list[tuple[str, int]] = []
         self.stop_moves: list[tuple[str, float]] = []
+        self.close_calls: list[str] = []
 
     def _close_partial(self, trade_id: str, units: int):
         self.partial_calls.append((trade_id, units))
 
     def _move_sl_to_entry(self, trade_id: str, entry_price: float):
         self.stop_moves.append((trade_id, round(entry_price, 5)))
+
+    def _close_trade(self, trade_id: str):
+        self.close_calls.append(trade_id)
 
 
 class TradeExecutorMonitoringTests(unittest.TestCase):
@@ -161,6 +165,172 @@ class TradeExecutorMonitoringTests(unittest.TestCase):
         self.assertEqual(executor.stop_moves, [("200", 1.15274)])
         self.assertTrue(any("Trailing stop" in item for item in actions))
         self.assertEqual(trade["stop_loss"], 1.15274)
+
+    def test_monitor_uses_atr_based_trailing_when_entry_atr_is_saved(self):
+        client = _MonitorClient(
+            current_price={
+                "bid": 1.15130,
+                "ask": 1.15150,
+                "mid": 1.15140,
+            },
+            open_trades=[
+                {
+                    "id": "200",
+                    "instrument": "EUR_USD",
+                    "units": 50000.0,
+                    "open_price": 1.15374,
+                    "unrealized_pl": 112.0,
+                    "open_time": datetime.now(timezone.utc).isoformat(),
+                }
+            ],
+            candles=self._candles(
+                highs=[1.15190, 1.15170, 1.15160],
+                lows=[1.14980, 1.14990, 1.15000],
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            executor = _RecordingTradeExecutor(
+                client,
+                {"demo_mode": True, "tp2_trail": True, "trail_atr_multiplier": 1.0},
+                Path(tmpdir),
+            )
+            executor.journal.save_open_trades(
+                {
+                    "trade_1": self._tracked_trade(
+                        tp1_hit=True,
+                        stop_loss=1.15374,
+                        units=50000,
+                        atr_1h_at_entry=0.0020,
+                    )
+                }
+            )
+
+            actions = executor.monitor_open_trades()
+            tracked = executor.journal.load_open_trades()
+            trade = tracked["trade_1"]
+
+        self.assertEqual(executor.partial_calls, [])
+        self.assertEqual(executor.stop_moves, [("200", 1.1518)])
+        self.assertTrue(any("Trailing stop" in item for item in actions))
+        self.assertEqual(trade["stop_loss"], 1.1518)
+
+    def test_monitor_applies_session_specific_time_stop(self):
+        client = _MonitorClient(
+            current_price={
+                "bid": 1.15000,
+                "ask": 1.15020,
+                "mid": 1.15010,
+            },
+            open_trades=[
+                {
+                    "id": "200",
+                    "instrument": "EUR_USD",
+                    "units": 100000.0,
+                    "open_price": 1.15374,
+                    "unrealized_pl": -600.0,
+                    "open_time": (datetime.now(timezone.utc) - timedelta(hours=4)).isoformat(),
+                }
+            ],
+            candles=self._candles(
+                highs=[1.15100, 1.15080, 1.15060],
+                lows=[1.14980, 1.14970, 1.14960],
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            executor = _RecordingTradeExecutor(
+                client,
+                {
+                    "demo_mode": True,
+                    "time_stop_hours": {
+                        "London Close": 3,
+                        "default": 8,
+                    },
+                },
+                Path(tmpdir),
+            )
+            executor.journal.save_open_trades(
+                {
+                    "trade_1": self._tracked_trade(
+                        session="London Close",
+                        open_time=(datetime.now(timezone.utc) - timedelta(hours=4)).isoformat(),
+                    )
+                }
+            )
+
+            actions = executor.monitor_open_trades()
+            tracked = executor.journal.load_open_trades()
+
+        self.assertTrue(any("Time stop" in item for item in actions))
+        self.assertEqual(executor.close_calls, ["200"])
+        self.assertEqual(tracked, {})
+
+    def test_monitor_waits_when_adaptive_time_stop_extends_the_window(self):
+        client = _MonitorClient(
+            current_price={
+                "bid": 1.15000,
+                "ask": 1.15020,
+                "mid": 1.15010,
+            },
+            open_trades=[
+                {
+                    "id": "200",
+                    "instrument": "EUR_USD",
+                    "units": 100000.0,
+                    "open_price": 1.15374,
+                    "unrealized_pl": -600.0,
+                    "open_time": (datetime.now(timezone.utc) - timedelta(hours=4)).isoformat(),
+                }
+            ],
+            candles=self._candles(
+                highs=[1.15100, 1.15080, 1.15060],
+                lows=[1.14980, 1.14970, 1.14960],
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            executor = _RecordingTradeExecutor(
+                client,
+                {
+                    "demo_mode": True,
+                    "time_stop_hours": {
+                        "London Close": 3,
+                        "default": 8,
+                    },
+                    "adaptive_time_stop": True,
+                    "adaptive_time_stop_extensions": {
+                        "trend_aligned_hours": 1.0,
+                        "macro_aligned_hours": 0.5,
+                        "high_volatility_hours": 1.0,
+                        "strong_signal_hours": 0.5,
+                        "strong_signal_threshold": 85,
+                        "max_total_hours": 2.0,
+                    },
+                },
+                Path(tmpdir),
+            )
+            executor.journal.save_open_trades(
+                {
+                    "trade_1": self._tracked_trade(
+                        session="London Close",
+                        open_time=(datetime.now(timezone.utc) - timedelta(hours=4)).isoformat(),
+                        technical_analysis={
+                            "ema_bias": "BEARISH",
+                            "market_regime": "HIGH_VOLATILITY",
+                        },
+                        macro_bias={"alignment": "ALIGNED"},
+                        mechanical_confluence=90,
+                    )
+                }
+            )
+
+            actions = executor.monitor_open_trades()
+            tracked = executor.journal.load_open_trades()
+
+        self.assertFalse(any("Time stop" in item for item in actions))
+        self.assertEqual(executor.close_calls, [])
+        self.assertIn("trade_1", tracked)
 
 if __name__ == "__main__":
     unittest.main()

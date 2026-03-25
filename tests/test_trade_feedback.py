@@ -41,6 +41,7 @@ class TradeFeedbackTests(unittest.TestCase):
                 "technical_analysis": {
                     "ema_bias": "BEARISH",
                     "adx_14": 27.2,
+                    "atr_1h": 0.00124,
                     "market_regime": "TRENDING",
                     "rsi_14": 48.1,
                     "rsi_signal": "NEUTRAL",
@@ -98,6 +99,7 @@ class TradeFeedbackTests(unittest.TestCase):
                 "USD Unemployment Claims in 2h 45m",
             )
             self.assertEqual(trade["knowledge_sources"][0], "The Forex Trading Course")
+            self.assertEqual(trade["atr_1h_at_entry"], 0.00124)
             self.assertGreater(trade["initial_risk_usd"], 0)
             self.assertTrue(trade["signal_timeline_file"])
 

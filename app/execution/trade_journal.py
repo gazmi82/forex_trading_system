@@ -364,6 +364,7 @@ class TradeJournal:
             "mechanical_confluence": signal.get("mechanical_confluence_score"),
             "confidence": sig.get("confidence"),
             "session": signal.get("session", ""),
+            "atr_1h_at_entry": ((signal.get("technical_analysis") or {}).get("atr_1h")),
             "partial_realized_pnl_usd": 0.0,
             "partial_close_events": [],
             **entry_context,

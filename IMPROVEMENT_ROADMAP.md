@@ -13,9 +13,9 @@ Improvements are grouped into five pillars. Complete them in phase order
 
 ## Implementation Status
 
-- Current roadmap phase: Phase 4 (`PARTIAL`)
-- Estimated current score: `67/100`
-- Item status counts: `11 DONE`, `2 PARTIAL`, `2 MISSING`
+- Current roadmap phase: Phase 5 (`PARTIAL`)
+- Estimated current score: `72/100`
+- Item status counts: `12 DONE`, `2 PARTIAL`, `1 MISSING`
 - Legend:
   - `[DONE]` = implemented and materially satisfies the item intent and acceptance criteria
   - `[PARTIAL]` = some implementation exists, but the roadmap scope is not fully complete
@@ -30,7 +30,7 @@ Improvements are grouped into five pillars. Complete them in phase order
 | Edge validation        | No backtesting — untested              | 2+ years backtested, 200+ samples   |
 | Confluence scoring     | Claude analysis + mechanical gate      | Mechanically calculated             |
 | Performance visibility | Edge report and weekly summary available | Win rate by tag, session, grade |
-| Trailing stop          | Fixed distance (entry-to-TP1)          | ATR-based                           |
+| Trailing stop          | ATR-based from entry-time 1H ATR       | ATR-based                           |
 | Weekly loss limit      | Enforced in validator + executor       | Enforced in validator + executor    |
 | ICT OB detection       | Basic (last bearish candle heuristic)  | Mitigation-aware + displacement     |
 | FVG detection          | Unfilled check only                    | Partial and full fill tracking      |
@@ -319,16 +319,8 @@ Action items generated automatically from data, not written manually.
 ## PHASE 4 — Smarter Trade Management
 **Score impact: 67 → 72**
 
-### Item 4.1 — ATR-Based Trailing Stop (already implemented March 20) [PARTIAL]
-**Status:** `PARTIAL` — TP1 and trailing-stop management exist, but the trail still uses the fixed entry-to-TP1 distance instead of `atr_1h_at_entry × trail_atr_multiplier`.
-
-Planned target behavior:
-The trailing stop should use `atr_1h_at_entry × trail_atr_multiplier`
-instead of the fixed entry-to-TP1 distance.
-
-Next improvement: ensure `atr_1h_at_entry` is stored in the open trade
-record at entry time so the trail distance is consistent across the
-trade's lifetime even if ATR changes.
+### Item 4.1 — ATR-Based Trailing Stop (already implemented March 20) [DONE]
+**Status:** `DONE` — entry-time ATR(1H) is now attached to the tracked trade and both the live executor and backtest simulator use `atr_1h_at_entry × trail_atr_multiplier`, with a fallback to the legacy entry-to-TP1 distance when ATR is unavailable.
 
 **File:** `app/execution/trade_journal.py` (`record_trade_open`)
 Add: `"atr_1h_at_entry": signal.get("technical_analysis", {}).get("atr_1h")`
@@ -339,8 +331,8 @@ entry-to-TP1 distance.
 
 ---
 
-### Item 4.2 — Session-Specific Time Stop [MISSING]
-**Status:** `MISSING` — the executor still reads a single numeric `time_stop_hours` value instead of session-specific settings.
+### Item 4.2 — Session-Specific Time Stop [DONE]
+**Status:** `DONE` — the trading config now supports session-specific holding limits, and both the live executor and backtest simulator resolve the correct window per session while staying backward-compatible with the old scalar setting.
 
 **File:** `app/core/config.py`, `app/execution/trade_executor.py`
 

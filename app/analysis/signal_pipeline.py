@@ -169,6 +169,7 @@ def validate_signal(
     signal["mechanical_confluence_score"] = mech_score
     signal["mechanical_confluence_components"] = mech_result.get("component_scores", {})
     signal["mechanical_direction_implied"] = mech_result.get("direction_implied", "NEUTRAL")
+    _attach_runtime_technical_details(signal, market_data)
 
     def block(reason: str):
         nonlocal execution_allowed, execution_direction
@@ -242,3 +243,23 @@ def validate_signal(
         logger.warning("Signal blocked: %s", overrides)
 
     return signal
+
+
+def _attach_runtime_technical_details(signal: dict[str, Any], market_data: Mapping[str, Any]) -> None:
+    """
+    Claude's strict JSON schema does not currently include ATR fields, but the
+    live trade manager needs entry-time ATR to apply Phase 4 ATR trailing.
+    """
+    technical = signal.get("technical_analysis")
+    if not isinstance(technical, dict):
+        technical = {}
+        signal["technical_analysis"] = technical
+
+    indicators = market_data.get("indicators", {})
+    if not isinstance(indicators, Mapping):
+        return
+
+    if technical.get("atr_1h") in (None, "", 0):
+        atr_1h = indicators.get("atr_1h")
+        if atr_1h not in (None, ""):
+            technical["atr_1h"] = atr_1h

@@ -8,6 +8,10 @@ from typing import Any
 
 import pandas as pd
 
+from app.core.trade_management import (
+    resolve_adaptive_time_stop_hours,
+    trail_distance_from_context,
+)
 from app.core.config import TRADING_CONFIG
 from app.execution.trade_journal import TradeJournal
 
@@ -166,7 +170,14 @@ class OutcomeSimulator:
             return None
 
         fill_time = fill_candle.name.to_pydatetime().astimezone(timezone.utc)
-        max_hours = float(self.config.get("time_stop_hours", 8))
+        max_hours, _ = resolve_adaptive_time_stop_hours(
+            self.config,
+            session=str(signal.get("session", "")),
+            direction=direction,
+            technical_analysis=(signal.get("technical_analysis") if isinstance(signal.get("technical_analysis"), dict) else {}),
+            macro_bias=(signal.get("macro_bias") if isinstance(signal.get("macro_bias"), dict) else {}),
+            mechanical_score=signal.get("mechanical_confluence_score", signal.get("confluence_score")),
+        )
         time_stop_after = fill_time + timedelta(hours=max_hours)
         close_pct = float(self.config.get("tp1_close_percent", 0.50))
         remaining_fraction = 1.0
@@ -177,7 +188,13 @@ class OutcomeSimulator:
         stop_moved_to_entry = False
         partial_close_events: list[dict[str, Any]] = []
         current_sl = stop_loss
-        trail_distance = abs(tp1 - entry_price) if tp1 else risk_distance
+        technical = signal.get("technical_analysis") or {}
+        trail_distance = trail_distance_from_context(
+            entry_price=entry_price,
+            tp1_price=tp1,
+            atr_1h_at_entry=(technical.get("atr_1h") if isinstance(technical, dict) else None),
+            trail_atr_multiplier=self.config.get("trail_atr_multiplier", 1.0),
+        )
         for candle in future[future.index >= fill_candle.name].itertuples():
             candle_time = candle.Index.to_pydatetime().astimezone(timezone.utc)
             high = float(candle.high)

@@ -122,7 +122,7 @@ class OutcomeSimulatorTests(unittest.TestCase):
             simulator = OutcomeSimulator(
                 loader,
                 output_root=base / "results",
-                trading_config={"time_stop_hours": 1},
+                trading_config={"time_stop_hours": {"London Close": 1, "default": 8}},
             )
 
             summary = simulator.simulate(signals_path, local_only=True)
@@ -156,6 +156,54 @@ class OutcomeSimulatorTests(unittest.TestCase):
                 "signal_strength": "MODERATE",
                 "execution_allowed": True,
                 "validator_overrides": [],
+                "signal": {
+                    "direction": "BUY",
+                    "confidence": 78,
+                    "entry_zone": [1.1000, 1.1000],
+                    "stop_loss": 1.0990,
+                    "take_profit_1": 1.1010,
+                    "take_profit_2": 1.1040,
+                    "risk_reward": 2.0,
+                },
+            }
+            signals_path = _write_signal_file(base, [signal])
+            loader = HistoricalDataLoader(None, base)
+            simulator = OutcomeSimulator(loader, output_root=base / "results")
+
+            summary = simulator.simulate(signals_path, local_only=True)
+            rows = [
+                json.loads(line)
+                for line in Path(summary.output_path).read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertEqual(summary.filled_trades, 1)
+        self.assertTrue(rows[0]["tp1_hit"])
+        self.assertEqual(rows[0]["close_reason"], "STOP_LOSS")
+        self.assertAlmostEqual(rows[0]["pnl_r"], 1.5, places=4)
+
+    def test_simulator_uses_atr_based_trailing_when_signal_has_entry_atr(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = Path(tmpdir)
+            frame = _frame_from_rows(
+                "2026-03-25T12:00:00Z",
+                [
+                    {"open": 1.1000, "high": 1.1002, "low": 1.0998, "close": 1.1000, "volume": 100},
+                    {"open": 1.1000, "high": 1.1026, "low": 1.1002, "close": 1.1024, "volume": 120},
+                    {"open": 1.1024, "high": 1.1025, "low": 1.1015, "close": 1.1016, "volume": 110},
+                ],
+            )
+            _write_m1_dataset(base, frame)
+            signal = {
+                "pair": "EUR/USD",
+                "timestamp": "2026-03-25T12:00:00Z",
+                "session": "NY Kill Zone",
+                "confluence_score": 78,
+                "mechanical_confluence_score": 78,
+                "signal_strength": "MODERATE",
+                "execution_allowed": True,
+                "validator_overrides": [],
+                "technical_analysis": {"atr_1h": 0.0006},
                 "signal": {
                     "direction": "BUY",
                     "confidence": 78,

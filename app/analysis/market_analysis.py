@@ -18,6 +18,7 @@ class IndicatorCalculator:
         indicators["rsi_4h"] = IndicatorCalculator._rsi(df_4h, 14)
         indicators["rsi_1h"] = IndicatorCalculator._rsi(df_1h, 14)
         indicators["adx_4h"] = IndicatorCalculator._adx(df_4h, 14)
+        indicators["atr_1h"] = IndicatorCalculator._atr(df_1h, 14)
         indicators["atr_4h"] = IndicatorCalculator._atr(df_4h, 14)
 
         indicators["market_regime"] = IndicatorCalculator._regime(

@@ -18,6 +18,10 @@ from pathlib import Path
 import requests
 
 from app.analysis.scheduler import ALLOWED_ENTRY_SESSIONS
+from app.core.trade_management import (
+    resolve_adaptive_time_stop_hours,
+    trail_distance_from_context,
+)
 from app.core.runtime_logging import record_runtime_event
 from app.execution.trade_journal import TradeJournal
 
@@ -478,7 +482,14 @@ class TradeExecutor:
             return None
 
         hours_open = (now - open_time).total_seconds() / 3600
-        max_hours = self.config.get("time_stop_hours", 8)
+        max_hours, time_reasons = resolve_adaptive_time_stop_hours(
+            self.config,
+            session=str(trade.get("session", "")),
+            direction=str(trade.get("direction", "")),
+            technical_analysis=trade.get("technical_analysis"),
+            macro_bias=trade.get("macro_bias"),
+            mechanical_score=trade.get("mechanical_confluence", trade.get("confluence")),
+        )
         if hours_open < max_hours:
             return None
 
@@ -489,9 +500,10 @@ class TradeExecutor:
         trade_id = trade["trade_id"]
         self._close_trade(trade_id)
         self.journal.record_trade_close(trade, "TIME_STOP", unrealized)
+        reason_suffix = f" | adaptive window: {', '.join(time_reasons)}" if time_reasons else ""
         return (
             f"Time stop: closed trade {trade_id} "
-            f"after {hours_open:.1f}h | P&L: ${unrealized:.2f}"
+            f"after {hours_open:.1f}h (window {max_hours:.1f}h) | P&L: ${unrealized:.2f}{reason_suffix}"
         )
 
     def _half_r_threshold(self) -> float:
@@ -573,9 +585,9 @@ class TradeExecutor:
         """
         Trail the stop loss after TP1 has been hit.
 
-        Trail distance = entry-to-TP1 distance (1R equivalent).
-        The stop only ever moves in the profitable direction — never back.
-        Disabled when tp2_trail = False in config.
+        Trail distance prefers entry-time ATR(1H) × trail_atr_multiplier.
+        When ATR is unavailable, it falls back to the legacy entry-to-TP1
+        distance so pre-Phase-4 trades remain manageable.
         """
         if not trade.get("tp1_hit"):
             return None
@@ -591,7 +603,12 @@ class TradeExecutor:
         if not entry or not tp1 or not current_sl or not trade_id:
             return None
 
-        trail_distance = abs(tp1 - entry)  # = 1R; stop follows price at this gap
+        trail_distance = trail_distance_from_context(
+            entry_price=entry,
+            tp1_price=tp1,
+            atr_1h_at_entry=trade.get("atr_1h_at_entry"),
+            trail_atr_multiplier=self.config.get("trail_atr_multiplier", 1.0),
+        )
 
         if direction == "BUY":
             reference_price = max(
