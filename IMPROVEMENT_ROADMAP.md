@@ -13,9 +13,9 @@ Improvements are grouped into five pillars. Complete them in phase order
 
 ## Implementation Status
 
-- Current roadmap phase: Phase 3 (`PARTIAL`)
-- Estimated current score: `60/100`
-- Item status counts: `9 DONE`, `3 PARTIAL`, `3 MISSING`
+- Current roadmap phase: Phase 4 (`PARTIAL`)
+- Estimated current score: `67/100`
+- Item status counts: `11 DONE`, `2 PARTIAL`, `2 MISSING`
 - Legend:
   - `[DONE]` = implemented and materially satisfies the item intent and acceptance criteria
   - `[PARTIAL]` = some implementation exists, but the roadmap scope is not fully complete
@@ -29,7 +29,7 @@ Improvements are grouped into five pillars. Complete them in phase order
 |------------------------|----------------------------------------|-------------------------------------|
 | Edge validation        | No backtesting — untested              | 2+ years backtested, 200+ samples   |
 | Confluence scoring     | Claude analysis + mechanical gate      | Mechanically calculated             |
-| Performance visibility | Signals and trades logged, no edge aggregation | Win rate by tag, session, grade |
+| Performance visibility | Edge report and weekly summary available | Win rate by tag, session, grade |
 | Trailing stop          | Fixed distance (entry-to-TP1)          | ATR-based                           |
 | Weekly loss limit      | Enforced in validator + executor       | Enforced in validator + executor    |
 | ICT OB detection       | Basic (last bearish candle heuristic)  | Mitigation-aware + displacement     |
@@ -275,8 +275,8 @@ Pattern tags, setup grades, and root causes are logged per trade, but
 nothing aggregates them. After 50 demo trades you need answers to:
 "What is my win rate on ob_entry + post_sweep + London Kill Zone setups?"
 
-### Item 3.1 — Edge Database Aggregator [PARTIAL]
-**Status:** `PARTIAL` — trade journaling already captures pattern tags, setup grades, root causes, and both scores, but there is no dedicated aggregator or edge report module yet.
+### Item 3.1 — Edge Database Aggregator [DONE]
+**Status:** `DONE` — a dedicated edge report now aggregates live/backtest closed trades by session, setup grade, root cause, pattern tags, tag pairs, and score buckets, and compares Claude vs mechanical score predictiveness.
 
 **New file:** `app/performance/edge_report.py`
 
@@ -298,8 +298,8 @@ Only report groups with >= 10 trades to avoid misleading small samples.
 
 ---
 
-### Item 3.2 — Weekly Performance Summary [MISSING]
-**Status:** `MISSING` — no weekly summary script or markdown output is generated yet.
+### Item 3.2 — Weekly Performance Summary [DONE]
+**Status:** `DONE` — weekly markdown summaries can now be generated from closed trades with sample-aware action items, weekly P&L, score-accuracy proxy, and top pattern callouts.
 
 **New file:** `app/performance/weekly_summary.py`
 

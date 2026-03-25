@@ -328,6 +328,68 @@ def run_signal_replay(
     return True
 
 
+def run_edge_report(
+    *,
+    trades_path: str,
+    output_dir: str,
+    min_samples: int,
+):
+    print("\n" + "=" * 60)
+    print("📈 EDGE REPORT")
+    print("=" * 60)
+
+    from app.performance import EdgeReportGenerator
+
+    source = Path(trades_path)
+    output_root = Path(output_dir)
+    generator = EdgeReportGenerator(output_root=output_root, min_samples=min_samples)
+
+    print(f"  Source file:   {source}")
+    print(f"  Output root:   {output_root}")
+    print(f"  Min samples:   {min_samples}")
+
+    summary = generator.generate(source)
+    print("\n✅ Edge report generated:")
+    print(f"  Trades:        {summary.total_trades}")
+    print(f"  Best session:  {summary.best_session or 'N/A'}")
+    print(f"  Predictor:     {summary.better_predictor}")
+    print(f"  Output file:   {summary.output_path}")
+    return True
+
+
+def run_weekly_summary(
+    *,
+    trades_path: str,
+    output_dir: str,
+    reference_date: str | None,
+    min_samples: int,
+):
+    print("\n" + "=" * 60)
+    print("🗓 WEEKLY SUMMARY")
+    print("=" * 60)
+
+    from app.performance import WeeklySummaryGenerator
+
+    source = Path(trades_path)
+    output_root = Path(output_dir)
+    generator = WeeklySummaryGenerator(output_root=output_root, min_samples=min_samples)
+    reference = _parse_backfill_datetime(reference_date).date() if reference_date else None
+
+    print(f"  Source file:   {source}")
+    print(f"  Output root:   {output_root}")
+    print(f"  Min samples:   {min_samples}")
+    if reference:
+        print(f"  Reference:     {reference.isoformat()}")
+
+    summary = generator.generate(source, reference_date=reference)
+    print("\n✅ Weekly summary generated:")
+    print(f"  Week start:    {summary.week_start}")
+    print(f"  Week end:      {summary.week_end}")
+    print(f"  Trades:        {summary.total_trades}")
+    print(f"  Output file:   {summary.output_path}")
+    return True
+
+
 def run_full_backtest(
     *,
     instrument: str,
@@ -491,7 +553,7 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","backfill","replay","backtest"], default="test")
+    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","backfill","replay","backtest","edge-report","weekly-summary"], default="test")
     parser.add_argument("--dry-run", action="store_true",
                         help="Run --mode test without placing any orders on OANDA")
     parser.add_argument("--force-outside-session", action="store_true",
@@ -512,6 +574,14 @@ def main():
                         help="Root directory for replay output files (default: backtest_results)")
     parser.add_argument("--backtest-output-dir", default="backtest_results",
                         help="Root directory for full backtest output files (default: backtest_results)")
+    parser.add_argument("--performance-source", default="logs/closed_trades.jsonl",
+                        help="Closed-trade JSONL file for performance reporting (default: logs/closed_trades.jsonl)")
+    parser.add_argument("--performance-output-dir", default="feedback",
+                        help="Directory for edge reports and weekly summaries (default: feedback)")
+    parser.add_argument("--performance-min-samples", type=int, default=10,
+                        help="Minimum samples required for grouped performance insights (default: 10)")
+    parser.add_argument("--weekly-reference-date", default="",
+                        help="Reference UTC date for weekly summary in YYYY-MM-DD format (default: today)")
     parser.add_argument("--force-refresh", action="store_true",
                         help="Refetch historical datasets even if local CSVs already exist")
     args = parser.parse_args()
@@ -608,6 +678,23 @@ def main():
             end=args.history_end,
             data_dir=args.replay_data_dir,
             output_dir=args.backtest_output_dir,
+        )
+        if ok is False:
+            sys.exit(1)
+    elif args.mode == "edge-report":
+        ok = run_edge_report(
+            trades_path=args.performance_source,
+            output_dir=args.performance_output_dir,
+            min_samples=args.performance_min_samples,
+        )
+        if ok is False:
+            sys.exit(1)
+    elif args.mode == "weekly-summary":
+        ok = run_weekly_summary(
+            trades_path=args.performance_source,
+            output_dir=args.performance_output_dir,
+            reference_date=args.weekly_reference_date or None,
+            min_samples=args.performance_min_samples,
         )
         if ok is False:
             sys.exit(1)
