@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import os
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 FASTAPI_IMPORT_ERROR: ModuleNotFoundError | None = None
@@ -58,6 +60,30 @@ class ApiContractTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.json())
+
+    def test_trade_history_tolerates_legacy_rows_with_extra_columns(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_dir = Path(tmpdir)
+            trades_csv = log_dir / "trades.csv"
+            trades_csv.write_text(
+                "\n".join(
+                    [
+                        "timestamp,order_id,trade_id,instrument,direction,units,entry_price,stop_loss,tp1,tp2,status,pnl,notes",
+                        "2026-03-14,EUR_USD,SELL,1.145,,1.148,1.139,10000,LOSS,-1.0,-100.0,2.5,NY Kill Zone,72,Manual test lesson",
+                        "2026-03-19,order-2,trade-2,EUR_USD,BUY,1000,1.081,1.078,1.085,1.09,CLOSED,25.0,Normal row",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            with patch("app.api.server.LOGS_DIR", log_dir):
+                response = self.client.get("/api/trades/history")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["count"], 2)
+        self.assertNotIn("null", body["items"][0])
+        self.assertEqual(body["items"][0]["notes"], "NY Kill Zone")
 
     def test_trusted_hosts_include_render_wildcard_for_onrender_deploys(self):
         original_public_api_base_url = os.environ.get("PUBLIC_API_BASE_URL")

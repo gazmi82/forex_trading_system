@@ -26,7 +26,14 @@ import argparse
 from pathlib import Path
 from datetime import datetime, timezone
 
-from app.core.runtime_logging import configure_app_logging
+from app.core.runtime_logging import configure_app_logging, record_runtime_event
+from app.core.runtime_health import (
+    begin_demo_loop_iteration,
+    complete_demo_loop_iteration,
+    fail_demo_loop_iteration,
+    get_demo_loop_health,
+    stop_demo_loop,
+)
 
 configure_app_logging(Path("logs"))
 
@@ -39,7 +46,7 @@ logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
-from app.analysis.scheduler import get_demo_loop_schedule
+from app.analysis.scheduler import get_demo_loop_schedule, get_demo_loop_schedule_state
 from app.logs.signal_logs import write_signal_log
 
 
@@ -169,6 +176,8 @@ def run_test_analysis(agent, oanda_builder=None, executor=None, force_outside_se
     print(json.dumps(signal, indent=2))
     output_file = write_signal_log(signal, prefix="test_signal")
     signal["log_filename"] = output_file.name
+    if agent:
+        agent.attach_live_validation_reference(signal)
     print(f"\n✅ Signal saved to: {output_file}")
 
     # Execute if signal qualifies and executor is available
@@ -214,6 +223,25 @@ def run_live_data_check(oanda_builder=None):
         json.dump(market_data, f, indent=2)
     print(f"\n✅ Snapshot saved to: {output_file}")
     return True
+
+
+def run_demo_loop_health_check(*, log_dir: Path):
+    print("\n" + "=" * 60)
+    print("🩺 DEMO LOOP HEALTH")
+    print("=" * 60)
+    health = get_demo_loop_health(log_dir)
+    print(f"Status:      {health.get('status')}")
+    print(f"Reason:      {health.get('reason')}")
+    print(f"Loop count:  {health.get('loop_count')}")
+    print(f"State:       {health.get('state')}")
+    print(f"Session:     {health.get('session')}")
+    print(f"Mode:        {health.get('runtime_mode')}")
+    print(f"Last start:  {health.get('last_started_at_utc')}")
+    print(f"Last finish: {health.get('last_completed_at_utc')}")
+    print(f"Next run:    {health.get('next_expected_run_at_utc')}")
+    print(f"Last error:  {health.get('last_error')}")
+    print(f"Heartbeat:   {Path(log_dir) / 'demo_loop_heartbeat.json'}")
+    return health.get("status") in {"HEALTHY", "DEGRADED"}
 
 
 def _parse_backfill_datetime(value: str) -> datetime:
@@ -452,7 +480,7 @@ def run_full_backtest(
     return True
 
 
-def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
+def run_demo_loop(agent, oanda_builder=None, executor=None, *, log_dir: Path | None = None):  # noqa: C901
     print("\n" + "="*60)
     print("🔄 DEMO LOOP MODE")
     print("="*60)
@@ -468,6 +496,7 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
     print("Allowed windows run every 10 minutes; outside them, monitor-only runs every 30 minutes.")
     print("Press Ctrl+C to stop.\n")
     import time
+    output_dir = Path(log_dir or "logs")
     analysis_count = 0
     entry_analysis_count = 0
     while True:
@@ -475,6 +504,21 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
             analysis_count += 1
             now = datetime.utcnow().strftime("%H:%M:%S")
             print(f"\n[{now}] Loop #{analysis_count}")
+            health_before = begin_demo_loop_iteration(output_dir, loop_count=analysis_count)
+            if health_before.get("status") == "STALLED":
+                logger.warning("Demo loop resumed after stall: %s", health_before.get("reason"))
+                record_runtime_event(
+                    component="cli.demo_loop",
+                    action="loop_resumed_after_stall",
+                    level="WARNING",
+                    message="Demo loop resumed after missing its expected schedule",
+                    context={
+                        "loop_count": analysis_count,
+                        "previous_reason": health_before.get("reason"),
+                        "previous_next_expected_run_at_utc": health_before.get("next_expected_run_at_utc"),
+                    },
+                    log_dir=output_dir,
+                )
 
             # 1. Monitor open trades first (TP1, time stop, etc.)
             if executor:
@@ -493,14 +537,29 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
                     market_data = oanda_builder.build_market_data("EUR_USD")
                 except Exception as e:
                     print_live_data_warning(f"OANDA market-data fetch failed: {e}")
+                    record_runtime_event(
+                        component="cli.demo_loop",
+                        action="market_data_fetch",
+                        message="Demo loop market-data fetch failed",
+                        context={"loop_count": analysis_count},
+                        exc=e,
+                        log_dir=output_dir,
+                    )
+                    fail_demo_loop_iteration(
+                        output_dir,
+                        error=f"market_data_fetch_failed: {e}",
+                        retry_after_seconds=60,
+                    )
                     time.sleep(60)
                     continue
 
             # 3. Use live session label as the only scheduler input
             run_entry_analysis, session, sleep_seconds, schedule_reason = get_demo_loop_schedule(market_data)
+            schedule_state = get_demo_loop_schedule_state(market_data)
             price = market_data.get("price", "N/A")
             print(f"  Price:   {price}")
             print(f"  Session: {session}")
+            signal_summary = None
 
             # 4. Generate signal only during allowed trade windows
             if agent and run_entry_analysis:
@@ -517,9 +576,16 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
                     f"Score: {score}/100 | "
                     f"{execution_label}"
                 )
+                signal_summary = {
+                    "direction": direction,
+                    "confidence": confidence,
+                    "confluence_score": score,
+                    "execution_allowed": signal.get("execution_allowed", False),
+                }
 
                 log_file = write_signal_log(signal, prefix="signal")
                 signal["log_filename"] = log_file.name
+                agent.attach_live_validation_reference(signal)
                 print(f"  📝 Logged analysis to: {log_file}")
                 if executor:
                     executor.record_signal_snapshot_for_open_trades(signal)
@@ -537,8 +603,20 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
                 print(f"\n  Next entry analysis in {next_minutes} minutes...")
             else:
                 print(f"\n  Next monitor-only cycle in {next_minutes} minutes...")
+            complete_demo_loop_iteration(
+                output_dir,
+                session=session,
+                runtime_mode=str(schedule_state.get("runtime_mode") or ""),
+                analysis_allowed_now=run_entry_analysis,
+                schedule_reason=schedule_reason,
+                next_poll_seconds=sleep_seconds,
+                price=price,
+                open_trades_count=int(schedule_state.get("open_trades_count") or 0),
+                signal_summary=signal_summary,
+            )
             time.sleep(sleep_seconds)
         except KeyboardInterrupt:
+            stop_demo_loop(output_dir)
             print(
                 f"\n\n⏹  Demo loop stopped. "
                 f"Total loops: {analysis_count} | Entry analyses: {entry_analysis_count}"
@@ -546,12 +624,25 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
             break
         except Exception as e:
             logger.error(f"Loop error: {e}")
+            record_runtime_event(
+                component="cli.demo_loop",
+                action="loop_error",
+                message="Unhandled demo loop error",
+                context={"loop_count": analysis_count},
+                exc=e,
+                log_dir=output_dir,
+            )
+            fail_demo_loop_iteration(
+                output_dir,
+                error=f"loop_error: {e}",
+                retry_after_seconds=60,
+            )
             time.sleep(60)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","backfill","replay","backtest","edge-report","weekly-summary"], default="test")
+    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","health","backfill","replay","backtest","edge-report","weekly-summary"], default="test")
     parser.add_argument("--dry-run", action="store_true",
                         help="Run --mode test without placing any orders on OANDA")
     parser.add_argument("--force-outside-session", action="store_true",
@@ -639,6 +730,10 @@ def main():
         ok = run_live_data_check(oanda_builder)
         if ok is False:
             sys.exit(1)
+    elif args.mode == "health":
+        ok = run_demo_loop_health_check(log_dir=LOGS_DIR)
+        if ok is False:
+            sys.exit(1)
     elif args.mode == "test":
         # --dry-run: analyse signal but never place orders
         ok = run_test_analysis(agent, oanda_builder,
@@ -646,7 +741,7 @@ def main():
                                force_outside_session=args.force_outside_session)
         if ok is False:
             sys.exit(1)
-    elif args.mode == "demo":   run_demo_loop(agent, oanda_builder, executor)
+    elif args.mode == "demo":   run_demo_loop(agent, oanda_builder, executor, log_dir=LOGS_DIR)
     elif args.mode == "backfill":
         ok = run_historical_backfill(
             oanda_builder,

@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 import json
 import logging
 from pathlib import Path
+import time
 
-from app.analysis.decision_logging import log_analysis, update_calibration_outcome
+from app.analysis.decision_logging import (
+    attach_live_validation_log_reference,
+    log_analysis,
+    update_calibration_outcome,
+    update_live_validation_outcome,
+)
 from app.analysis.message_builder import build_analysis_user_message
 from app.analysis.prompt import FOREX_ANALYST_SYSTEM_PROMPT
 from app.analysis.signal_pipeline import (
@@ -35,6 +42,10 @@ class ForexAnalystAgent:
         self.config = config
         self.log_dir = log_dir
         self.feedback = TradeFeedbackManager(rag_pipeline, config, log_dir)
+        self._claude_failure_count = 0
+        self._claude_disabled_until: datetime | None = None
+        self._sleep = time.sleep
+        self._utcnow = lambda: datetime.now(timezone.utc)
         log_dir.mkdir(parents=True, exist_ok=True)
 
         logger.info("ForexAnalystAgent initialized")
@@ -76,7 +87,7 @@ class ForexAnalystAgent:
 
         signal = self._parse_signal(raw_response, pair)
         signal = self._validate_signal(signal, market_data)
-        self._log_analysis(pair, market_data, signal, retrieved_chunks)
+        self._log_analysis(pair, market_data, signal, retrieved_chunks, raw_response, user_message)
 
         runtime_issue = self._get_runtime_issue(signal)
         if runtime_issue:
@@ -114,36 +125,190 @@ class ForexAnalystAgent:
         JSON payload so parsing, validation, logging, and UI output can all
         stay on the same downstream code path.
         """
-        try:
-            response = self.client.messages.create(
-                model=self.config.get("model", "claude-sonnet-4-20250514"),
-                max_tokens=self.config.get("max_tokens", 2000),
-                temperature=0,
-                system=FOREX_ANALYST_SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": user_message}],
-            )
-            return response.content[0].text
-
-        except Exception as exc:
-            logger.error("Claude API call failed: %s", exc)
+        if self.client is None:
+            exc = RuntimeError("Claude client unavailable")
+            self._register_claude_failure(exc)
             record_runtime_event(
                 component="analysis.agent",
                 action="claude_api_call",
-                message="Claude API call failed; returning neutral fallback payload",
+                message="Claude client unavailable; returning neutral fallback payload",
+                context={},
+                exc=exc,
+                log_dir=self.log_dir,
+            )
+            return self._fallback_signal_payload(str(exc))
+
+        if self._claude_circuit_active():
+            reason = (
+                "Claude temporarily unavailable: cooldown active until "
+                f"{self._claude_disabled_until.isoformat().replace('+00:00', 'Z')}"
+            )
+            logger.warning(reason)
+            record_runtime_event(
+                component="analysis.agent",
+                action="claude_circuit_open",
+                level="WARNING",
+                message="Claude circuit open; skipping provider call",
                 context={
-                    "model": self.config.get("model", "claude-sonnet-4-20250514"),
-                    "max_tokens": self.config.get("max_tokens", 2000),
+                    "cooldown_until_utc": self._claude_disabled_until.isoformat().replace("+00:00", "Z"),
+                    "consecutive_failures": self._claude_failure_count,
+                },
+                log_dir=self.log_dir,
+            )
+            return self._fallback_signal_payload(reason)
+
+        model = self.config.get("model", "claude-sonnet-4-20250514")
+        max_tokens = self.config.get("max_tokens", 2000)
+        retry_attempts = max(int(self.config.get("claude_retry_attempts", 3) or 1), 1)
+        backoff_seconds = max(float(self.config.get("claude_retry_backoff_seconds", 1.5) or 0), 0.0)
+
+        last_exc: Exception | None = None
+        for attempt in range(1, retry_attempts + 1):
+            try:
+                response = self.client.messages.create(
+                    model=model,
+                    max_tokens=max_tokens,
+                    temperature=0,
+                    system=FOREX_ANALYST_SYSTEM_PROMPT,
+                    messages=[{"role": "user", "content": user_message}],
+                )
+                self._reset_claude_failure_state()
+                return response.content[0].text
+            except Exception as exc:
+                last_exc = exc
+                retryable = self._is_retryable_claude_error(exc)
+                is_last_attempt = attempt >= retry_attempts
+                if retryable and not is_last_attempt:
+                    delay = backoff_seconds * (2 ** (attempt - 1))
+                    logger.warning(
+                        "Claude API transient failure (attempt %s/%s): %s. Retrying in %.1fs",
+                        attempt,
+                        retry_attempts,
+                        exc,
+                        delay,
+                    )
+                    record_runtime_event(
+                        component="analysis.agent",
+                        action="claude_api_retry",
+                        level="WARNING",
+                        message="Claude API transient failure; retrying",
+                        context={
+                            "attempt": attempt,
+                            "retry_attempts": retry_attempts,
+                            "backoff_seconds": delay,
+                            "model": model,
+                        },
+                        exc=exc,
+                        log_dir=self.log_dir,
+                    )
+                    if delay > 0:
+                        self._sleep(delay)
+                    continue
+                break
+
+        assert last_exc is not None
+        self._register_claude_failure(last_exc)
+        logger.error("Claude API call failed: %s", last_exc)
+        record_runtime_event(
+            component="analysis.agent",
+            action="claude_api_call",
+            message="Claude API call failed; returning neutral fallback payload",
+            context={
+                "model": model,
+                "max_tokens": max_tokens,
+                "retry_attempts": retry_attempts,
+                "consecutive_failures": self._claude_failure_count,
+                "cooldown_until_utc": (
+                    self._claude_disabled_until.isoformat().replace("+00:00", "Z")
+                    if self._claude_disabled_until is not None
+                    else None
+                ),
+            },
+            exc=last_exc,
+            log_dir=self.log_dir,
+        )
+        return self._fallback_signal_payload(str(last_exc))
+
+    def _claude_circuit_active(self) -> bool:
+        if self._claude_disabled_until is None:
+            return False
+        if self._utcnow() >= self._claude_disabled_until:
+            self._claude_disabled_until = None
+            self._claude_failure_count = 0
+            return False
+        return True
+
+    def _register_claude_failure(self, exc: Exception) -> None:
+        self._claude_failure_count += 1
+        threshold = max(int(self.config.get("claude_circuit_failures", 3) or 1), 1)
+        cooldown_seconds = max(int(self.config.get("claude_cooldown_seconds", 120) or 0), 0)
+        if self._claude_failure_count >= threshold and cooldown_seconds > 0:
+            self._claude_disabled_until = self._utcnow() + timedelta(seconds=cooldown_seconds)
+            logger.warning(
+                "Claude circuit opened for %ss after %s consecutive failures",
+                cooldown_seconds,
+                self._claude_failure_count,
+            )
+            record_runtime_event(
+                component="analysis.agent",
+                action="claude_circuit_opened",
+                level="WARNING",
+                message="Claude circuit opened after repeated provider failures",
+                context={
+                    "consecutive_failures": self._claude_failure_count,
+                    "cooldown_seconds": cooldown_seconds,
+                    "cooldown_until_utc": self._claude_disabled_until.isoformat().replace("+00:00", "Z"),
+                    "error": str(exc),
                 },
                 exc=exc,
                 log_dir=self.log_dir,
             )
-            return json.dumps(
-                {
-                    "error": str(exc),
-                    "signal": {"direction": "NEUTRAL", "confidence": 0},
-                    "do_not_trade_reason": f"API error: {exc}",
-                }
-            )
+
+    def _reset_claude_failure_state(self) -> None:
+        self._claude_failure_count = 0
+        self._claude_disabled_until = None
+
+    def _is_retryable_claude_error(self, exc: Exception) -> bool:
+        message = str(exc).lower()
+        non_retryable_markers = (
+            "credit balance",
+            "authentication",
+            "unauthorized",
+            "invalid api key",
+            "permission",
+            "forbidden",
+            "invalid_request_error",
+            "bad request",
+        )
+        if any(marker in message for marker in non_retryable_markers):
+            return False
+
+        retryable_markers = (
+            "529",
+            "overloaded",
+            "rate limit",
+            "timeout",
+            "timed out",
+            "temporarily unavailable",
+            "service unavailable",
+            "connection reset",
+            "connection aborted",
+            "connection refused",
+            "server disconnected",
+            "network",
+            "transport",
+            "remote protocol error",
+        )
+        return any(marker in message for marker in retryable_markers)
+
+    def _fallback_signal_payload(self, error_message: str) -> str:
+        return json.dumps(
+            {
+                "error": error_message,
+                "signal": {"direction": "NEUTRAL", "confidence": 0},
+                "do_not_trade_reason": f"API error: {error_message}",
+            }
+        )
 
     def _parse_signal(self, raw_response: str, pair: str) -> dict:
         return parse_signal(raw_response, pair)
@@ -227,11 +392,15 @@ class ForexAnalystAgent:
             trade_record["lesson"] = lesson
         self.feedback.record_trade_outcome(trade_record)
         updated = update_calibration_outcome(self.log_dir, trade_record)
+        update_live_validation_outcome(self.log_dir, trade_record)
         if not updated and (self.log_dir / "score_calibration.jsonl").exists():
             logger.warning(
                 "Calibration log update could not match closed trade for signal timestamp %s",
                 trade_record.get("signal_timestamp", ""),
             )
+
+    def attach_live_validation_reference(self, signal: dict[str, object]) -> bool:
+        return attach_live_validation_log_reference(self.log_dir, signal)
 
     def _log_analysis(
         self,
@@ -239,6 +408,8 @@ class ForexAnalystAgent:
         market_data: dict,
         signal: dict,
         retrieved_chunks: dict,
+        raw_response: str,
+        user_message: str,
     ):
         log_analysis(
             self.log_dir,
@@ -246,4 +417,8 @@ class ForexAnalystAgent:
             market_data=market_data,
             signal=signal,
             retrieved_chunks=retrieved_chunks,
+            raw_response=raw_response,
+            user_message=user_message,
+            model=self.config.get("model", "claude-sonnet-4-20250514"),
+            system_prompt=FOREX_ANALYST_SYSTEM_PROMPT,
         )

@@ -71,9 +71,16 @@ def load_csv_tail(path: Path, limit: int) -> list[dict[str, Any]]:
     if not path.exists():
         return []
 
+    def _sanitize_row(row: dict[str | None, str]) -> dict[str, Any]:
+        # Legacy trades.csv rows can contain extra trailing columns, which
+        # csv.DictReader exposes under a None key. Drop those extras so the API
+        # still returns a valid JSON object instead of failing response-model
+        # validation for the entire endpoint.
+        return {str(key): value for key, value in row.items() if key is not None}
+
     with open(path) as f:
         reader = csv.DictReader(f)
-        rows = list(reader)
+        rows = [_sanitize_row(row) for row in reader]
     return rows[-limit:]
 
 

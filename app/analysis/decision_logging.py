@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime
 from pathlib import Path
@@ -16,6 +17,10 @@ def log_analysis(
     market_data: dict,
     signal: dict,
     retrieved_chunks: dict,
+    raw_response: str | None = None,
+    user_message: str | None = None,
+    model: str | None = None,
+    system_prompt: str | None = None,
 ) -> None:
     log_entry = {
         "timestamp": datetime.utcnow().isoformat(),
@@ -56,6 +61,66 @@ def log_analysis(
     with open(cal_file, "a", encoding="utf-8") as f:
         f.write(json.dumps(calibration_entry) + "\n")
 
+    live_capture = {
+        "captured_at": datetime.utcnow().isoformat(),
+        "analysis_source": "CLAUDE_LIVE",
+        "pair": pair,
+        "session": session,
+        "signal_timestamp": signal.get("timestamp", ""),
+        "signal_log_filename": signal.get("log_filename", ""),
+        "signal_log_entry_id": signal.get("log_entry_id", ""),
+        "model": model or "",
+        "system_prompt_sha256": _sha256_text(system_prompt),
+        "user_message_sha256": _sha256_text(user_message),
+        "user_message": user_message or "",
+        "raw_response": raw_response or "",
+        "runtime_issue": signal.get("do_not_trade_reason") or signal.get("error") or "",
+        "signal_summary": {
+            "direction": direction,
+            "confidence": (signal.get("signal") or {}).get("confidence", 0),
+            "confluence_score": claude_score,
+            "execution_allowed": signal.get("execution_allowed", False),
+            "execution_direction": signal.get("execution_direction", "NEUTRAL"),
+        },
+        "validated_signal": _make_json_safe(signal),
+        "market_snapshot": _build_market_snapshot(market_data),
+        "rag_summary": {
+            "chunks_used": sum(len(value) for value in retrieved_chunks.values()),
+            "categories": list(retrieved_chunks.keys()),
+            "knowledge_sources": signal.get("knowledge_sources_used", []),
+        },
+        "outcome": None,
+    }
+    capture_file = log_dir / "live_validation_capture.jsonl"
+    with open(capture_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(live_capture) + "\n")
+
+
+def attach_live_validation_log_reference(log_dir: Path, signal: dict[str, Any]) -> bool:
+    capture_file = Path(log_dir) / "live_validation_capture.jsonl"
+    if not capture_file.exists():
+        return False
+
+    signal_timestamp = str(signal.get("timestamp") or "").strip()
+    pair = str(signal.get("pair") or "").strip()
+    log_filename = str(signal.get("log_filename") or "").strip()
+    log_entry_id = str(signal.get("log_entry_id") or "").strip()
+    if not signal_timestamp or not log_filename or not log_entry_id:
+        return False
+
+    rows = _load_jsonl_rows(capture_file)
+    for index in range(len(rows) - 1, -1, -1):
+        row = rows[index]
+        if (
+            str(row.get("signal_timestamp") or "").strip() == signal_timestamp
+            and str(row.get("pair") or "").strip() == pair
+        ):
+            row["signal_log_filename"] = log_filename
+            row["signal_log_entry_id"] = log_entry_id
+            _write_jsonl_rows(capture_file, rows)
+            return True
+    return False
+
 
 def update_calibration_outcome(
     log_dir: Path,
@@ -82,6 +147,42 @@ def update_calibration_outcome(
     _write_jsonl_rows(cal_file, rows)
     _write_calibration_report(Path(log_dir), rows, min_resolved_samples=min_resolved_samples)
     return True
+
+
+def update_live_validation_outcome(log_dir: Path, trade_record: dict[str, Any]) -> bool:
+    capture_file = Path(log_dir) / "live_validation_capture.jsonl"
+    if not capture_file.exists():
+        return False
+
+    rows = _load_jsonl_rows(capture_file)
+    if not rows:
+        return False
+
+    signal_log_entry_id = str(trade_record.get("signal_log_entry_id") or "").strip()
+    signal_log_filename = str(trade_record.get("signal_log_filename") or "").strip()
+    signal_timestamp = str(trade_record.get("signal_timestamp") or "").strip()
+    pair = str(trade_record.get("pair") or "").strip()
+
+    def matches(row: dict[str, Any]) -> bool:
+        if signal_log_entry_id and signal_log_filename:
+            return (
+                str(row.get("signal_log_entry_id") or "").strip() == signal_log_entry_id
+                and str(row.get("signal_log_filename") or "").strip() == signal_log_filename
+            )
+        if signal_timestamp:
+            return str(row.get("signal_timestamp") or "").strip() == signal_timestamp
+        return str(row.get("pair") or "").strip() == pair
+
+    for index in range(len(rows) - 1, -1, -1):
+        row = rows[index]
+        if matches(row):
+            row["outcome"] = trade_record.get("outcome")
+            row["pnl_r"] = trade_record.get("pnl_r")
+            row["pnl_usd"] = trade_record.get("pnl_usd")
+            row["closed_at"] = datetime.utcnow().isoformat()
+            _write_jsonl_rows(capture_file, rows)
+            return True
+    return False
 
 
 def _load_jsonl_rows(path: Path) -> list[dict[str, Any]]:
@@ -259,3 +360,31 @@ def _safe_score(value: Any) -> int | None:
         return int(float(value))
     except (TypeError, ValueError):
         return None
+
+
+def _build_market_snapshot(market_data: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "price": market_data.get("price"),
+        "spread": market_data.get("spread"),
+        "pair": market_data.get("pair"),
+        "fetch_time": market_data.get("fetch_time"),
+        "ohlcv": _make_json_safe(market_data.get("ohlcv", {})),
+        "indicators": _make_json_safe(market_data.get("indicators", {})),
+        "fundamental": _make_json_safe(market_data.get("fundamental", {})),
+        "portfolio": _make_json_safe(market_data.get("portfolio", {})),
+    }
+
+
+def _make_json_safe(value: Any) -> Any:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, dict):
+        return {str(key): _make_json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_make_json_safe(item) for item in value]
+    return str(value)
+
+
+def _sha256_text(value: str | None) -> str:
+    text = (value or "").encode("utf-8")
+    return hashlib.sha256(text).hexdigest()

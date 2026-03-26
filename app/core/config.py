@@ -103,6 +103,12 @@ AGENT_CONFIG = {
     # Memory settings
     "feedback_memory_limit": 15,        # Last N trade feedbacks injected
     "journal_memory_limit":  10,        # Last N journal entries injected
+
+    # Provider resilience
+    "claude_retry_attempts": 3,         # Retries for transient provider errors
+    "claude_retry_backoff_seconds": 1.5,  # Base backoff for transient Claude failures
+    "claude_circuit_failures": 3,       # Open short cooldown after N consecutive failures
+    "claude_cooldown_seconds": 120,     # Cooldown window after repeated failures
 }
 
 # =============================================================================
