@@ -332,8 +332,6 @@ class TradeFeedbackTests(unittest.TestCase):
                         "pair": "EUR/USD",
                         "session": "NY Kill Zone",
                         "claude_score": 70 + (idx % 10),
-                        "mechanical_score": 65 + (idx % 15),
-                        "delta": -5,
                         "direction": "BUY",
                         "outcome": "WIN" if idx % 2 == 0 else "LOSS",
                     }
@@ -345,8 +343,6 @@ class TradeFeedbackTests(unittest.TestCase):
                     "pair": "EUR/USD",
                     "session": "NY Kill Zone",
                     "claude_score": 82,
-                    "mechanical_score": 76,
-                    "delta": -6,
                     "direction": "BUY",
                     "outcome": None,
                 }
@@ -373,7 +369,6 @@ class TradeFeedbackTests(unittest.TestCase):
                 "duration_hours": 2.5,
                 "session": "NY Kill Zone",
                 "confluence_score": 82,
-                "mechanical_confluence_score": 76,
                 "close_reason": "TIME_STOP",
                 "signal_timestamp": "2026-03-24T14:30:00Z",
                 "signal_log_filename": "",
@@ -396,7 +391,7 @@ class TradeFeedbackTests(unittest.TestCase):
             report = json.loads((log_dir / "score_calibration_report.json").read_text(encoding="utf-8"))
             self.assertEqual(report["status"], "ready")
             self.assertEqual(report["resolved_samples"], 50)
-            self.assertIn("mechanical_vs_win_correlation", report)
+            self.assertIn("claude_vs_win_correlation", report)
 
 
 if __name__ == "__main__":

@@ -10,8 +10,8 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 
-from app.analysis.confluence_scorer import calculate_confluence
 from app.analysis.market_analysis import IndicatorCalculator, MarketStructureAnalyzer
+from app.backtesting.replay_confluence import calculate_confluence
 from app.core.config import AGENT_CONFIG
 
 
@@ -50,7 +50,7 @@ class ReplaySummary:
 class SignalReplayEngine:
     """
     Rebuilds historical market_data from local OANDA datasets and emits one
-    mechanical signal record per kill-zone window without calling Claude.
+    deterministic replay signal record per kill-zone window without calling Claude.
     """
 
     def __init__(
@@ -125,7 +125,7 @@ class SignalReplayEngine:
         """
         Generate one deterministic backtest signal for a single replay window.
 
-        BUY and SELL are both scored mechanically against the same historical
+        BUY and SELL are both scored from the same historical
         market snapshot, then the stronger side is emitted with deterministic
         trade levels for later outcome simulation.
         """
@@ -149,10 +149,10 @@ class SignalReplayEngine:
         overrides = []
         indicators = market_data.get("indicators", {})
         if direction == "NEUTRAL":
-            overrides.append("BLOCKED: No mechanical directional edge at this window")
+            overrides.append("BLOCKED: No directional edge at this window")
         elif replay_result["confluence_score"] < self.min_confidence:
             overrides.append(
-                f"BLOCKED: Mechanical confluence score too low "
+                f"BLOCKED: Confluence score too low "
                 f"({replay_result['confluence_score']}/100, minimum {self.min_confidence})"
             )
 
@@ -172,13 +172,12 @@ class SignalReplayEngine:
             "pair": market_data["pair"],
             "timestamp": timestamp,
             "session": window.session,
-            "analysis_source": "MECHANICAL_REPLAY",
+            "analysis_source": "HISTORICAL_REPLAY",
             "historical_data_mode": "PRICE_ONLY",
             "confluence_score": replay_result["confluence_score"],
             "signal_strength": strength,
-            "mechanical_confluence_score": replay_result["confluence_score"],
-            "mechanical_confluence_components": replay_result["component_scores"],
-            "mechanical_direction_implied": replay_result["direction_implied"],
+            "component_scores": replay_result["component_scores"],
+            "direction_implied": replay_result["direction_implied"],
             "entry_zone_source": entry_source,
             "execution_allowed": execution_allowed,
             "execution_direction": execution_direction,

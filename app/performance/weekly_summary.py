@@ -91,7 +91,7 @@ class WeeklySummaryGenerator:
             f"WEEK OF: {week_start.date().isoformat()} → {(week_end - timedelta(seconds=1)).date().isoformat()}",
             "",
             f"Trades taken: {total}  |  W/L: {wins}/{losses}  |  P&L: {_signed_r(pnl_r)}R",
-            f"Mechanical score accuracy: {accuracy_hits}/{total} positive outcomes",
+            f"Positive outcomes this week: {accuracy_hits}/{total}",
             f"Top pattern this week: {top_pattern}",
         ]
         if best_session:

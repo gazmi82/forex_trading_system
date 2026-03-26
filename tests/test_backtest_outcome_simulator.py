@@ -51,7 +51,6 @@ class OutcomeSimulatorTests(unittest.TestCase):
                 "timestamp": "2026-03-25T12:00:00Z",
                 "session": "NY Kill Zone",
                 "confluence_score": 80,
-                "mechanical_confluence_score": 80,
                 "signal_strength": "MODERATE",
                 "execution_allowed": True,
                 "validator_overrides": [],
@@ -103,7 +102,6 @@ class OutcomeSimulatorTests(unittest.TestCase):
                 "timestamp": "2026-03-25T12:00:00Z",
                 "session": "London Close",
                 "confluence_score": 72,
-                "mechanical_confluence_score": 72,
                 "signal_strength": "MODERATE",
                 "execution_allowed": True,
                 "validator_overrides": [],
@@ -152,7 +150,6 @@ class OutcomeSimulatorTests(unittest.TestCase):
                 "timestamp": "2026-03-25T12:00:00Z",
                 "session": "NY Kill Zone",
                 "confluence_score": 78,
-                "mechanical_confluence_score": 78,
                 "signal_strength": "MODERATE",
                 "execution_allowed": True,
                 "validator_overrides": [],
@@ -199,7 +196,6 @@ class OutcomeSimulatorTests(unittest.TestCase):
                 "timestamp": "2026-03-25T12:00:00Z",
                 "session": "NY Kill Zone",
                 "confluence_score": 78,
-                "mechanical_confluence_score": 78,
                 "signal_strength": "MODERATE",
                 "execution_allowed": True,
                 "validator_overrides": [],
@@ -235,9 +231,9 @@ class OutcomeSimulatorTests(unittest.TestCase):
             base = Path(tmpdir)
             trades_path = base / "closed_trades.jsonl"
             trades = [
-                {"session": "NY Kill Zone", "mechanical_confluence_score": 80, "pnl_r": 1.5},
-                {"session": "NY Kill Zone", "mechanical_confluence_score": 72, "pnl_r": -1.0},
-                {"session": "London Close", "mechanical_confluence_score": 88, "pnl_r": 0.5},
+                {"session": "NY Kill Zone", "confluence_score": 80, "pnl_r": 1.5},
+                {"session": "NY Kill Zone", "confluence_score": 72, "pnl_r": -1.0},
+                {"session": "London Close", "confluence_score": 88, "pnl_r": 0.5},
             ]
             with open(trades_path, "w", encoding="utf-8") as handle:
                 for trade in trades:

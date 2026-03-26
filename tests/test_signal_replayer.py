@@ -116,12 +116,13 @@ class SignalReplayTests(unittest.TestCase):
             ]
             self.assertEqual(len(rows), 3)
             self.assertEqual([row["session"] for row in rows], ["London Kill Zone", "NY Kill Zone", "London Close"])
-            self.assertTrue(all(row["analysis_source"] == "MECHANICAL_REPLAY" for row in rows))
+            self.assertTrue(all(row["analysis_source"] == "HISTORICAL_REPLAY" for row in rows))
             self.assertTrue(all("signal" in row for row in rows))
             self.assertTrue(all("entry_zone" in row["signal"] for row in rows))
             self.assertTrue(all("take_profit_1" in row["signal"] for row in rows))
             self.assertTrue(all("take_profit_2" in row["signal"] for row in rows))
-            self.assertTrue(all("mechanical_confluence_score" in row for row in rows))
+            self.assertTrue(all("confluence_score" in row for row in rows))
+            self.assertTrue(all("component_scores" in row for row in rows))
             self.assertTrue(all("technical_analysis" in row for row in rows))
             self.assertTrue(all("atr_1h" in row["technical_analysis"] for row in rows))
 

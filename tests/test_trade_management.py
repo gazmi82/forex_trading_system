@@ -16,7 +16,7 @@ class TradeManagementTests(unittest.TestCase):
             direction="SELL",
             technical_analysis={"ema_bias": "BEARISH", "market_regime": "HIGH_VOLATILITY"},
             macro_bias={"alignment": "ALIGNED"},
-            mechanical_score=95,
+            confluence_score=95,
         )
 
         self.assertEqual(hours, 3.0)
@@ -41,7 +41,7 @@ class TradeManagementTests(unittest.TestCase):
             direction="SELL",
             technical_analysis={"ema_bias": "BEARISH", "market_regime": "HIGH_VOLATILITY"},
             macro_bias={"alignment": "ALIGNED"},
-            mechanical_score=90,
+            confluence_score=90,
         )
 
         self.assertEqual(hours, 5.0)

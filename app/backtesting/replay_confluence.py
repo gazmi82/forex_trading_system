@@ -1,8 +1,8 @@
 # =============================================================================
-# confluence_scorer.py — Mechanical Confluence Calculator
+# replay_confluence.py — Deterministic Replay Confluence Calculator
 #
-# Replaces Claude's self-reported confluence score with a deterministic,
-# independently-verifiable calculation.  Same market_data → same score, always.
+# Builds a repeatable score from historical market_data for offline replay.
+# Same market_data → same score, always.
 #
 # Score table mirrors the system prompt thresholds:
 #   85+    = STRONG signal
@@ -10,7 +10,7 @@
 #   <65    = NEUTRAL (no trade)
 #
 # Usage:
-#   from app.analysis.confluence_scorer import calculate_confluence
+#   from app.backtesting.replay_confluence import calculate_confluence
 #   result = calculate_confluence(market_data, signal)
 # =============================================================================
 
@@ -41,7 +41,7 @@ _TOTAL_POSSIBLE = (
 
 def calculate_confluence(market_data: dict, signal: dict) -> dict:
     """
-    Compute a mechanical confluence score for the direction asserted in *signal*.
+    Compute a replay confluence score for the direction asserted in *signal*.
 
     Parameters
     ----------
@@ -58,7 +58,7 @@ def calculate_confluence(market_data: dict, signal: dict) -> dict:
     dict
         {
             "confluence_score":  int,          # 0-100, normalised
-            "direction_implied": str,          # mechanically-derived direction
+            "direction_implied": str,          # rules-derived direction
             "component_scores": {
                 "trend_alignment":   int,
                 "order_block":       int,
@@ -349,7 +349,7 @@ def _score_news(fundamental: dict) -> int:
 
 def _implied_direction(ohlcv: dict, fundamental: dict) -> str:
     """
-    Determine the market-implied direction using only mechanical signals.
+    Determine the market-implied direction using only replay rules.
     Uses a simple vote across 5 independent factors:
       - Weekly trend
       - Daily trend

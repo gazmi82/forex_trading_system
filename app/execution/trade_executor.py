@@ -138,8 +138,7 @@ class TradeExecutor:
             print(f"  TP2:        {sig['take_profit_2']}  (trail rest)")
             print(f"  R:R:        {sig['risk_reward']}")
             print(f"  Confidence: {confidence}%")
-            print(f"  Claude:     {signal.get('confluence_score', 0)}/100")
-            print(f"  Mechanical: {signal.get('mechanical_confluence_score', 0)}/100")
+            print(f"  Score:      {signal.get('confluence_score', 0)}/100")
             print(f"  Order ID:   {result['order_id']}")
             logger.info(
                 f"Order placed: {execution_direction} {units} {self.INSTRUMENT} | "
@@ -185,9 +184,9 @@ class TradeExecutor:
         if confidence < min_conf:
             return False, f"Confidence {confidence}% < {min_conf}% threshold"
 
-        mechanical_score = signal.get("mechanical_confluence_score")
-        if isinstance(mechanical_score, (int, float)) and mechanical_score < min_conf:
-            return False, f"Mechanical score {mechanical_score}% < {min_conf}% threshold"
+        claude_score = signal.get("confluence_score")
+        if isinstance(claude_score, (int, float)) and claude_score < min_conf:
+            return False, f"Claude score {claude_score}% < {min_conf}% threshold"
 
         min_rr = self.config.get("min_rr_ratio", 2.0)
         if rr < min_rr:
@@ -488,7 +487,7 @@ class TradeExecutor:
             direction=str(trade.get("direction", "")),
             technical_analysis=trade.get("technical_analysis"),
             macro_bias=trade.get("macro_bias"),
-            mechanical_score=trade.get("mechanical_confluence", trade.get("confluence")),
+            confluence_score=trade.get("confluence"),
         )
         if hours_open < max_hours:
             return None

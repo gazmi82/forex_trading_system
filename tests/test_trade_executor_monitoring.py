@@ -320,7 +320,7 @@ class TradeExecutorMonitoringTests(unittest.TestCase):
                             "market_regime": "HIGH_VOLATILITY",
                         },
                         macro_bias={"alignment": "ALIGNED"},
-                        mechanical_confluence=90,
+                        confluence=90,
                     )
                 }
             )

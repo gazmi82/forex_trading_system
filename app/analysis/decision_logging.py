@@ -23,7 +23,6 @@ def log_analysis(
         "price": market_data.get("price"),
         "signal": signal.get("signal", {}),
         "confluence_score": signal.get("confluence_score", 0),
-        "mechanical_confluence_score": signal.get("mechanical_confluence_score", 0),
         "signal_strength": signal.get("signal_strength", "NEUTRAL"),
         "execution_allowed": signal.get("execution_allowed", False),
         "execution_direction": signal.get("execution_direction", "NEUTRAL"),
@@ -39,8 +38,7 @@ def log_analysis(
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry) + "\n")
 
-    claude_score = signal.get("confluence_score", 0)
-    mech_score = signal.get("mechanical_confluence_score", 0)
+    claude_score = _safe_score(signal.get("confluence_score"))
     direction = (signal.get("signal") or {}).get("direction", "NEUTRAL")
     session = signal.get("session", "")
     calibration_entry = {
@@ -51,8 +49,6 @@ def log_analysis(
         "pair": pair,
         "session": session,
         "claude_score": claude_score,
-        "mechanical_score": mech_score,
-        "delta": mech_score - claude_score,
         "direction": direction,
         "outcome": None,
     }
@@ -125,7 +121,6 @@ def _find_matching_calibration_entry(
     session = str(trade_record.get("session") or "").strip()
     direction = str(trade_record.get("direction") or "").strip().upper()
     claude_score = trade_record.get("confluence_score")
-    mechanical_score = trade_record.get("mechanical_confluence_score")
 
     def matches_entry_id(row: dict[str, Any]) -> bool:
         if not signal_log_entry_id:
@@ -146,7 +141,6 @@ def _find_matching_calibration_entry(
             and str(row.get("session") or "").strip() == session
             and str(row.get("direction") or "").strip().upper() == direction
             and row.get("claude_score") == claude_score
-            and row.get("mechanical_score") == mechanical_score
         )
 
     for matcher in (matches_entry_id, matches_signal_timestamp, matches_fallback_tuple):
@@ -177,20 +171,16 @@ def _write_calibration_report(
     }
 
     if len(resolved_rows) >= min_resolved_samples:
-        wins = [_outcome_win_flag(row.get("outcome")) for row in resolved_rows]
-        mechanical_scores = [float(row.get("mechanical_score", 0) or 0) for row in resolved_rows]
-        claude_scores = [float(row.get("claude_score", 0) or 0) for row in resolved_rows]
+        claude_rows = [row for row in resolved_rows if row.get("claude_score") is not None]
+        wins = [_outcome_win_flag(row.get("outcome")) for row in claude_rows]
+        claude_scores = [float(row.get("claude_score", 0) or 0) for row in claude_rows]
         report.update(
             {
                 "status": "ready",
-                "mechanical_vs_win_correlation": _pearson(mechanical_scores, wins),
                 "claude_vs_win_correlation": _pearson(claude_scores, wins),
-                "mechanical_avg_win_score": _average_for_flag(resolved_rows, "mechanical_score", 1.0),
-                "mechanical_avg_non_win_score": _average_for_flag(resolved_rows, "mechanical_score", 0.0),
-                "claude_avg_win_score": _average_for_flag(resolved_rows, "claude_score", 1.0),
-                "claude_avg_non_win_score": _average_for_flag(resolved_rows, "claude_score", 0.0),
-                "mechanical_win_rate_by_bucket": _bucket_win_rates(resolved_rows, "mechanical_score"),
-                "claude_win_rate_by_bucket": _bucket_win_rates(resolved_rows, "claude_score"),
+                "claude_avg_win_score": _average_for_flag(claude_rows, "claude_score", 1.0),
+                "claude_avg_non_win_score": _average_for_flag(claude_rows, "claude_score", 0.0),
+                "claude_win_rate_by_bucket": _bucket_win_rates(claude_rows, "claude_score"),
             }
         )
 
@@ -262,3 +252,10 @@ def _bucket_win_rates(rows: list[dict[str, Any]], field: str) -> dict[str, dict[
             "win_rate_pct": win_rate,
         }
     return report
+
+
+def _safe_score(value: Any) -> int | None:
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None

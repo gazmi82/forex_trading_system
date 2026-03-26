@@ -90,7 +90,6 @@ class TradeJournal:
             "execution_allowed": self._execution_allowed(signal),
             "confidence": signal.get("signal", {}).get("confidence", 0),
             "confluence_score": signal.get("confluence_score", 0),
-            "mechanical_confluence_score": signal.get("mechanical_confluence_score", 0),
             "signal_strength": signal.get("signal_strength", ""),
             "key_risk": signal.get("key_risk", ""),
             "signal_snapshot": self._copy_json_value(signal),
@@ -158,7 +157,6 @@ class TradeJournal:
             "order_type": sig.get("order_type", ""),
             "confidence": sig.get("confidence", 0),
             "confluence_score": signal.get("confluence_score", 0),
-            "mechanical_confluence_score": signal.get("mechanical_confluence_score", 0),
             "execution_allowed": self._execution_allowed(signal),
             "execution_direction": self._execution_direction(signal),
             "risk_reward": sig.get("risk_reward", 0),
@@ -200,7 +198,6 @@ class TradeJournal:
             "risk_reward": trade.get("risk_reward"),
             "confidence": trade.get("confidence"),
             "confluence_score": trade.get("confluence"),
-            "mechanical_confluence_score": trade.get("mechanical_confluence"),
             "signal_log_filename": trade.get("signal_log_filename", ""),
             "signal_log_entry_id": trade.get("signal_log_entry_id", ""),
             "analysis_events": [],
@@ -361,7 +358,6 @@ class TradeJournal:
             "tp1_hit": False,
             "open_time": datetime.now(timezone.utc).isoformat(),
             "confluence": signal.get("confluence_score"),
-            "mechanical_confluence": signal.get("mechanical_confluence_score"),
             "confidence": sig.get("confidence"),
             "session": signal.get("session", ""),
             "atr_1h_at_entry": ((signal.get("technical_analysis") or {}).get("atr_1h")),
@@ -391,11 +387,14 @@ class TradeJournal:
                 sig.get("take_profit_2", 0),
                 "OPEN",
                 "0",
-                (
-                    f"Conf:{sig.get('confidence')} "
-                    f"Claude:{signal.get('confluence_score')} "
-                    f"Mech:{signal.get('mechanical_confluence_score')} "
-                    f"Session:{signal.get('session', '')}"
+                " ".join(
+                    part
+                    for part in [
+                        f"Conf:{sig.get('confidence')}",
+                        f"Score:{signal.get('confluence_score')}",
+                        f"Session:{signal.get('session', '')}",
+                    ]
+                    if part
                 ),
             ]
         )
@@ -677,7 +676,7 @@ class TradeJournal:
             )
 
         setup_grade = TradeJournal._grade_setup(
-            int(trade.get("mechanical_confluence", trade.get("confluence", 0)) or 0),
+            int(trade.get("confluence", 0) or 0),
             int(trade.get("confidence", 0) or 0),
             float(trade.get("risk_reward", 0) or 0),
             list(trade.get("validator_overrides") or []),
@@ -708,10 +707,6 @@ class TradeJournal:
             "duration_hours": duration_hours,
             "session": trade.get("session", ""),
             "confluence_score": trade.get("confluence", 0),
-            "mechanical_confluence_score": trade.get(
-                "mechanical_confluence",
-                trade.get("confluence", 0),
-            ),
             "close_reason": reason,
             "close_reason_detail": (
                 "Broker-managed protective order closed the trade."
@@ -750,7 +745,6 @@ class TradeJournal:
                 trade, reason, exit_pnl_known
             ),
         }
-
         self._pending_feedback.append(feedback_record)
         self._finalize_trade_signal_timeline(trade, feedback_record)
         with open(self.closed_trades_file, "a") as f:

@@ -60,9 +60,22 @@ def _coerce_signal_entries(payload: Any) -> list[dict[str, Any]]:
 
     entries = payload.get("entries")
     if isinstance(entries, list):
-        return [dict(item) for item in entries if isinstance(item, Mapping)]
+        return [_strip_legacy_runtime_fields(item) for item in entries if isinstance(item, Mapping)]
 
-    return [dict(payload)]
+    return [_strip_legacy_runtime_fields(payload)]
+
+
+def _strip_legacy_runtime_fields(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        cleaned: dict[str, Any] = {}
+        for key, item in value.items():
+            if str(key).startswith("mechanical_"):
+                continue
+            cleaned[str(key)] = _strip_legacy_runtime_fields(item)
+        return cleaned
+    if isinstance(value, list):
+        return [_strip_legacy_runtime_fields(item) for item in value]
+    return value
 
 
 def _load_container(path: Path, prefix: str, date_slug: str) -> dict[str, Any]:
@@ -111,7 +124,7 @@ def _normalize_legacy_entry(
     daily_filename: str,
     index: int,
 ) -> dict[str, Any]:
-    normalized = dict(entry)
+    normalized = _strip_legacy_runtime_fields(entry)
     recorded_at = infer_recorded_at(legacy_path, normalized)
     if recorded_at is not None:
         normalized.setdefault("logged_at_utc", _json_utc(recorded_at))
@@ -316,7 +329,7 @@ def write_signal_log(signal: Mapping[str, Any], prefix: str = "signal", log_dir:
     output_file = _daily_output_file(output_dir, prefix, date_slug)
     output_file.parent.mkdir(exist_ok=True)
 
-    payload = dict(signal)
+    payload = _strip_legacy_runtime_fields(signal)
     payload["logged_at_utc"] = _json_utc(timestamp)
     payload["log_filename"] = output_file.name
     payload["log_entry_id"] = _timestamp_slug(timestamp)

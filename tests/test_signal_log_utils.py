@@ -116,6 +116,54 @@ class SignalLogUtilsTests(unittest.TestCase):
         self.assertEqual(len(entries), 2)
         self.assertNotEqual(entries[0]["log_entry_id"], entries[1]["log_entry_id"])
 
+    def test_write_signal_log_strips_legacy_mechanical_fields(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output = write_signal_log(
+                {
+                    "timestamp": "2026-03-12T12:04:00Z",
+                    "confluence_score": 45,
+                    "mechanical_confluence_score": 10,
+                    "mechanical_confluence_components": {"adx": 0},
+                },
+                log_dir=Path(tmpdir),
+            )
+            entries = read_signal_log_entries(output)
+
+        latest = entries[-1]
+        self.assertEqual(latest["confluence_score"], 45)
+        self.assertNotIn("mechanical_confluence_score", latest)
+        self.assertNotIn("mechanical_confluence_components", latest)
+
+    def test_write_signal_log_rewrites_existing_daily_entries_without_legacy_mechanical_fields(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_dir = Path(tmpdir)
+            daily_path = log_dir / f"signal_{datetime.now(tz=UTC).strftime('%Y%m%d')}.json"
+            daily_path.write_text(
+                json.dumps(
+                    {
+                        "log_type": "signal",
+                        "log_date_utc": "2026-03-12",
+                        "entries": [
+                            {
+                                "timestamp": "2026-03-12T12:04:00Z",
+                                "confluence_score": 35,
+                                "mechanical_confluence_score": 10,
+                                "mechanical_direction_implied": "BUY",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            write_signal_log({"timestamp": "2026-03-12T12:14:00Z"}, log_dir=log_dir)
+            payload = json.loads(daily_path.read_text(encoding="utf-8"))
+
+        first_entry = payload["entries"][0]
+        self.assertEqual(first_entry["confluence_score"], 35)
+        self.assertNotIn("mechanical_confluence_score", first_entry)
+        self.assertNotIn("mechanical_direction_implied", first_entry)
+
     def test_latest_signal_log_entry_reads_latest_aggregate_entry(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "signal_20260313.json"

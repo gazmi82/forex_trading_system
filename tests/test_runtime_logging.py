@@ -98,7 +98,6 @@ class RuntimeLoggingTests(unittest.TestCase):
                 "session": "NY Kill Zone",
                 "execution_allowed": True,
                 "execution_direction": "BUY",
-                "mechanical_confluence_score": 80,
                 "confluence_score": 82,
                 "signal": {
                     "direction": "BUY",

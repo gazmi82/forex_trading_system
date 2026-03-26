@@ -352,7 +352,6 @@ def run_edge_report(
     print("\n✅ Edge report generated:")
     print(f"  Trades:        {summary.total_trades}")
     print(f"  Best session:  {summary.best_session or 'N/A'}")
-    print(f"  Predictor:     {summary.better_predictor}")
     print(f"  Output file:   {summary.output_path}")
     return True
 
@@ -511,12 +510,11 @@ def run_demo_loop(agent, oanda_builder=None, executor=None):  # noqa: C901
                 print_signal_runtime_issue(signal)
                 direction  = signal.get("signal", {}).get("direction", "NEUTRAL")
                 confidence = signal.get("signal", {}).get("confidence", 0)
-                claude_score = signal.get("confluence_score", 0)
-                mechanical_score = signal.get("mechanical_confluence_score", 0)
+                score = signal.get("confluence_score", 0)
                 execution_label = "EXECUTE" if signal.get("execution_allowed") else "BLOCKED"
                 print(
                     f"  Signal:  {direction} | {confidence}% | "
-                    f"Claude: {claude_score}/100 | Mechanical: {mechanical_score}/100 | "
+                    f"Score: {score}/100 | "
                     f"{execution_label}"
                 )
 

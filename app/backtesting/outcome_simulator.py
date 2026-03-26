@@ -176,7 +176,7 @@ class OutcomeSimulator:
             direction=direction,
             technical_analysis=(signal.get("technical_analysis") if isinstance(signal.get("technical_analysis"), dict) else {}),
             macro_bias=(signal.get("macro_bias") if isinstance(signal.get("macro_bias"), dict) else {}),
-            mechanical_score=signal.get("mechanical_confluence_score", signal.get("confluence_score")),
+            confluence_score=signal.get("confluence_score"),
         )
         time_stop_after = fill_time + timedelta(hours=max_hours)
         close_pct = float(self.config.get("tp1_close_percent", 0.50))
@@ -420,10 +420,9 @@ class OutcomeSimulator:
     ) -> dict[str, Any]:
         signal_payload = signal.get("signal") or {}
         confidence = int(signal_payload.get("confidence", 0) or 0)
-        mechanical = int(signal.get("mechanical_confluence_score", signal.get("confluence_score", 0)) or 0)
         validator_overrides = list(signal.get("validator_overrides") or [])
         setup_grade = TradeJournal._grade_setup(
-            mechanical,
+            int(signal.get("confluence_score", 0) or 0),
             confidence,
             float(risk_reward or 0),
             validator_overrides,
@@ -431,7 +430,6 @@ class OutcomeSimulator:
         synthetic_trade = {
             "entry_price": entry_price,
             "confluence": signal.get("confluence_score", 0),
-            "mechanical_confluence": mechanical,
             "confidence": confidence,
             "risk_reward": risk_reward,
             "validator_overrides": validator_overrides,
@@ -459,7 +457,6 @@ class OutcomeSimulator:
             "duration_hours": round((close_time - fill_time).total_seconds() / 3600, 2),
             "session": signal.get("session", ""),
             "confluence_score": signal.get("confluence_score", 0),
-            "mechanical_confluence_score": mechanical,
             "close_reason": close_reason,
             "close_reason_detail": _close_reason_detail(close_reason),
             "setup_grade": setup_grade,

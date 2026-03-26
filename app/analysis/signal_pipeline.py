@@ -6,7 +6,6 @@ import re
 from datetime import datetime
 from typing import Any, Callable, Mapping
 
-from app.analysis.confluence_scorer import calculate_confluence
 from app.analysis.scheduler import ALLOWED_ENTRY_SESSIONS
 
 
@@ -124,9 +123,9 @@ def validate_signal(
     Apply all deterministic runtime gates after Claude returns.
 
     This function is the single place where a proposed signal becomes either
-    executable or blocked. It preserves Claude's original payload, computes the
-    mechanical score, and records explicit override reasons instead of mutating
-    the proposal into an ambiguous partial state.
+    executable or blocked. It preserves Claude's original payload, attaches the
+    runtime technical fields the executor needs, and records explicit override
+    reasons instead of mutating the proposal into an ambiguous partial state.
     """
     port = market_data.get("portfolio", {})
     fund = market_data.get("fundamental", {})
@@ -142,9 +141,6 @@ def validate_signal(
             overrides.append("BLOCKED: Claude API unavailable")
         else:
             overrides.append("BLOCKED: Claude response parsing failed")
-        signal["mechanical_confluence_score"] = 0
-        signal["mechanical_confluence_components"] = {}
-        signal["mechanical_direction_implied"] = "NEUTRAL"
         signal["execution_allowed"] = False
         signal["execution_direction"] = "NEUTRAL"
         if market_data.get("demo_mode", True):
@@ -154,21 +150,6 @@ def validate_signal(
         logger.warning("Signal blocked: %s", overrides)
         return signal
 
-    try:
-        mech_result = calculate_confluence(market_data, signal)
-        mech_score = mech_result["confluence_score"]
-    except Exception as exc:
-        logger.warning("Mechanical confluence scorer failed: %s", exc)
-        mech_score = 0
-        mech_result = {
-            "confluence_score": 0,
-            "direction_implied": "NEUTRAL",
-            "component_scores": {},
-        }
-
-    signal["mechanical_confluence_score"] = mech_score
-    signal["mechanical_confluence_components"] = mech_result.get("component_scores", {})
-    signal["mechanical_direction_implied"] = mech_result.get("direction_implied", "NEUTRAL")
     _attach_runtime_technical_details(signal, market_data)
 
     def block(reason: str):
@@ -178,10 +159,12 @@ def validate_signal(
         overrides.append(reason)
 
     min_confidence = int(config.get("min_confidence", 65))
-    if mech_score < min_confidence:
+    claude_score = _safe_score(signal.get("confluence_score"))
+    signal["confluence_score"] = claude_score
+    if claude_score < min_confidence:
         block(
-            f"BLOCKED: Mechanical confluence score too low "
-            f"({mech_score}/100, minimum {min_confidence}; Claude scored {signal.get('confluence_score', 0)})"
+            f"BLOCKED: Claude confluence score too low "
+            f"({claude_score}/100, minimum {min_confidence})"
         )
 
     session = fund.get("active_session", signal.get("session", ""))
@@ -263,3 +246,8 @@ def _attach_runtime_technical_details(signal: dict[str, Any], market_data: Mappi
         atr_1h = indicators.get("atr_1h")
         if atr_1h not in (None, ""):
             technical["atr_1h"] = atr_1h
+def _safe_score(value: Any) -> int:
+    try:
+        return int(float(value or 0))
+    except (TypeError, ValueError):
+        return 0

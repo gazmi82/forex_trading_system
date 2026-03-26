@@ -135,9 +135,7 @@ def _bucketed_score_stats(trades: list[dict[str, Any]]) -> dict[str, dict[str, A
         "85+": [],
     }
     for trade in trades:
-        score = int(
-            trade.get("mechanical_confluence_score", trade.get("confluence_score", 0)) or 0
-        )
+        score = int(trade.get("confluence_score", 0) or 0)
         if score >= 85:
             buckets["85+"].append(trade)
         elif score >= 75:

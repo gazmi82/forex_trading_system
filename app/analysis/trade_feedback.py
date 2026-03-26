@@ -537,7 +537,6 @@ Stop Loss: {trade_record.get('stop_loss')}
 Take Profit: {trade_record.get('take_profit')}
 Lot Size: {trade_record.get('lot_size')}
 Claude Confluence Score: {trade_record.get('confluence_score')}
-Mechanical Confluence Score: {trade_record.get('mechanical_confluence_score')}
 
 ORIGINAL REASONING:
 {trade_record.get('original_reasoning', 'Not recorded')}
@@ -584,7 +583,7 @@ DATA GAPS / WHY SOME DETAILS ARE MISSING:
             f"| PnL (USD) | {trade_record.get('pnl_usd', '')} |\n"
             f"| Duration (hours) | {trade_record.get('duration_hours', '')} |\n"
             f"| Claude Confluence Score | {trade_record.get('confluence_score', '')} |\n"
-            f"| Mechanical Confluence Score | {trade_record.get('mechanical_confluence_score', '')} |\n\n"
+            f"\n"
             f"## Setup Analysis\n\n"
             f"| Dimension | Value |\n"
             f"|-----------|-------|\n"

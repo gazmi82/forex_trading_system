@@ -46,7 +46,7 @@ class RuntimeGuardTests(unittest.TestCase):
         self.assertEqual(_classify_news_risk(None, "25 minutes"), "HIGH")
         self.assertEqual(_classify_news_risk(None, None), "LOW")
 
-    def test_validate_signal_preserves_claude_score_and_blocks_execution(self):
+    def test_validate_signal_blocks_when_claude_score_is_below_threshold(self):
         agent = ForexAnalystAgent.__new__(ForexAnalystAgent)
         agent.config = {
             "min_confidence": 65,
@@ -58,7 +58,7 @@ class RuntimeGuardTests(unittest.TestCase):
         agent._has_session_loss_streak = lambda session, limit=2: False
 
         signal = {
-            "confluence_score": 80,
+            "confluence_score": 60,
             "signal": {
                 "direction": "BUY",
                 "confidence": 80,
@@ -103,13 +103,12 @@ class RuntimeGuardTests(unittest.TestCase):
 
         result = agent._validate_signal(signal, market_data)
 
-        self.assertEqual(result["confluence_score"], 80)
-        self.assertLess(result["mechanical_confluence_score"], 65)
+        self.assertEqual(result["confluence_score"], 60)
         self.assertEqual(result["signal"]["direction"], "BUY")
         self.assertFalse(result["execution_allowed"])
         self.assertEqual(result["execution_direction"], "NEUTRAL")
         self.assertTrue(
-            any("Mechanical confluence score too low" in item for item in result["validator_overrides"])
+            any("Claude confluence score too low" in item for item in result["validator_overrides"])
         )
 
     def test_validate_signal_blocks_when_weekly_loss_would_be_exceeded(self):
@@ -185,8 +184,7 @@ class RuntimeGuardTests(unittest.TestCase):
             signal = {
                 "session": "NY Kill Zone",
                 "execution_allowed": False,
-                "validator_overrides": ["BLOCKED: Mechanical confluence score too low (10/100, minimum 65; Claude scored 80)"],
-                "mechanical_confluence_score": 10,
+                "validator_overrides": ["BLOCKED: Claude confluence score too low (10/100, minimum 65)"],
                 "confluence_score": 80,
                 "signal": {
                     "direction": "BUY",
@@ -198,7 +196,7 @@ class RuntimeGuardTests(unittest.TestCase):
             result = executor.execute_signal(signal)
 
         self.assertFalse(result["executed"])
-        self.assertIn("Mechanical confluence score too low", result["reason"])
+        self.assertIn("Claude confluence score too low", result["reason"])
 
     def test_executor_blocks_when_weekly_loss_limit_hit(self):
         class _DummyClient:
@@ -240,7 +238,6 @@ class RuntimeGuardTests(unittest.TestCase):
             signal = {
                 "session": "NY Kill Zone",
                 "execution_allowed": True,
-                "mechanical_confluence_score": 80,
                 "confluence_score": 82,
                 "signal": {
                     "direction": "BUY",

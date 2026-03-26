@@ -1,15 +1,15 @@
 """
-Unit tests for the mechanical confluence scorer (Phase 1, Item 1.1).
+Unit tests for the deterministic replay confluence scorer.
 
-All 13 components are tested independently (acceptance criterion 3).
-Determinism is verified (acceptance criterion 1).
-Score-range thresholds are verified against STRONG / MODERATE thresholds (criterion 2).
+All 13 components are tested independently.
+Determinism is verified.
+Score-range thresholds are verified against STRONG / MODERATE thresholds.
 """
 from __future__ import annotations
 
 import unittest
 
-from app.analysis.confluence_scorer import (
+from app.backtesting.replay_confluence import (
     _score_adx,
     _score_cot,
     _score_dxy,
@@ -380,13 +380,13 @@ class TestNewsClear(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# 4. Integration: Claude score and mechanical score can diverge
+# 4. Integration: replay score and Claude confidence can diverge
 # ---------------------------------------------------------------------------
 
-class TestClaudeVsMechanicalDivergence(unittest.TestCase):
-    def test_mechanical_score_can_be_much_lower_than_claude_confidence(self):
+class TestClaudeVsReplayDivergence(unittest.TestCase):
+    def test_replay_score_can_be_much_lower_than_claude_confidence(self):
         """
-        Mechanical confluence is computed independently from Claude's own
+        Replay confluence is computed independently from Claude's own
         confidence or score fields. Weak structure should still score < 65.
         """
         # All-negative market_data for a BUY direction

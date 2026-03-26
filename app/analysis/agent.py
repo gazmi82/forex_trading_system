@@ -85,13 +85,12 @@ class ForexAnalystAgent:
 
         direction = signal.get("signal", {}).get("direction", "NEUTRAL")
         confidence = signal.get("signal", {}).get("confidence", 0)
-        claude_score = signal.get("confluence_score", 0)
-        mechanical_score = signal.get("mechanical_confluence_score", 0)
+        score = signal.get("confluence_score", 0)
         execution_label = "EXECUTE" if signal.get("execution_allowed") else "BLOCKED"
         label = "Fallback Signal" if runtime_issue else "Signal"
         print(
             f"\n  📊 {label}: {direction} | Confidence: {confidence}% | "
-            f"Claude Score: {claude_score}/100 | Mechanical: {mechanical_score}/100 | "
+            f"Score: {score}/100 | "
             f"{execution_label}"
         )
 
@@ -219,8 +218,8 @@ class ForexAnalystAgent:
         Persist a closed-trade outcome into both learning systems.
 
         1. TradeFeedbackManager stores the human-readable lesson/memory.
-        2. The calibration log is updated so mechanical vs Claude scoring can
-           be evaluated against actual outcomes later.
+        2. The calibration log is updated so Claude's score can be evaluated
+           against actual outcomes later.
         """
         lesson = self._generate_trade_lesson(trade_record)
         if lesson:

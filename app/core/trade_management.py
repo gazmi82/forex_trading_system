@@ -56,7 +56,7 @@ def resolve_adaptive_time_stop_hours(
     direction: str,
     technical_analysis: Mapping[str, Any] | None = None,
     macro_bias: Mapping[str, Any] | None = None,
-    mechanical_score: Any = None,
+    confluence_score: Any = None,
 ) -> tuple[float, list[str]]:
     """
     Build a custom time window from the session base plus deterministic
@@ -97,7 +97,7 @@ def resolve_adaptive_time_stop_hours(
         extension += _coerce_nonnegative_float(ext_cfg.get("high_volatility_hours"), 1.0)
         reasons.append("high_volatility")
 
-    score_value = _coerce_nonnegative_float(mechanical_score, 0.0)
+    score_value = _coerce_nonnegative_float(confluence_score, 0.0)
     if score_value >= _coerce_nonnegative_float(ext_cfg.get("strong_signal_threshold"), 85.0):
         extension += _coerce_nonnegative_float(ext_cfg.get("strong_signal_hours"), 0.5)
         reasons.append("strong_confluence")

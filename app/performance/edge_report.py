@@ -15,7 +15,6 @@ class EdgeReportSummary:
     total_trades: int
     best_session: str
     best_session_expectancy_r: float
-    better_predictor: str
     output_path: str
 
 
@@ -57,14 +56,10 @@ class EdgeReportGenerator:
         best_session_expectancy = float(
             (((report.get("key_findings") or {}).get("best_session_by_expectancy") or {}).get("expectancy_r") or 0.0)
         )
-        better_predictor = str(
-            ((report.get("score_predictiveness") or {}).get("better_predictor") or "insufficient_data")
-        )
         return EdgeReportSummary(
             total_trades=int(report.get("total_trades", 0) or 0),
             best_session=best_session,
             best_session_expectancy_r=round(best_session_expectancy, 4),
-            better_predictor=better_predictor,
             output_path=str(target),
         )
 
@@ -83,15 +78,12 @@ class EdgeReportGenerator:
         root_cause_stats = _group_stats_by_value(cleaned, "root_cause", min_samples=threshold)
         tag_stats = _group_stats_by_tags(cleaned, min_samples=threshold)
         tag_pair_stats = _group_stats_by_tag_pairs(cleaned, min_samples=threshold)
-        mechanical_buckets = _group_stats_by_bucket(
+        score_buckets = _group_stats_by_bucket(
             cleaned,
-            score_getter=lambda row: _safe_int(row.get("mechanical_confluence_score")),
+            score_getter=lambda row: _safe_int(row.get("confluence_score")),
             min_samples=threshold,
         )
-
-        mechanical_predictiveness = _score_predictiveness(cleaned, "mechanical_confluence_score")
-        claude_predictiveness = _score_predictiveness(cleaned, "confluence_score")
-        better_predictor = _better_predictor(mechanical_predictiveness, claude_predictiveness)
+        score_predictiveness = _score_predictiveness(cleaned, "confluence_score")
 
         report = {
             "generated_at_utc": _utc_now(),
@@ -104,12 +96,8 @@ class EdgeReportGenerator:
             "root_cause_breakdown": root_cause_stats,
             "pattern_tag_breakdown": tag_stats,
             "pattern_tag_pair_breakdown": tag_pair_stats,
-            "mechanical_score_bucket_breakdown": mechanical_buckets,
-            "score_predictiveness": {
-                "mechanical": mechanical_predictiveness,
-                "claude": claude_predictiveness,
-                "better_predictor": better_predictor,
-            },
+            "confluence_score_bucket_breakdown": score_buckets,
+            "score_predictiveness": score_predictiveness,
         }
         report["key_findings"] = self._build_key_findings(
             report,
@@ -170,7 +158,6 @@ class EdgeReportGenerator:
             "evidence_notes": _evidence_notes(
                 best_session=_best_group(session_stats),
                 best_grade=_best_group(grade_stats),
-                better_predictor=str((report.get("score_predictiveness") or {}).get("better_predictor") or ""),
                 min_samples=min_samples,
             ),
         }
@@ -305,12 +292,12 @@ def _score_predictiveness(trades: list[dict[str, Any]], score_key: str) -> dict[
         "bucket_breakdown": _group_stats_by_bucket(
             [
                 {
-                    "mechanical_confluence_score": row["score"],
+                    "confluence_score": row["score"],
                     "pnl_r": row["pnl_r"],
                 }
                 for row in scored_rows
             ],
-            score_getter=lambda row: _safe_int(row.get("mechanical_confluence_score")),
+            score_getter=lambda row: _safe_int(row.get("confluence_score")),
             min_samples=1,
         ),
     }
@@ -323,12 +310,7 @@ def _stats_for_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     breakeven = len(rows) - wins - losses
     gross_profit = sum(pnl for pnl in pnls if pnl > 0)
     gross_loss = sum(pnl for pnl in pnls if pnl < 0)
-    mechanical_scores = [
-        score
-        for score in (_safe_int(row.get("mechanical_confluence_score")) for row in rows)
-        if score is not None
-    ]
-    claude_scores = [
+    confluence_scores = [
         score
         for score in (_safe_int(row.get("confluence_score")) for row in rows)
         if score is not None
@@ -344,11 +326,8 @@ def _stats_for_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "gross_profit_r": round(gross_profit, 4),
         "gross_loss_r": round(gross_loss, 4),
         "profit_factor": None if gross_loss == 0 else round(gross_profit / abs(gross_loss), 4),
-        "avg_mechanical_score": round(sum(mechanical_scores) / len(mechanical_scores), 4)
-        if mechanical_scores
-        else None,
-        "avg_claude_score": round(sum(claude_scores) / len(claude_scores), 4)
-        if claude_scores
+        "avg_confluence_score": round(sum(confluence_scores) / len(confluence_scores), 4)
+        if confluence_scores
         else None,
     }
 
@@ -397,22 +376,6 @@ def _pearson(xs: list[int | float], ys: list[int | float]) -> float | None:
         return None
     numer = sum(x * y for x, y in zip(diff_x, diff_y))
     return round(numer / (denom_x * denom_y), 4)
-
-
-def _better_predictor(mechanical: dict[str, Any], claude: dict[str, Any]) -> str:
-    mech_corr = mechanical.get("pnl_correlation")
-    claude_corr = claude.get("pnl_correlation")
-    if mech_corr is None and claude_corr is None:
-        return "insufficient_data"
-    if claude_corr is None:
-        return "mechanical"
-    if mech_corr is None:
-        return "claude"
-    if abs(mech_corr - claude_corr) < 0.05:
-        return "tie"
-    return "mechanical" if mech_corr > claude_corr else "claude"
-
-
 def _best_group(groups: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
     if not groups:
         return None
@@ -506,7 +469,6 @@ def _evidence_notes(
     *,
     best_session: dict[str, Any] | None,
     best_grade: dict[str, Any] | None,
-    better_predictor: str,
     min_samples: int,
 ) -> list[str]:
     notes = [
@@ -520,8 +482,6 @@ def _evidence_notes(
         notes.append(
             f"Highest expectancy setup grade is {best_grade['name']} ({best_grade['expectancy_r']}R)."
         )
-    if better_predictor and better_predictor != "insufficient_data":
-        notes.append(f"Current score predictor winner: {better_predictor}.")
     return notes
 
 

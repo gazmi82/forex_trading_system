@@ -27,7 +27,6 @@ class PerformanceReportTests(unittest.TestCase):
                 "setup_grade": "A",
                 "root_cause": "CORRECT_PROCESS_CORRECT_OUTCOME",
                 "pattern_tags": ["ny_kill_zone", "ob_entry", "post_sweep", "grade_a"],
-                "mechanical_confluence_score": 90,
                 "confluence_score": 70,
                 "pnl_r": 1.5,
                 "outcome": "WIN",
@@ -38,7 +37,6 @@ class PerformanceReportTests(unittest.TestCase):
                 "setup_grade": "A",
                 "root_cause": "CORRECT_PROCESS_CORRECT_OUTCOME",
                 "pattern_tags": ["ny_kill_zone", "ob_entry", "post_sweep", "grade_a"],
-                "mechanical_confluence_score": 88,
                 "confluence_score": 95,
                 "pnl_r": 1.0,
                 "outcome": "WIN",
@@ -49,7 +47,6 @@ class PerformanceReportTests(unittest.TestCase):
                 "setup_grade": "B",
                 "root_cause": "CORRECT_PROCESS_ADVERSE_OUTCOME",
                 "pattern_tags": ["ny_kill_zone", "ob_entry", "discount_zone", "grade_b"],
-                "mechanical_confluence_score": 78,
                 "confluence_score": 89,
                 "pnl_r": 0.0,
                 "outcome": "BREAKEVEN",
@@ -60,7 +57,6 @@ class PerformanceReportTests(unittest.TestCase):
                 "setup_grade": "C",
                 "root_cause": "MARGINAL_SETUP_POOR_OUTCOME",
                 "pattern_tags": ["london_close", "fvg_confluence", "news_day", "grade_c"],
-                "mechanical_confluence_score": 68,
                 "confluence_score": 92,
                 "pnl_r": -1.0,
                 "outcome": "LOSS",
@@ -71,7 +67,6 @@ class PerformanceReportTests(unittest.TestCase):
                 "setup_grade": "C",
                 "root_cause": "MARGINAL_SETUP_POOR_OUTCOME",
                 "pattern_tags": ["london_close", "fvg_confluence", "news_day", "grade_c"],
-                "mechanical_confluence_score": 66,
                 "confluence_score": 94,
                 "pnl_r": -0.5,
                 "outcome": "LOSS",
@@ -82,7 +77,6 @@ class PerformanceReportTests(unittest.TestCase):
                 "setup_grade": "B",
                 "root_cause": "CORRECT_PROCESS_ADVERSE_OUTCOME",
                 "pattern_tags": ["london_close", "ob_entry", "grade_b"],
-                "mechanical_confluence_score": 72,
                 "confluence_score": 90,
                 "pnl_r": -0.25,
                 "outcome": "LOSS",
@@ -93,14 +87,13 @@ class PerformanceReportTests(unittest.TestCase):
                 "setup_grade": "B",
                 "root_cause": "CORRECT_PROCESS_CORRECT_OUTCOME",
                 "pattern_tags": ["london_kill_zone", "ob_entry", "grade_b"],
-                "mechanical_confluence_score": 84,
                 "confluence_score": 82,
                 "pnl_r": 0.75,
                 "outcome": "WIN",
             },
         ]
 
-    def test_edge_report_aggregates_sessions_tags_and_predictor_strength(self):
+    def test_edge_report_aggregates_sessions_tags_and_confluence_buckets(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             base = Path(tmpdir)
             trades_path = _write_trades(base, self._sample_trades())
@@ -116,12 +109,12 @@ class PerformanceReportTests(unittest.TestCase):
         self.assertIn("CORRECT_PROCESS_ADVERSE_OUTCOME", report["root_cause_breakdown"])
         self.assertIn("ob_entry", report["pattern_tag_breakdown"])
         self.assertIn("ny_kill_zone + ob_entry", report["pattern_tag_pair_breakdown"])
-        self.assertIn("<70", report["mechanical_score_bucket_breakdown"])
+        self.assertIn("90+", report["confluence_score_bucket_breakdown"])
         self.assertEqual(
             report["key_findings"]["best_session_by_expectancy"]["name"],
             "NY Kill Zone",
         )
-        self.assertEqual(report["score_predictiveness"]["better_predictor"], "mechanical")
+        self.assertIn("pnl_correlation", report["score_predictiveness"])
         self.assertTrue(
             any("London Close" in item for item in report["key_findings"]["suggested_filters"])
         )
@@ -140,7 +133,7 @@ class PerformanceReportTests(unittest.TestCase):
 
         self.assertEqual(summary.total_trades, 6)
         self.assertIn("Trades taken: 6", markdown)
-        self.assertIn("Mechanical score accuracy: 2/6 positive outcomes", markdown)
+        self.assertIn("Positive outcomes this week: 2/6", markdown)
         self.assertIn("Top pattern this week:", markdown)
         self.assertIn("## Action Items", markdown)
         self.assertIn("Grade C setups 0W/2L this week", markdown)
