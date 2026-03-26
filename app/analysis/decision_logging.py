@@ -6,6 +6,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from app.core.runtime_store import append_decision
+from app.core.runtime_sync import sync_decision
 
 _CALIBRATION_MIN_SAMPLES = 50
 
@@ -42,6 +44,8 @@ def log_analysis(
     log_file = log_dir / "agent_decisions.jsonl"
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry) + "\n")
+    append_decision(log_entry)
+    sync_decision(log_entry, log_dir=log_dir)
 
     claude_score = _safe_score(signal.get("confluence_score"))
     direction = (signal.get("signal") or {}).get("direction", "NEUTRAL")

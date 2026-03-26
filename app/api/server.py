@@ -9,7 +9,7 @@ from typing import Any, Literal
 from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
@@ -40,7 +40,20 @@ from app.api.models import (
 from app.brokers.oanda import MarketDataBuilder
 from app.core.config import LOGS_DIR, TRADING_CONFIG
 from app.core.runtime_logging import configure_app_logging
+from app.core.runtime_store import (
+    append_closed_trade as _store_append_closed_trade,
+    append_decision as _store_append_decision,
+    append_trade_history as _store_append_trade_history,
+    current_open_trades as _store_current_open_trades,
+    latest_closed_trades as _store_latest_closed_trades,
+    latest_decisions as _store_latest_decisions,
+    latest_signal as _store_latest_signal,
+    latest_trade_history as _store_latest_trade_history,
+    replace_open_trades_snapshot as _store_replace_open_trades_snapshot,
+    upsert_signal as _store_upsert_signal,
+)
 from app.logs.signal_logs import write_signal_log
+from app.logs.signal_logs import is_signal_failure, parse_utc_datetime
 
 DEFAULT_CORS_ORIGINS = [
     "http://localhost:3000",
@@ -241,6 +254,33 @@ def _frontend_contract(*, now_utc: datetime | None = None) -> FrontendContractRe
     )
 
 
+def _runtime_sync_authorized(request: Request) -> bool:
+    configured = os.getenv("RUNTIME_SYNC_TOKEN", "").strip()
+    if not configured:
+        return True
+    return request.headers.get("X-Runtime-Sync-Token", "").strip() == configured
+
+
+def _signal_envelope_from_store(payload: dict[str, Any], *, now_utc: datetime) -> LogEnvelope:
+    recorded_at_dt = parse_utc_datetime(payload.get("logged_at_utc")) or parse_utc_datetime(payload.get("timestamp")) or now_utc
+    age_seconds = max(int((now_utc - recorded_at_dt).total_seconds()), 0)
+    status = "OK"
+    if is_signal_failure(payload):
+        status = "FAILED"
+    if age_seconds > SIGNAL_STALE_AFTER_SECONDS:
+        status = "STALE_FAILED" if status == "FAILED" else "STALE"
+    recorded_at = recorded_at_dt.isoformat().replace("+00:00", "Z")
+    return LogEnvelope(
+        filename=str(payload.get("log_filename") or ""),
+        modified_at=recorded_at,
+        recorded_at=recorded_at,
+        age_seconds=age_seconds,
+        is_stale=age_seconds > SIGNAL_STALE_AFTER_SECONDS,
+        status=status,
+        data=payload,
+    )
+
+
 def _serialize_candles(df: Any) -> list[dict[str, Any]]:
     candles: list[dict[str, Any]] = []
     for row in df.reset_index().itertuples(index=False):
@@ -406,6 +446,9 @@ def feed_diagnostics(
 def latest_signal(
     kind: Literal["signal", "test_signal"] = Query("signal"),
 ) -> LogEnvelope | None:
+    stored = _store_latest_signal(kind=kind)
+    if stored is not None:
+        return _signal_envelope_from_store(stored, now_utc=_utc_now())
     latest = _latest_signal_file(kind)
     if latest is None:
         return None
@@ -414,6 +457,9 @@ def latest_signal(
 
 @app.get("/api/trades/open", response_model=ItemListResponse)
 def open_trades() -> ItemListResponse:
+    stored = _store_current_open_trades()
+    if stored:
+        return ItemListResponse(count=len(stored), items=stored)
     path = LOGS_DIR / "open_trades.json"
     if not path.exists():
         return ItemListResponse(count=0, items=[])
@@ -424,6 +470,9 @@ def open_trades() -> ItemListResponse:
 
 @app.get("/api/trades/closed", response_model=ItemListResponse)
 def closed_trades(limit: int = Query(20, ge=1, le=200)) -> ItemListResponse:
+    stored = _store_latest_closed_trades(limit=limit)
+    if stored:
+        return ItemListResponse(count=len(stored), items=stored)
     path = LOGS_DIR / "closed_trades.jsonl"
     items = _load_jsonl_tail(path, limit=limit)
     return ItemListResponse(count=len(items), items=items)
@@ -431,6 +480,9 @@ def closed_trades(limit: int = Query(20, ge=1, le=200)) -> ItemListResponse:
 
 @app.get("/api/trades/history", response_model=ItemListResponse)
 def trade_history(limit: int = Query(50, ge=1, le=500)) -> ItemListResponse:
+    stored = _store_latest_trade_history(limit=limit)
+    if stored:
+        return ItemListResponse(count=len(stored), items=stored)
     path = LOGS_DIR / "trades.csv"
     items = _load_csv_tail(path, limit=limit)
     return ItemListResponse(count=len(items), items=items)
@@ -438,6 +490,9 @@ def trade_history(limit: int = Query(50, ge=1, le=500)) -> ItemListResponse:
 
 @app.get("/api/decisions/latest", response_model=ItemListResponse)
 def latest_decisions(limit: int = Query(20, ge=1, le=200)) -> ItemListResponse:
+    stored = _store_latest_decisions(limit=limit)
+    if stored:
+        return ItemListResponse(count=len(stored), items=stored)
     path = LOGS_DIR / "agent_decisions.jsonl"
     items = _load_jsonl_tail(path, limit=limit)
     return ItemListResponse(count=len(items), items=items)
@@ -459,7 +514,11 @@ def dashboard_summary(
         scheduler=scheduler,
         live_snapshot=snapshot,
         feed_diagnostics=feed_diagnostics_payload,
-        latest_signal=_log_envelope(latest_signal_file, now_utc=now_utc) if latest_signal_file else None,
+        latest_signal=(
+            _signal_envelope_from_store(_store_latest_signal(kind="signal"), now_utc=now_utc)
+            if _store_latest_signal(kind="signal") is not None
+            else (_log_envelope(latest_signal_file, now_utc=now_utc) if latest_signal_file else None)
+        ),
         open_trades=open_state,
     )
 
@@ -477,3 +536,50 @@ def log_test_failure(signal: dict[str, Any]) -> LogWriteResponse:
     """
     output = write_signal_log(signal, prefix="signal")
     return LogWriteResponse(logged_to=str(output))
+
+
+@app.post("/api/internal/runtime/signal", response_model=LogWriteResponse)
+def ingest_runtime_signal(
+    signal: dict[str, Any],
+    request: Request,
+    kind: Literal["signal", "test_signal"] = Query("signal"),
+) -> LogWriteResponse:
+    if not _runtime_sync_authorized(request):
+        raise HTTPException(status_code=401, detail="Invalid runtime sync token")
+    _store_upsert_signal(signal, kind=kind)
+    return LogWriteResponse(logged_to="runtime_store.signals")
+
+
+@app.post("/api/internal/runtime/decision", response_model=LogWriteResponse)
+def ingest_runtime_decision(payload: dict[str, Any], request: Request) -> LogWriteResponse:
+    if not _runtime_sync_authorized(request):
+        raise HTTPException(status_code=401, detail="Invalid runtime sync token")
+    _store_append_decision(payload)
+    return LogWriteResponse(logged_to="runtime_store.decisions")
+
+
+@app.post("/api/internal/runtime/open-trades", response_model=LogWriteResponse)
+def ingest_runtime_open_trades(payload: dict[str, Any], request: Request) -> LogWriteResponse:
+    if not _runtime_sync_authorized(request):
+        raise HTTPException(status_code=401, detail="Invalid runtime sync token")
+    items = payload.get("items")
+    if not isinstance(items, dict):
+        raise HTTPException(status_code=400, detail="Expected {'items': {...}} payload")
+    _store_replace_open_trades_snapshot(items)
+    return LogWriteResponse(logged_to="runtime_store.open_trades")
+
+
+@app.post("/api/internal/runtime/closed-trade", response_model=LogWriteResponse)
+def ingest_runtime_closed_trade(payload: dict[str, Any], request: Request) -> LogWriteResponse:
+    if not _runtime_sync_authorized(request):
+        raise HTTPException(status_code=401, detail="Invalid runtime sync token")
+    _store_append_closed_trade(payload)
+    return LogWriteResponse(logged_to="runtime_store.closed_trades")
+
+
+@app.post("/api/internal/runtime/trade-history", response_model=LogWriteResponse)
+def ingest_runtime_trade_history(payload: dict[str, Any], request: Request) -> LogWriteResponse:
+    if not _runtime_sync_authorized(request):
+        raise HTTPException(status_code=401, detail="Invalid runtime sync token")
+    _store_append_trade_history(payload)
+    return LogWriteResponse(logged_to="runtime_store.trade_history")

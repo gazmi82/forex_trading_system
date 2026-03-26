@@ -35,6 +35,7 @@ from app.core.runtime_health import (
     stop_demo_loop,
 )
 from app.core.runtime_alerts import load_recent_alerts, process_health_status_for_alerts
+from app.core.runtime_backfill import backfill_runtime_store_from_logs
 
 configure_app_logging(Path("logs"))
 
@@ -263,6 +264,16 @@ def run_runtime_alerts_check(*, log_dir: Path, limit: int = 20):
             f"{alert.get('summary')}"
         )
     print(f"Alerts file: {Path(log_dir) / 'alerts.jsonl'}")
+    return True
+
+
+def run_runtime_sync_backfill(*, log_dir: Path, sync_remote: bool = True):
+    print("\n" + "=" * 60)
+    print("🗂️  RUNTIME STORE BACKFILL")
+    print("=" * 60)
+    counts = backfill_runtime_store_from_logs(log_dir=log_dir, sync_remote=sync_remote)
+    for key, value in counts.items():
+        print(f"{key}: {value}")
     return True
 
 
@@ -666,7 +677,7 @@ def run_demo_loop(agent, oanda_builder=None, executor=None, *, log_dir: Path | N
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","health","alerts","backfill","replay","backtest","edge-report","weekly-summary"], default="test")
+    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","health","alerts","sync-runtime","backfill","replay","backtest","edge-report","weekly-summary"], default="test")
     parser.add_argument("--dry-run", action="store_true",
                         help="Run --mode test without placing any orders on OANDA")
     parser.add_argument("--force-outside-session", action="store_true",
@@ -760,6 +771,10 @@ def main():
             sys.exit(1)
     elif args.mode == "alerts":
         ok = run_runtime_alerts_check(log_dir=LOGS_DIR)
+        if ok is False:
+            sys.exit(1)
+    elif args.mode == "sync-runtime":
+        ok = run_runtime_sync_backfill(log_dir=LOGS_DIR, sync_remote=True)
         if ok is False:
             sys.exit(1)
     elif args.mode == "test":

@@ -31,6 +31,7 @@ __pycache__/
 
 # Logs and runtime artifacts
 /logs/
+/runtime_store/
 
 # Jupyter
 .ipynb_checkpoints/

@@ -62,8 +62,10 @@ class ApiContractTests(unittest.TestCase):
         self.assertIsNone(response.json())
 
     def test_trade_history_tolerates_legacy_rows_with_extra_columns(self):
+        original_store_path = os.environ.get("RUNTIME_STORE_PATH")
         with tempfile.TemporaryDirectory() as tmpdir:
             log_dir = Path(tmpdir)
+            os.environ["RUNTIME_STORE_PATH"] = str(log_dir / "runtime_store.sqlite3")
             trades_csv = log_dir / "trades.csv"
             trades_csv.write_text(
                 "\n".join(
@@ -78,12 +80,75 @@ class ApiContractTests(unittest.TestCase):
 
             with patch("app.api.server.LOGS_DIR", log_dir):
                 response = self.client.get("/api/trades/history")
+        if original_store_path is None:
+            os.environ.pop("RUNTIME_STORE_PATH", None)
+        else:
+            os.environ["RUNTIME_STORE_PATH"] = original_store_path
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertEqual(body["count"], 2)
         self.assertNotIn("null", body["items"][0])
         self.assertEqual(body["items"][0]["notes"], "NY Kill Zone")
+
+    def test_internal_runtime_signal_ingest_populates_public_latest_signal(self):
+        original_store_path = os.environ.get("RUNTIME_STORE_PATH")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.environ["RUNTIME_STORE_PATH"] = str(Path(tmpdir) / "runtime_store.sqlite3")
+            response = self.client.post(
+                "/api/internal/runtime/signal?kind=signal",
+                json={
+                    "timestamp": "2026-03-26T14:05:00Z",
+                    "logged_at_utc": "2026-03-26T14:05:01Z",
+                    "log_filename": "signal_20260326.json",
+                    "log_entry_id": "20260326_140501_000001",
+                    "signal": {"direction": "BUY", "confidence": 72},
+                    "confluence_score": 78,
+                    "validator_overrides": [],
+                },
+            )
+            latest = self.client.get("/api/signals/latest?kind=signal")
+        if original_store_path is None:
+            os.environ.pop("RUNTIME_STORE_PATH", None)
+        else:
+            os.environ["RUNTIME_STORE_PATH"] = original_store_path
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(latest.status_code, 200)
+        body = latest.json()
+        self.assertEqual(body["filename"], "signal_20260326.json")
+        self.assertEqual(body["data"]["signal"]["direction"], "BUY")
+        self.assertEqual(body["data"]["confluence_score"], 78)
+
+    def test_internal_runtime_trade_ingest_populates_public_closed_trades(self):
+        original_store_path = os.environ.get("RUNTIME_STORE_PATH")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.environ["RUNTIME_STORE_PATH"] = str(Path(tmpdir) / "runtime_store.sqlite3")
+            response = self.client.post(
+                "/api/internal/runtime/closed-trade",
+                json={
+                    "date": "2026-03-26",
+                    "pair": "EUR_USD",
+                    "direction": "BUY",
+                    "outcome": "WIN",
+                    "pnl_r": 1.8,
+                    "pnl_usd": 180.0,
+                    "session": "NY Kill Zone",
+                    "confluence_score": 81,
+                },
+            )
+            closed = self.client.get("/api/trades/closed?limit=20")
+        if original_store_path is None:
+            os.environ.pop("RUNTIME_STORE_PATH", None)
+        else:
+            os.environ["RUNTIME_STORE_PATH"] = original_store_path
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(closed.status_code, 200)
+        body = closed.json()
+        self.assertEqual(body["count"], 1)
+        self.assertEqual(body["items"][0]["outcome"], "WIN")
+        self.assertEqual(body["items"][0]["pair"], "EUR_USD")
 
     def test_trusted_hosts_include_render_wildcard_for_onrender_deploys(self):
         original_public_api_base_url = os.environ.get("PUBLIC_API_BASE_URL")

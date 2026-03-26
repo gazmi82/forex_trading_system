@@ -9,6 +9,8 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from dateutil.parser import isoparse
+from app.core.runtime_store import upsert_signal
+from app.core.runtime_sync import sync_signal
 
 
 UTC = ZoneInfo("UTC")
@@ -350,6 +352,9 @@ def write_signal_log(signal: Mapping[str, Any], prefix: str = "signal", log_dir:
 
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(container, f, indent=2)
+
+    upsert_signal(payload, kind=prefix)
+    sync_signal(payload, kind=prefix, log_dir=output_dir)
 
     if isinstance(signal, dict):
         signal["logged_at_utc"] = payload["logged_at_utc"]

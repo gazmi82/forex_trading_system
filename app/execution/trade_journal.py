@@ -8,6 +8,16 @@ from pathlib import Path
 from typing import Any
 
 from app.core.text_utils import normalize_pair, slugify_text
+from app.core.runtime_store import (
+    append_closed_trade,
+    append_trade_history,
+    replace_open_trades_snapshot,
+)
+from app.core.runtime_sync import (
+    sync_closed_trade,
+    sync_open_trades,
+    sync_trade_history,
+)
 from app.logs.closed_trade_stats import weekly_pnl_pct_from_closed_trades
 
 logger = logging.getLogger(__name__)
@@ -57,6 +67,8 @@ class TradeJournal:
     def save_open_trades(self, trades: dict):
         with open(self.open_trades_file, "w") as f:
             json.dump(trades, f, indent=2)
+        replace_open_trades_snapshot(trades)
+        sync_open_trades(trades, log_dir=self.log_dir)
 
     def _timeline_path(self, filename: str | None) -> Path | None:
         if not filename:
@@ -372,34 +384,37 @@ class TradeJournal:
 
     def _log_trade_open_to_csv(self, signal: dict, result: dict):
         sig = signal.get("signal", {})
-        row = ",".join(
-            str(x)
-            for x in [
-                datetime.now(timezone.utc).isoformat(),
-                result.get("order_id", ""),
-                result.get("trade_id", ""),
-                "EUR_USD",
-                sig.get("direction", ""),
-                result.get("units", 0),
-                result.get("entry_price", 0),
-                sig.get("stop_loss", 0),
-                sig.get("take_profit_1", 0),
-                sig.get("take_profit_2", 0),
-                "OPEN",
-                "0",
-                " ".join(
-                    part
-                    for part in [
-                        f"Conf:{sig.get('confidence')}",
-                        f"Score:{signal.get('confluence_score')}",
-                        f"Session:{signal.get('session', '')}",
-                    ]
-                    if part
-                ),
-            ]
-        )
+        row_payload = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "order_id": result.get("order_id", ""),
+            "trade_id": result.get("trade_id", ""),
+            "instrument": "EUR_USD",
+            "direction": sig.get("direction", ""),
+            "units": result.get("units", 0),
+            "entry_price": result.get("entry_price", 0),
+            "stop_loss": sig.get("stop_loss", 0),
+            "tp1": sig.get("take_profit_1", 0),
+            "tp2": sig.get("take_profit_2", 0),
+            "status": "OPEN",
+            "pnl": "0",
+            "notes": " ".join(
+                part
+                for part in [
+                    f"Conf:{sig.get('confidence')}",
+                    f"Score:{signal.get('confluence_score')}",
+                    f"Session:{signal.get('session', '')}",
+                ]
+                if part
+            ),
+        }
+        row = ",".join(str(row_payload[key]) for key in [
+            "timestamp", "order_id", "trade_id", "instrument", "direction",
+            "units", "entry_price", "stop_loss", "tp1", "tp2", "status", "pnl", "notes",
+        ])
         with open(self.trades_csv, "a") as f:
             f.write(row + "\n")
+        append_trade_history(row_payload)
+        sync_trade_history(row_payload, log_dir=self.log_dir)
 
     def record_order_fill(self, trade: dict, order_id: str, trade_id: str):
         trade["trade_id"] = trade_id
@@ -749,27 +764,32 @@ class TradeJournal:
         self._finalize_trade_signal_timeline(trade, feedback_record)
         with open(self.closed_trades_file, "a") as f:
             f.write(json.dumps(self._pending_feedback[-1]) + "\n")
+        append_closed_trade(feedback_record)
+        sync_closed_trade(feedback_record, log_dir=self.log_dir)
 
-        row = ",".join(
-            str(x)
-            for x in [
-                datetime.now(timezone.utc).isoformat(),
-                trade.get("order_id", ""),
-                trade.get("trade_id", ""),
-                "EUR_USD",
-                trade.get("direction", ""),
-                trade.get("units", 0),
-                trade.get("entry_price", 0),
-                trade.get("stop_loss", 0),
-                trade.get("tp1", 0),
-                trade.get("tp2", 0),
-                reason,
-                round(total_pnl, 2),
-                f"Session:{trade.get('session', '')}",
-            ]
-        )
+        history_row = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "order_id": trade.get("order_id", ""),
+            "trade_id": trade.get("trade_id", ""),
+            "instrument": "EUR_USD",
+            "direction": trade.get("direction", ""),
+            "units": trade.get("units", 0),
+            "entry_price": trade.get("entry_price", 0),
+            "stop_loss": trade.get("stop_loss", 0),
+            "tp1": trade.get("tp1", 0),
+            "tp2": trade.get("tp2", 0),
+            "status": reason,
+            "pnl": round(total_pnl, 2),
+            "notes": f"Session:{trade.get('session', '')}",
+        }
+        row = ",".join(str(history_row[key]) for key in [
+            "timestamp", "order_id", "trade_id", "instrument", "direction",
+            "units", "entry_price", "stop_loss", "tp1", "tp2", "status", "pnl", "notes",
+        ])
         with open(self.trades_csv, "a") as f:
             f.write(row + "\n")
+        append_trade_history(history_row)
+        sync_trade_history(history_row, log_dir=self.log_dir)
 
     def has_session_loss_streak(self, session: str, limit: int = 2) -> bool:
         if not session or not self.closed_trades_file.exists():

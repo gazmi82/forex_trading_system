@@ -18,6 +18,10 @@ services:
         sync: false
       - key: API_ROOT_PATH
         value: ""
+      - key: RUNTIME_STORE_PATH
+        sync: false
+      - key: RUNTIME_SYNC_TOKEN
+        sync: false
       - key: OANDA_API_KEY
         sync: false
       - key: OANDA_ACCOUNT_ID
