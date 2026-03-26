@@ -104,6 +104,15 @@ def record_runtime_event(
     with open(path, "a", encoding="utf-8") as handle:
         handle.write(json.dumps(payload, ensure_ascii=True) + "\n")
 
+    try:
+        from app.core.runtime_alerts import process_runtime_event_for_alerts
+
+        process_runtime_event_for_alerts(payload, log_dir=output_dir)
+    except Exception:
+        # Alert generation must never block or break the original runtime-event
+        # write path. The event log remains the source of truth.
+        pass
+
     return path
 
 

@@ -34,6 +34,7 @@ from app.core.runtime_health import (
     get_demo_loop_health,
     stop_demo_loop,
 )
+from app.core.runtime_alerts import load_recent_alerts, process_health_status_for_alerts
 
 configure_app_logging(Path("logs"))
 
@@ -230,6 +231,7 @@ def run_demo_loop_health_check(*, log_dir: Path):
     print("🩺 DEMO LOOP HEALTH")
     print("=" * 60)
     health = get_demo_loop_health(log_dir)
+    process_health_status_for_alerts(health, log_dir=log_dir)
     print(f"Status:      {health.get('status')}")
     print(f"Reason:      {health.get('reason')}")
     print(f"Loop count:  {health.get('loop_count')}")
@@ -242,6 +244,26 @@ def run_demo_loop_health_check(*, log_dir: Path):
     print(f"Last error:  {health.get('last_error')}")
     print(f"Heartbeat:   {Path(log_dir) / 'demo_loop_heartbeat.json'}")
     return health.get("status") in {"HEALTHY", "DEGRADED"}
+
+
+def run_runtime_alerts_check(*, log_dir: Path, limit: int = 20):
+    print("\n" + "=" * 60)
+    print("🚨 RUNTIME ALERTS")
+    print("=" * 60)
+    alerts = load_recent_alerts(log_dir, limit=limit)
+    if not alerts:
+        print("No runtime alerts recorded.")
+        return True
+
+    for alert in alerts:
+        print(
+            f"[{alert.get('timestamp_utc')}] "
+            f"{alert.get('severity')} "
+            f"{alert.get('alert_key')}: "
+            f"{alert.get('summary')}"
+        )
+    print(f"Alerts file: {Path(log_dir) / 'alerts.jsonl'}")
+    return True
 
 
 def _parse_backfill_datetime(value: str) -> datetime:
@@ -505,6 +527,8 @@ def run_demo_loop(agent, oanda_builder=None, executor=None, *, log_dir: Path | N
             now = datetime.utcnow().strftime("%H:%M:%S")
             print(f"\n[{now}] Loop #{analysis_count}")
             health_before = begin_demo_loop_iteration(output_dir, loop_count=analysis_count)
+            if health_before.get("status") in {"STALLED", "DEGRADED"}:
+                process_health_status_for_alerts(health_before, log_dir=output_dir)
             if health_before.get("status") == "STALLED":
                 logger.warning("Demo loop resumed after stall: %s", health_before.get("reason"))
                 record_runtime_event(
@@ -642,7 +666,7 @@ def run_demo_loop(agent, oanda_builder=None, executor=None, *, log_dir: Path | N
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","health","backfill","replay","backtest","edge-report","weekly-summary"], default="test")
+    parser.add_argument("--mode", choices=["ingest","stats","test","demo","check","health","alerts","backfill","replay","backtest","edge-report","weekly-summary"], default="test")
     parser.add_argument("--dry-run", action="store_true",
                         help="Run --mode test without placing any orders on OANDA")
     parser.add_argument("--force-outside-session", action="store_true",
@@ -732,6 +756,10 @@ def main():
             sys.exit(1)
     elif args.mode == "health":
         ok = run_demo_loop_health_check(log_dir=LOGS_DIR)
+        if ok is False:
+            sys.exit(1)
+    elif args.mode == "alerts":
+        ok = run_runtime_alerts_check(log_dir=LOGS_DIR)
         if ok is False:
             sys.exit(1)
     elif args.mode == "test":
