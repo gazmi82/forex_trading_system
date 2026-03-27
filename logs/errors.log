@@ -240,3 +240,5 @@
 2026-03-27 13:59:30,797 [ERROR] app.execution.trade_executor: Order error: broker rejected order
 2026-03-27 14:02:01,587 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
 2026-03-27 14:12:18,003 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 14:22:36,082 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 14:32:51,720 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']

@@ -9738,3 +9738,61 @@ Press Ctrl+C to stop.
   📝 Logged analysis to: logs/signal_20260327.json
 
   Next entry analysis in 10 minutes...
+
+[13:22:18] Loop #59
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15243 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Risk sentiment: NEUTRAL (SPY 642.14, 15m: +0.11%, vs MA: +0.01%)
+  ✅ News: The oil market is getting impatient and it's weighing on risk assets (Forexlive)
+  ✅ DXY: 100.08 → NEUTRAL  (1h MA: 100.09, 15m: +0.01%, vs MA: -0.01%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15243
+  Session: NY Kill Zone
+  ▶ Entry analysis active — NY Kill Zone
+2026-03-27 14:22:19,549 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 25 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 14:22:36,082 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+
+  📊 Signal: NEUTRAL | Confidence: 40% | Score: 40/100 | BLOCKED
+  Signal:  NEUTRAL | 40% | Score: 40/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[13:32:36] Loop #60
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15202 (spread: 1.8 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ DXY: 100.01 ↓ FALLING  (1h MA: 100.07, 15m: -0.06%, vs MA: -0.06%)
+  ✅ News: US stock futures continue to slide as Iran blocks two Chinese ships from Hormuz (Forexlive)
+  ✅ Risk sentiment: RISK_OFF (SPY 640.8, 15m: -0.15%, vs MA: -0.18%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15202
+  Session: NY Kill Zone
+  ▶ Entry analysis active — NY Kill Zone
+2026-03-27 14:32:37,499 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 25 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 14:32:51,720 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+
+  📊 Signal: NEUTRAL | Confidence: 40% | Score: 40/100 | BLOCKED
+  Signal:  NEUTRAL | 40% | Score: 40/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...

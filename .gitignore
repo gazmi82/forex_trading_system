@@ -31,6 +31,7 @@ __pycache__/
 
 # Runtime store artifacts
 /runtime_store/
+/logs/launchd_demo_loop.out.log
 
 # Jupyter
 .ipynb_checkpoints/
