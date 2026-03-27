@@ -242,3 +242,10 @@
 2026-03-27 14:12:18,003 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
 2026-03-27 14:22:36,082 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
 2026-03-27 14:32:51,720 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 14:43:07,974 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 14:53:25,327 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-27 15:03:45,450 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+2026-03-27 15:13:47,308 [WARNING] app.fundamentals.providers: Forex Factory calendar fetch failed (https://nfs.faireconomy.media/ff_calendar_nextweek.json): 404 Client Error: Not Found for url: https://nfs.faireconomy.media/ff_calendar_nextweek.json
+2026-03-27 15:14:02,912 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 15:24:18,535 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-27 15:34:35,484 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']

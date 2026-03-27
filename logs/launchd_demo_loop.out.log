@@ -9796,3 +9796,188 @@ Press Ctrl+C to stop.
   📝 Logged analysis to: logs/signal_20260327.json
 
   Next entry analysis in 10 minutes...
+
+[13:42:51] Loop #61
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.1527 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching FX headlines from Finnhub...
+
+  📥 Fetching EUR/USD retail positioning from OANDA position book...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ Risk sentiment: RISK_OFF (SPY 640.82, 15m: -0.27%, vs MA: -0.13%)
+  ✅ DXY: 100.04 → NEUTRAL  (1h MA: 100.06, 15m: +0.00%, vs MA: -0.02%)
+  ✅ News: US stock futures continue to slide as Iran blocks two Chinese ships from Hormuz (Forexlive)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.1527
+  Session: NY Kill Zone
+  ▶ Entry analysis active — NY Kill Zone
+2026-03-27 14:42:53,103 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 25 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 14:43:07,974 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+
+  📊 Signal: NEUTRAL | Confidence: 40% | Score: 40/100 | BLOCKED
+  Signal:  NEUTRAL | 40% | Score: 40/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[13:53:08] Loop #62
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15282 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ DXY: 99.98 ↓ FALLING  (1h MA: 100.04, 15m: -0.03%, vs MA: -0.06%)
+  ✅ News: US stock futures continue to slide as Iran blocks two Chinese ships from Hormuz (Forexlive)
+  ✅ Risk sentiment: RISK_OFF (SPY 640.54, 15m: -0.07%, vs MA: -0.16%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15282
+  Session: NY Kill Zone
+  ▶ Entry analysis active — NY Kill Zone
+2026-03-27 14:53:09,265 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 25 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 14:53:25,327 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+
+  📊 Signal: NEUTRAL | Confidence: 45% | Score: 45/100 | BLOCKED
+  Signal:  NEUTRAL | 45% | Score: 45/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[14:03:25] Loop #63
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15297 (spread: 1.8 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching FX headlines from Finnhub...
+
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Risk sentiment: RISK_OFF (SPY 639.6, 15m: -0.35%, vs MA: -0.22%)
+  ✅ News: UMich final March consumer sentiment 53.3 vs 54.0 expected (Forexlive)
+  ✅ DXY: 99.98 → NEUTRAL  (1h MA: 100.02, 15m: -0.01%, vs MA: -0.04%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15297
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 15:03:26,857 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 15:03:29,451 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.378401 seconds
+2026-03-27 15:03:30,423 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.893819 seconds
+2026-03-27 15:03:45,450 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+
+  📊 Signal: NEUTRAL | Confidence: 35% | Score: 35/100 | BLOCKED
+  Signal:  NEUTRAL | 35% | Score: 35/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[14:13:45] Loop #64
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15277 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching economic calendar from Forex Factory...
+
+  📥 Fetching FX headlines from Finnhub...  📥 Fetching EUR/USD retail positioning from OANDA position book...
+
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ Risk sentiment: NEUTRAL (SPY 639.47, 15m: +0.07%, vs MA: -0.16%)
+  ✅ News: UMich final March consumer sentiment 53.3 vs 54.0 expected (Forexlive)
+  ✅ DXY: 99.96 → NEUTRAL  (1h MA: 100.01, 15m: +0.02%, vs MA: -0.05%)
+2026-03-27 15:13:47,308 [WARNING] app.fundamentals.providers: Forex Factory calendar fetch failed (https://nfs.faireconomy.media/ff_calendar_nextweek.json): 404 Client Error: Not Found for url: https://nfs.faireconomy.media/ff_calendar_nextweek.json
+  ✅ Calendar: clear — no high-impact USD/EUR event upcoming
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15277
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 15:13:47,318 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 15:14:02,912 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+
+  📊 Signal: NEUTRAL | Confidence: 40% | Score: 40/100 | BLOCKED
+  Signal:  NEUTRAL | 40% | Score: 40/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[14:24:03] Loop #65
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15313 (spread: 1.7 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching FX headlines from Finnhub...
+
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Risk sentiment: NEUTRAL (SPY 639.44, 15m: +0.09%, vs MA: -0.12%)  ✅ News: UMich final March consumer sentiment 53.3 vs 54.0 expected (Forexlive)
+
+  ✅ DXY: 99.97 → NEUTRAL  (1h MA: 99.99, 15m: -0.04%, vs MA: -0.02%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15313
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 15:24:04,453 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 15:24:18,535 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+
+  📊 Signal: NEUTRAL | Confidence: 45% | Score: 45/100 | BLOCKED
+  Signal:  NEUTRAL | 45% | Score: 45/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[14:34:18] Loop #66
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.1529 (spread: 1.5 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching COT data from CFTC.gov...
+  📥 Fetching FX headlines from Finnhub...
+
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ DXY: 99.93 → NEUTRAL  (1h MA: 99.97, 15m: -0.03%, vs MA: -0.04%)
+  ✅ News: The Nasdaq and the S&P continue lower. What levels are in play technically? (Forexlive)  ✅ COT: BULLISH | Asset Mgr net: +294,538 | Hedge Funds: -6,952 (as of 2026-03-17)
+  ✅ Risk sentiment: RISK_OFF (SPY 639.44, 15m: -0.17%, vs MA: -0.08%)
+
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.1529
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 15:34:19,660 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 15:34:35,484 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+
+  📊 Signal: NEUTRAL | Confidence: 40% | Score: 40/100 | BLOCKED
+  Signal:  NEUTRAL | 40% | Score: 40/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
