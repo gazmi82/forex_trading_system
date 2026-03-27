@@ -1,0 +1,581 @@
+2026-03-25 21:12:39,810 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-25 21:12:39,815 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-25 21:12:39,816 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-25 21:12:39,818 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 21:12:39,820 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 21:12:39,821 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 21:12:39,822 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 21:12:39,829 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 21:12:39,831 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 21:12:46,734 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 21:12:46,736 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 21:12:46,737 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 21:12:46,738 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 21:12:46,740 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-25 21:12:46,743 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-25 21:12:46,744 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-25 21:12:47,168 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 21:12:47,171 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 21:12:47,173 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 21:12:47,175 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260325_201247_eur-usd_london-close_partial-win.md
+2026-03-25 21:12:47,177 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 21:12:47,177 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 21:12:47,179 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260325_201247_eur-usd_ny-kill-zone_win.md
+2026-03-25 21:27:37,833 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 21:27:37,839 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 21:27:37,840 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 21:27:37,842 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 21:27:37,846 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-25 21:27:37,852 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-25 21:27:37,853 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-25 21:27:38,399 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 21:27:38,402 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 21:27:38,406 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 21:27:38,408 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260325_202738_eur-usd_london-close_partial-win.md
+2026-03-25 21:27:38,412 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 21:27:38,413 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 21:27:38,415 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260325_202738_eur-usd_ny-kill-zone_win.md
+2026-03-25 21:54:20,494 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 21:54:20,497 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 21:54:20,499 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 21:54:20,501 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 21:54:20,503 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-25 21:54:20,508 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-25 21:54:20,508 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-25 21:54:21,102 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 21:54:21,105 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 21:54:21,109 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 21:54:21,112 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260325_205421_eur-usd_london-close_partial-win.md
+2026-03-25 21:54:21,116 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 21:54:21,117 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 21:54:21,119 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260325_205421_eur-usd_ny-kill-zone_win.md
+2026-03-25 22:11:11,639 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:11:11,643 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 22:11:11,644 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 22:11:11,646 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 22:12:05,987 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:12:05,990 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 22:12:05,991 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 22:12:05,993 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 22:12:05,995 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-25 22:12:06,000 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-25 22:12:06,001 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-25 22:12:06,444 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 22:12:06,448 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 22:12:06,452 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-25 22:12:06,456 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:12:06,459 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260325_211206_eur-usd_london-close_partial-win.md
+2026-03-25 22:12:06,462 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:12:06,463 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:12:06,466 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260325_211206_eur-usd_ny-kill-zone_win.md
+2026-03-25 22:19:54,927 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 22:19:54,956 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 22:19:54,976 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-25 22:19:55,399 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:19:55,401 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260325_211955_eur-usd_london-close_partial-win.md
+2026-03-25 22:19:55,403 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:19:55,404 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:19:55,406 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260325_211955_eur-usd_ny-kill-zone_win.md
+2026-03-25 22:19:55,415 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:19:55,417 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 22:19:55,418 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 22:19:55,420 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 22:20:52,433 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:20:52,437 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 22:20:52,438 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 22:20:52,440 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 22:20:52,442 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-25 22:20:52,447 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-25 22:20:52,448 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-25 22:20:53,009 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 22:20:53,013 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 22:20:53,018 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-25 22:20:53,022 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:20:53,025 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260325_212053_eur-usd_london-close_partial-win.md
+2026-03-25 22:20:53,028 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:20:53,030 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:20:53,032 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260325_212053_eur-usd_ny-kill-zone_win.md
+2026-03-25 22:38:24,286 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:38:24,289 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 22:38:24,290 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 22:38:24,293 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 22:38:24,295 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-25 22:38:24,299 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-25 22:38:24,300 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-25 22:38:24,748 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 22:38:24,750 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 22:38:24,752 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-25 22:38:24,756 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:38:24,758 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260325_213824_eur-usd_london-close_partial-win.md
+2026-03-25 22:38:24,760 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:38:24,761 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:38:24,762 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260325_213824_eur-usd_ny-kill-zone_win.md
+2026-03-25 22:48:39,788 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:48:39,795 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 22:48:39,797 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 22:48:39,799 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 22:48:39,801 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-25 22:48:39,808 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-25 22:48:39,809 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-25 22:48:40,484 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 22:48:40,492 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 22:48:40,499 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-25 22:48:40,509 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:48:40,512 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260325_214840_eur-usd_london-close_partial-win.md
+2026-03-25 22:48:40,514 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:48:40,515 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:48:40,519 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260325_214840_eur-usd_ny-kill-zone_win.md
+2026-03-25 22:50:51,631 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:50:51,635 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-25 22:50:51,637 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-25 22:50:51,638 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Mechanical confluence score too low (0/100, minimum 65; Claude scored 80)']
+2026-03-25 22:50:51,640 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-25 22:50:51,644 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-25 22:50:51,645 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-25 22:50:52,275 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-25 22:50:52,278 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-25 22:50:52,281 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-25 22:50:52,285 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:50:52,287 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260325_215052_eur-usd_london-close_partial-win.md
+2026-03-25 22:50:52,290 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-25 22:50:52,290 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-25 22:50:52,292 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260325_215052_eur-usd_ny-kill-zone_win.md
+2026-03-26 14:24:53,953 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:24:53,956 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 14:24:53,957 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 14:24:53,959 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 14:24:53,961 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:24:53,963 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_132453_eur-usd_london-close_partial-win.md
+2026-03-26 14:24:53,965 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:24:53,966 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:24:53,967 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_132453_eur-usd_ny-kill-zone_win.md
+2026-03-26 14:24:59,015 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:24:59,016 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 14:24:59,018 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 14:24:59,019 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 14:24:59,020 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 14:24:59,025 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 14:24:59,026 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 14:24:59,491 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 14:24:59,493 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 14:24:59,495 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 14:24:59,497 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:24:59,499 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_132459_eur-usd_london-close_partial-win.md
+2026-03-26 14:24:59,501 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:24:59,502 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:24:59,503 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_132459_eur-usd_ny-kill-zone_win.md
+2026-03-26 14:37:43,579 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:37:43,583 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_133743_eur-usd_london-close_partial-win.md
+2026-03-26 14:37:43,586 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:37:43,587 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:37:43,589 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_133743_eur-usd_ny-kill-zone_win.md
+2026-03-26 14:37:43,599 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:37:43,601 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 14:37:43,603 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 14:37:43,605 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 14:37:43,607 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 14:37:43,613 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 14:37:43,614 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 14:37:43,621 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 14:37:43,625 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 14:37:43,628 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 14:38:06,046 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:38:06,051 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_133806_eur-usd_london-close_partial-win.md
+2026-03-26 14:38:06,054 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:38:06,054 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:38:06,056 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_133806_eur-usd_ny-kill-zone_win.md
+2026-03-26 14:38:06,063 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:38:06,066 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 14:38:06,068 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 14:38:06,070 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 14:38:06,072 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 14:38:06,078 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 14:38:06,079 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 14:38:06,088 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 14:38:06,093 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 14:38:06,098 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 14:38:19,988 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:38:19,990 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 14:38:19,991 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 14:38:19,993 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 14:38:19,995 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 14:38:19,999 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 14:38:20,000 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 14:38:20,689 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 14:38:20,692 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 14:38:20,694 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 14:38:20,698 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:38:20,701 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_133820_eur-usd_london-close_partial-win.md
+2026-03-26 14:38:20,703 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:38:20,704 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:38:20,706 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_133820_eur-usd_ny-kill-zone_win.md
+2026-03-26 14:43:57,591 [INFO] app.rag.pipeline: VectorStore ready: trading_books (3153 docs)
+2026-03-26 14:43:57,685 [INFO] app.rag.pipeline: VectorStore ready: research_papers (554 docs)
+2026-03-26 14:43:57,689 [INFO] app.rag.pipeline: VectorStore ready: ict_knowledge (3 docs)
+2026-03-26 14:43:57,690 [INFO] app.rag.pipeline: VectorStore ready: cot_analysis (0 docs)
+2026-03-26 14:43:57,692 [INFO] app.rag.pipeline: VectorStore ready: trade_journal (0 docs)
+2026-03-26 14:43:57,698 [INFO] app.rag.pipeline: VectorStore ready: agent_feedback (2 docs)
+2026-03-26 14:43:57,914 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:43:58,192 [INFO] app.brokers.oanda: OANDA connected. Balance: 98996.3791
+2026-03-26 14:43:59,531 [WARNING] app.fundamentals.providers: Forex Factory calendar fetch failed (https://nfs.faireconomy.media/ff_calendar_nextweek.json): 404 Client Error: Not Found for url: https://nfs.faireconomy.media/ff_calendar_nextweek.json
+2026-03-26 14:43:59,541 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 14:44:16,987 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-26 14:45:04,048 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-03-26 14:45:09,764 [INFO] app.rag.pipeline: VectorStore ready: trading_books (3153 docs)
+2026-03-26 14:45:09,869 [INFO] app.rag.pipeline: VectorStore ready: research_papers (554 docs)
+2026-03-26 14:45:09,874 [INFO] app.rag.pipeline: VectorStore ready: ict_knowledge (3 docs)
+2026-03-26 14:45:09,875 [INFO] app.rag.pipeline: VectorStore ready: cot_analysis (0 docs)
+2026-03-26 14:45:09,876 [INFO] app.rag.pipeline: VectorStore ready: trade_journal (0 docs)
+2026-03-26 14:45:09,881 [INFO] app.rag.pipeline: VectorStore ready: agent_feedback (2 docs)
+2026-03-26 14:45:10,181 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:45:10,478 [INFO] app.brokers.oanda: OANDA connected. Balance: 98996.3791
+2026-03-26 14:45:11,487 [WARNING] app.fundamentals.providers: Forex Factory calendar fetch failed (https://nfs.faireconomy.media/ff_calendar_nextweek.json): 404 Client Error: Not Found for url: https://nfs.faireconomy.media/ff_calendar_nextweek.json
+2026-03-26 14:45:11,953 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 14:45:27,161 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-26 14:46:12,376 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:46:12,379 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 14:46:12,380 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 14:46:12,382 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 14:46:12,383 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 14:46:12,388 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 14:46:12,388 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 14:46:12,920 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 14:46:12,923 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 14:46:12,925 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 14:46:12,928 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:46:12,930 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_134612_eur-usd_london-close_partial-win.md
+2026-03-26 14:46:12,934 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:46:12,935 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:46:12,937 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_134612_eur-usd_ny-kill-zone_win.md
+2026-03-26 14:54:56,411 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-03-26 14:55:00,528 [INFO] app.rag.pipeline: VectorStore ready: trading_books (3153 docs)
+2026-03-26 14:55:00,632 [INFO] app.rag.pipeline: VectorStore ready: research_papers (554 docs)
+2026-03-26 14:55:00,638 [INFO] app.rag.pipeline: VectorStore ready: ict_knowledge (3 docs)
+2026-03-26 14:55:00,639 [INFO] app.rag.pipeline: VectorStore ready: cot_analysis (0 docs)
+2026-03-26 14:55:00,640 [INFO] app.rag.pipeline: VectorStore ready: trade_journal (0 docs)
+2026-03-26 14:55:00,659 [INFO] app.rag.pipeline: VectorStore ready: agent_feedback (2 docs)
+2026-03-26 14:55:01,090 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:55:01,449 [INFO] app.brokers.oanda: OANDA connected. Balance: 98996.3791
+2026-03-26 14:55:02,944 [WARNING] app.fundamentals.providers: Forex Factory calendar fetch failed (https://nfs.faireconomy.media/ff_calendar_nextweek.json): 404 Client Error: Not Found for url: https://nfs.faireconomy.media/ff_calendar_nextweek.json
+2026-03-26 14:55:03,230 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 14:55:20,561 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (55/100, minimum 65)', 'BLOCKED: Confidence too low (55%)']
+2026-03-26 14:55:28,194 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:55:28,198 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 14:55:28,199 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 14:55:28,201 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 14:55:28,267 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 14:55:28,286 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 14:55:28,287 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 14:55:28,912 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 14:55:28,914 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 14:55:28,917 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 14:55:28,920 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:55:28,923 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_135528_eur-usd_london-close_partial-win.md
+2026-03-26 14:55:28,925 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 14:55:28,926 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 14:55:28,928 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_135528_eur-usd_ny-kill-zone_win.md
+2026-03-26 15:00:55,320 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:00:55,321 [ERROR] app.analysis.agent: Claude API call failed: credit balance too low
+2026-03-26 15:00:55,324 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:00:55,325 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:00:55,326 [WARNING] app.analysis.agent: Claude circuit opened for 120s after 2 consecutive failures
+2026-03-26 15:00:55,328 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:00:55,329 [WARNING] app.analysis.agent: Claude temporarily unavailable: cooldown active until 2026-03-26T14:02:00Z
+2026-03-26 15:00:55,330 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:00:55,331 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - overloaded. Retrying in 0.0s
+2026-03-26 15:00:55,333 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:00:55,336 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 15:00:55,338 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 15:00:55,339 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 15:01:06,703 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:01:06,704 [ERROR] app.analysis.agent: Claude API call failed: credit balance too low
+2026-03-26 15:01:06,706 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:01:06,707 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:01:06,708 [WARNING] app.analysis.agent: Claude circuit opened for 120s after 2 consecutive failures
+2026-03-26 15:01:06,710 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:01:06,712 [WARNING] app.analysis.agent: Claude temporarily unavailable: cooldown active until 2026-03-26T14:02:00Z
+2026-03-26 15:01:06,714 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:01:06,714 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - overloaded. Retrying in 0.0s
+2026-03-26 15:01:06,716 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:01:06,718 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 15:01:06,720 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 15:01:06,721 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 15:01:15,309 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:01:15,309 [ERROR] app.analysis.agent: Claude API call failed: credit balance too low
+2026-03-26 15:01:15,312 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:01:15,313 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:01:15,314 [WARNING] app.analysis.agent: Claude circuit opened for 120s after 2 consecutive failures
+2026-03-26 15:01:15,316 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:01:15,317 [WARNING] app.analysis.agent: Claude temporarily unavailable: cooldown active until 2026-03-26T14:02:00Z
+2026-03-26 15:01:15,318 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:01:15,319 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - overloaded. Retrying in 0.0s
+2026-03-26 15:01:15,487 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:01:15,489 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 15:01:15,490 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 15:01:15,491 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 15:01:15,495 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 15:01:15,515 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 15:01:15,521 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 15:01:16,022 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 15:01:16,024 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 15:01:16,026 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 15:01:16,030 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 15:01:16,032 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_140116_eur-usd_london-close_partial-win.md
+2026-03-26 15:01:16,036 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:01:16,037 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 15:01:16,038 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_140116_eur-usd_ny-kill-zone_win.md
+2026-03-26 15:02:04,083 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-03-26 15:02:08,057 [INFO] app.rag.pipeline: VectorStore ready: trading_books (3153 docs)
+2026-03-26 15:02:08,198 [INFO] app.rag.pipeline: VectorStore ready: research_papers (554 docs)
+2026-03-26 15:02:08,204 [INFO] app.rag.pipeline: VectorStore ready: ict_knowledge (3 docs)
+2026-03-26 15:02:08,205 [INFO] app.rag.pipeline: VectorStore ready: cot_analysis (0 docs)
+2026-03-26 15:02:08,206 [INFO] app.rag.pipeline: VectorStore ready: trade_journal (0 docs)
+2026-03-26 15:02:08,210 [INFO] app.rag.pipeline: VectorStore ready: agent_feedback (2 docs)
+2026-03-26 15:02:08,506 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:02:08,944 [INFO] app.brokers.oanda: OANDA connected. Balance: 98996.3791
+2026-03-26 15:02:10,231 [WARNING] app.fundamentals.providers: Forex Factory calendar fetch failed (https://nfs.faireconomy.media/ff_calendar_nextweek.json): 404 Client Error: Not Found for url: https://nfs.faireconomy.media/ff_calendar_nextweek.json
+2026-03-26 15:02:11,090 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 15:02:26,700 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-26 15:05:52,254 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:05:52,255 [ERROR] app.analysis.agent: Claude API call failed: credit balance too low
+2026-03-26 15:05:52,288 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:05:52,291 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:05:52,295 [WARNING] app.analysis.agent: Claude circuit opened for 120s after 2 consecutive failures
+2026-03-26 15:05:52,299 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:05:52,303 [WARNING] app.analysis.agent: Claude temporarily unavailable: cooldown active until 2026-03-26T14:02:00Z
+2026-03-26 15:05:52,306 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:05:52,308 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - overloaded. Retrying in 0.0s
+2026-03-26 15:05:52,312 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:05:52,314 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 15:05:52,317 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 15:05:52,318 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 15:06:01,004 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:06:01,005 [ERROR] app.analysis.agent: Claude API call failed: credit balance too low
+2026-03-26 15:06:01,010 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:06:01,012 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:06:01,015 [WARNING] app.analysis.agent: Claude circuit opened for 120s after 2 consecutive failures
+2026-03-26 15:06:01,016 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:06:01,018 [WARNING] app.analysis.agent: Claude temporarily unavailable: cooldown active until 2026-03-26T14:02:00Z
+2026-03-26 15:06:01,020 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:06:01,021 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - overloaded. Retrying in 0.0s
+2026-03-26 15:06:01,325 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:06:01,334 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 15:06:01,337 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 15:06:01,339 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 15:06:01,349 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 15:06:01,358 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 15:06:01,359 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 15:06:02,317 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 15:06:02,379 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 15:06:02,384 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 15:06:02,398 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 15:06:02,401 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_140602_eur-usd_london-close_partial-win.md
+2026-03-26 15:06:02,403 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:06:02,405 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 15:06:02,407 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_140602_eur-usd_ny-kill-zone_win.md
+2026-03-26 15:08:40,064 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-03-26 15:08:46,373 [INFO] app.rag.pipeline: VectorStore ready: trading_books (3153 docs)
+2026-03-26 15:08:46,534 [INFO] app.rag.pipeline: VectorStore ready: research_papers (554 docs)
+2026-03-26 15:08:46,538 [INFO] app.rag.pipeline: VectorStore ready: ict_knowledge (3 docs)
+2026-03-26 15:08:46,541 [INFO] app.rag.pipeline: VectorStore ready: cot_analysis (0 docs)
+2026-03-26 15:08:46,542 [INFO] app.rag.pipeline: VectorStore ready: trade_journal (0 docs)
+2026-03-26 15:08:46,546 [INFO] app.rag.pipeline: VectorStore ready: agent_feedback (2 docs)
+2026-03-26 15:08:46,912 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:08:47,367 [INFO] app.brokers.oanda: OANDA connected. Balance: 98996.3791
+2026-03-26 15:08:48,562 [WARNING] app.fundamentals.providers: Forex Factory calendar fetch failed (https://nfs.faireconomy.media/ff_calendar_nextweek.json): 404 Client Error: Not Found for url: https://nfs.faireconomy.media/ff_calendar_nextweek.json
+2026-03-26 15:08:49,189 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 15:09:05,730 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-26 15:12:09,593 [INFO] httpx: HTTP Request: GET http://testserver/api/signals/latest "HTTP/1.1 200 OK"
+2026-03-26 15:12:09,596 [INFO] httpx: HTTP Request: GET http://testserver/api/trades/closed "HTTP/1.1 200 OK"
+2026-03-26 15:12:25,988 [INFO] httpx: HTTP Request: GET http://testserver/api/dashboard/summary "HTTP/1.1 200 OK"
+2026-03-26 15:12:25,991 [INFO] httpx: HTTP Request: GET http://testserver/api/trades/closed "HTTP/1.1 200 OK"
+2026-03-26 15:12:26,001 [INFO] httpx: HTTP Request: GET http://testserver/api/signals/latest "HTTP/1.1 200 OK"
+2026-03-26 15:14:32,707 [INFO] httpx: HTTP Request: GET http://localhost/api/meta/frontend-contract "HTTP/1.1 200 OK"
+2026-03-26 15:14:32,711 [INFO] httpx: HTTP Request: GET http://localhost/api/signals/latest?kind=test_signal "HTTP/1.1 200 OK"
+2026-03-26 15:14:32,750 [INFO] httpx: HTTP Request: GET http://localhost/openapi.json "HTTP/1.1 200 OK"
+2026-03-26 15:14:32,755 [INFO] httpx: HTTP Request: GET http://localhost/api/trades/history "HTTP/1.1 200 OK"
+2026-03-26 15:14:33,122 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:14:33,123 [ERROR] app.analysis.agent: Claude API call failed: credit balance too low
+2026-03-26 15:14:33,126 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:14:33,126 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:14:33,128 [WARNING] app.analysis.agent: Claude circuit opened for 120s after 2 consecutive failures
+2026-03-26 15:14:33,131 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:14:33,133 [WARNING] app.analysis.agent: Claude temporarily unavailable: cooldown active until 2026-03-26T14:02:00Z
+2026-03-26 15:14:33,134 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:14:33,135 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - overloaded. Retrying in 0.0s
+2026-03-26 15:14:33,322 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:14:33,325 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 15:14:33,326 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 15:14:33,328 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 15:14:33,334 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 15:14:33,338 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 15:14:33,339 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 15:14:33,942 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 15:14:33,946 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 15:14:33,948 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 15:14:33,952 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 15:14:33,954 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_141433_eur-usd_london-close_partial-win.md
+2026-03-26 15:14:33,957 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:14:33,959 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 15:14:33,961 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_141433_eur-usd_ny-kill-zone_win.md
+2026-03-26 15:19:02,477 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:19:02,478 [ERROR] app.analysis.agent: Claude API call failed: credit balance too low
+2026-03-26 15:19:02,483 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:19:02,485 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:19:02,490 [WARNING] app.analysis.agent: Claude circuit opened for 120s after 2 consecutive failures
+2026-03-26 15:19:02,492 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 15:19:02,497 [WARNING] app.analysis.agent: Claude temporarily unavailable: cooldown active until 2026-03-26T14:02:00Z
+2026-03-26 15:19:02,499 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:19:02,500 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - overloaded. Retrying in 0.0s
+2026-03-26 15:19:02,995 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:19:02,998 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 15:19:03,000 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 15:19:03,001 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 15:19:03,007 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 15:19:03,013 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 15:19:03,013 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 15:19:03,724 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 15:19:03,727 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 15:19:03,730 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 15:19:03,733 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 15:19:03,735 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_141903_eur-usd_london-close_partial-win.md
+2026-03-26 15:19:03,738 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 15:19:03,739 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 15:19:03,742 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_141903_eur-usd_ny-kill-zone_win.md
+2026-03-26 15:19:07,785 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 15:19:25,082 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-26 15:29:30,938 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 15:29:46,161 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-26 15:39:47,938 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 15:40:01,960 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-26 15:50:05,357 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 15:50:21,092 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-26 16:00:23,139 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 16:00:38,074 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-26 16:10:39,577 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 16:10:55,266 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-26 16:20:56,619 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 16:21:10,810 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-26 16:25:13,359 [INFO] httpx: HTTP Request: GET http://localhost/api/meta/frontend-contract "HTTP/1.1 200 OK"
+2026-03-26 16:25:13,367 [INFO] httpx: HTTP Request: POST http://localhost/api/internal/runtime/signal?kind=signal "HTTP/1.1 200 OK"
+2026-03-26 16:25:13,371 [INFO] httpx: HTTP Request: GET http://localhost/api/signals/latest?kind=signal "HTTP/1.1 200 OK"
+2026-03-26 16:25:13,376 [INFO] httpx: HTTP Request: POST http://localhost/api/internal/runtime/closed-trade "HTTP/1.1 200 OK"
+2026-03-26 16:25:13,379 [INFO] httpx: HTTP Request: GET http://localhost/api/trades/closed?limit=20 "HTTP/1.1 200 OK"
+2026-03-26 16:25:13,384 [INFO] httpx: HTTP Request: GET http://localhost/api/signals/latest?kind=test_signal "HTTP/1.1 200 OK"
+2026-03-26 16:25:13,421 [INFO] httpx: HTTP Request: GET http://localhost/openapi.json "HTTP/1.1 200 OK"
+2026-03-26 16:25:13,426 [INFO] httpx: HTTP Request: GET http://localhost/api/trades/history "HTTP/1.1 200 OK"
+2026-03-26 16:25:24,244 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:25:24,245 [ERROR] app.analysis.agent: Claude API call failed: credit balance too low
+2026-03-26 16:25:24,249 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:25:24,250 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 16:25:24,251 [WARNING] app.analysis.agent: Claude circuit opened for 120s after 2 consecutive failures
+2026-03-26 16:25:24,253 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 16:25:24,254 [WARNING] app.analysis.agent: Claude temporarily unavailable: cooldown active until 2026-03-26T14:02:00Z
+2026-03-26 16:25:24,256 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:25:24,257 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - overloaded. Retrying in 0.0s
+2026-03-26 16:25:24,450 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:25:24,452 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 16:25:24,453 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 16:25:24,454 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 16:25:24,459 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 16:25:24,465 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 16:25:24,465 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 16:25:25,192 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 16:25:25,195 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 16:25:25,199 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 16:25:25,206 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 16:25:25,209 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_152525_eur-usd_london-close_partial-win.md
+2026-03-26 16:25:25,211 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:25:25,212 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 16:25:25,215 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_152525_eur-usd_ny-kill-zone_win.md
+2026-03-26 16:27:35,591 [INFO] httpx: HTTP Request: GET http://localhost/api/meta/frontend-contract "HTTP/1.1 200 OK"
+2026-03-26 16:27:35,597 [INFO] httpx: HTTP Request: POST http://localhost/api/internal/runtime/signal?kind=signal "HTTP/1.1 200 OK"
+2026-03-26 16:27:35,600 [INFO] httpx: HTTP Request: GET http://localhost/api/signals/latest?kind=signal "HTTP/1.1 200 OK"
+2026-03-26 16:27:35,605 [INFO] httpx: HTTP Request: POST http://localhost/api/internal/runtime/closed-trade "HTTP/1.1 200 OK"
+2026-03-26 16:27:35,607 [INFO] httpx: HTTP Request: GET http://localhost/api/trades/closed?limit=20 "HTTP/1.1 200 OK"
+2026-03-26 16:27:35,611 [INFO] httpx: HTTP Request: GET http://localhost/api/signals/latest?kind=test_signal "HTTP/1.1 200 OK"
+2026-03-26 16:27:35,652 [INFO] httpx: HTTP Request: GET http://localhost/openapi.json "HTTP/1.1 200 OK"
+2026-03-26 16:27:35,657 [INFO] httpx: HTTP Request: GET http://localhost/api/trades/history "HTTP/1.1 200 OK"
+2026-03-26 16:27:56,228 [INFO] httpx: HTTP Request: GET http://localhost/api/meta/frontend-contract "HTTP/1.1 200 OK"
+2026-03-26 16:27:56,240 [INFO] httpx: HTTP Request: POST http://localhost/api/internal/runtime/signal?kind=signal "HTTP/1.1 200 OK"
+2026-03-26 16:27:56,245 [INFO] httpx: HTTP Request: GET http://localhost/api/signals/latest?kind=signal "HTTP/1.1 200 OK"
+2026-03-26 16:27:56,251 [INFO] httpx: HTTP Request: POST http://localhost/api/internal/runtime/closed-trade "HTTP/1.1 200 OK"
+2026-03-26 16:27:56,256 [INFO] httpx: HTTP Request: GET http://localhost/api/trades/closed?limit=20 "HTTP/1.1 200 OK"
+2026-03-26 16:27:56,258 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:27:56,259 [ERROR] app.analysis.agent: Claude API call failed: credit balance too low
+2026-03-26 16:27:56,261 [INFO] httpx: HTTP Request: GET http://localhost/api/signals/latest?kind=test_signal "HTTP/1.1 200 OK"
+2026-03-26 16:27:56,263 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:27:56,263 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 16:27:56,267 [WARNING] app.analysis.agent: Claude circuit opened for 120s after 2 consecutive failures
+2026-03-26 16:27:56,269 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - overloaded
+2026-03-26 16:27:56,272 [WARNING] app.analysis.agent: Claude temporarily unavailable: cooldown active until 2026-03-26T14:02:00Z
+2026-03-26 16:27:56,274 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:27:56,275 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - overloaded. Retrying in 0.0s
+2026-03-26 16:27:56,319 [INFO] httpx: HTTP Request: GET http://localhost/openapi.json "HTTP/1.1 200 OK"
+2026-03-26 16:27:56,326 [INFO] httpx: HTTP Request: GET http://localhost/api/trades/history "HTTP/1.1 200 OK"
+2026-03-26 16:27:56,551 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:27:56,554 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-26 16:27:56,556 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-26 16:27:56,557 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-26 16:27:56,564 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-26 16:27:56,568 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-26 16:27:56,569 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-26 16:27:57,297 [INFO] app.execution.trade_executor: TP1 handled @ 1.14920 (detected from recent M1 low): closed 50000 units, SL → breakeven 1.15374
+2026-03-26 16:27:57,301 [INFO] app.execution.trade_executor: Trailing stop → 1.15274 (reference 1.14700, trail 0.00574)
+2026-03-26 16:27:57,307 [INFO] app.execution.trade_executor: Trailing stop → 1.15180 (reference 1.14980, trail 0.00200)
+2026-03-26 16:27:57,312 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 16:27:57,314 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD SELL → PARTIAL_WIN (1.03R) | Feedback note: feedback_20260326_152757_eur-usd_london-close_partial-win.md
+2026-03-26 16:27:57,317 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-26 16:27:57,319 [WARNING] app.analysis.agent: Trade lesson generation failed: 'NoneType' object has no attribute 'messages'
+2026-03-26 16:27:57,323 [INFO] app.analysis.trade_feedback: Trade outcome recorded: EUR/USD BUY → WIN (1.8R) | Feedback note: feedback_20260326_152757_eur-usd_ny-kill-zone_win.md
+2026-03-26 16:31:12,883 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-26 16:31:27,673 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-26 19:25:48,642 [WARNING] app.cli.main: Demo loop resumed after stall: Missed expected next run by 9860s
+2026-03-26 23:56:09,540 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-27 08:00:01,232 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 08:00:17,418 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (50/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-27 08:10:18,311 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 08:10:32,624 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (50/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-27 08:20:34,207 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 08:20:49,159 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (50/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-27 08:30:50,138 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 08:30:51,460 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.407057 seconds
+2026-03-27 08:31:07,146 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 08:41:08,700 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 08:41:23,847 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 08:51:25,035 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 08:51:39,101 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 13:00:03,293 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 13:00:18,605 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (55/100, minimum 65)', 'BLOCKED: Confidence too low (55%)']
+2026-03-27 13:10:19,782 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 13:10:37,555 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (55/100, minimum 65)', 'BLOCKED: Confidence too low (55%)']
+2026-03-27 13:20:39,148 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 13:20:53,401 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (55/100, minimum 65)', 'BLOCKED: Confidence too low (55%)']
+2026-03-27 13:30:54,755 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 13:31:09,650 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (55/100, minimum 65)', 'BLOCKED: Confidence too low (55%)']
+2026-03-27 13:41:12,668 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 13:41:28,103 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (55/100, minimum 65)', 'BLOCKED: Confidence too low (55%)']
+2026-03-27 13:51:27,759 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-27 13:51:27,762 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-27 13:51:27,763 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-27 13:51:27,764 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-27 13:51:29,548 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 13:51:43,946 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (50/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
+2026-03-27 13:59:20,558 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-27 13:59:20,561 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-27 13:59:20,562 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-27 13:59:20,564 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-27 13:59:20,565 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-27 13:59:20,570 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-27 13:59:20,571 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-27 13:59:30,769 [INFO] app.analysis.agent: ForexAnalystAgent initialized
+2026-03-27 13:59:30,782 [INFO] app.execution.trade_executor: Trade blocked: Weekly loss limit hit (-5.0%) — no more trades this week
+2026-03-27 13:59:30,784 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-27 13:59:30,785 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-27 13:59:30,786 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-27 13:59:30,795 [INFO] app.execution.trade_executor: Units: 400,000 | Equity: 100000 | Risk: $1000 | Stop: 0.00250
+2026-03-27 13:59:30,797 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-27 14:01:45,590 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 14:02:01,587 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+2026-03-27 14:12:02,611 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+2026-03-27 14:12:18,003 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']

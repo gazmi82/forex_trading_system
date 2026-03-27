@@ -48,7 +48,7 @@ trading_system/
 │   └── journal/          ← Your manual trading journal entries
 │
 ├── chroma_db/            ← Vector database (auto-created, do not edit)
-├── logs/                 ← Trade logs, agent decisions (auto-created)
+├── logs/                 ← Signals, timelines, closed trades, decision logs
 ├── journal/              ← Reserved top-level journal directory
 ├── docs/                 ← Architecture and deployment notes
 └── feedback/             ← Auto-generated markdown trade review notes
@@ -59,7 +59,7 @@ See [docs/architecture.md](docs/architecture.md) for the package responsibilitie
 Conventions:
 - The only top-level Python entrypoints are `main.py` and `api_server.py`.
 - All implementation code lives under `app/`.
-- Prefer one local virtualenv only. The launchd runner now auto-detects `venv/` first and then `.venv/`.
+- Prefer one local virtualenv only.
 
 ---
 
@@ -154,6 +154,11 @@ python main.py --mode stats
 python main.py --mode demo
 ```
 
+Demo loop cadence:
+- Entry windows: every 10 minutes
+- Outside entry windows: every 30 minutes
+- If the next entry window opens sooner than the normal monitor interval, the loop wakes at the window boundary instead of oversleeping it
+
 ### Step 7 — Run the REST API
 First frontend version is exposed through FastAPI:
 
@@ -197,6 +202,7 @@ Notes:
 - `/api/status/scheduler` uses the same Monday-Friday and kill-zone gate as the runtime.
 - `/api/signals/latest` returns the latest saved `signal_*.json` plus freshness/failure metadata (`recorded_at`, `age_seconds`, `is_stale`, `status`), or `null` when no matching logs exist yet.
 - `/api/dashboard/summary` is the easiest first frontend endpoint because it combines scheduler, live snapshot, diagnostics, latest signal, and open trades, backed by an in-memory live snapshot cache refreshed in the background.
+- `portfolio.open_risk_pct` is stop-based when the broker payload includes stop-loss data; otherwise it falls back to unrealized P/L as an approximation.
 - `/api/meta/frontend-contract` exposes machine-readable frontend semantics that do not fit cleanly into OpenAPI alone.
 - `/openapi.json` is the generated backend schema for routes and response models.
 
@@ -240,7 +246,11 @@ This repo includes [`render.yaml`](/Users/gazmirsulcaj/forex_trading_system/rend
 ## How It Works at Runtime
 
 ```
-Every 30 minutes:
+Continuous runtime:
+
+- Entry windows: every 10 minutes
+- Monitor-only periods: every 30 minutes
+- Near an upcoming entry window, the scheduler wakes at the window boundary
 
 1. RAG RETRIEVAL (Option 2)
    System builds 6-7 targeted queries based on market conditions:
@@ -282,6 +292,8 @@ Every 30 minutes:
    - logs/trades.csv (trade outcomes)
    - logs/closed_trades.jsonl (structured closed-trade records)
    - logs/signal_*.json / logs/test_signal_*.json (signal payloads, including Claude failures)
+   - logs/trade_signal_timelines/trade_timeline_<opened_at>_<pair>_<trade_id>.json
+     (one consolidated analysis timeline per trade from entry to close)
 
 6. TRADE MANAGEMENT
    After entry, the executor monitors every cycle:
@@ -362,12 +374,15 @@ After 12 months of consistent profitability on demo:
 The current fundamentals stack is mixed live + delayed:
 
 - `DXY`: intraday auto-fetch from Yahoo Finance (`DX-Y.NYB`)
-- `Calendar`: live next high-impact US / Euro Area event from Forex Factory
+- `Calendar`: Forex Factory snapshot refreshed in fixed 6-hour UTC slots
+  (max 4 upstream fetches per day per running process); cached upcoming events
+  roll forward locally between refreshes
 - `Headlines`: live FX headline from Finnhub or NewsAPI when configured
 - `COT`: auto-fetch from CFTC.gov, but updated weekly
 - `Retail sentiment`: sourced only from the OANDA EUR/USD position book
 
-This means the system now has live broker data plus partially live fundamentals, but it is not yet a fully streaming macro stack.
+This means the system has live broker data plus partially live fundamentals,
+but it is not a fully streaming macro stack.
 
 Deferred infrastructure work:
 - Economic calendar, news feed, and USD/EUR policy-rate fetching should later be migrated to solid documented provider endpoints.

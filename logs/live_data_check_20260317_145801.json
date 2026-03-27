@@ -1,0 +1,95 @@
+{
+  "pair": "EUR/USD",
+  "price": 1.15346,
+  "spread": 1.5,
+  "demo_mode": true,
+  "ohlcv": {
+    "day_open": 1.1424,
+    "week_open": 1.1549,
+    "month_open": 1.17685,
+    "prev_day_high": 1.15298,
+    "prev_day_low": 1.1411,
+    "prev_week_high": 1.17958,
+    "prev_week_low": 1.15303,
+    "weekly_structure": "LH + LL \u2014 Bearish Weekly structure",
+    "daily_structure": "LH + LL \u2014 Bearish Daily structure",
+    "h4_structure": "HH + HL \u2014 Bullish 4H structure",
+    "h1_structure": "HH + HL \u2014 Bullish 1H structure",
+    "m15_structure": "HH + HL \u2014 Bullish 15M structure",
+    "weekly_trend": "BEARISH",
+    "daily_trend": "BEARISH",
+    "h4_trend": "BULLISH",
+    "h1_trend": "BULLISH",
+    "m15_trend": "BULLISH"
+  },
+  "indicators": {
+    "ema20_4h": 1.15022,
+    "ema50_4h": 1.15511,
+    "ema200_daily": 1.16561,
+    "rsi_4h": 53.34,
+    "rsi_1h": 65.04,
+    "adx_4h": 51.35,
+    "atr_4h": 0.0037,
+    "market_regime": "TRENDING",
+    "resistance_levels": [
+      1.2083,
+      1.1929,
+      1.1835
+    ],
+    "support_levels": [
+      1.1507,
+      1.153,
+      1.1578
+    ],
+    "round_numbers": [
+      1.14,
+      1.15,
+      1.16
+    ],
+    "premium_discount_zone": "PREMIUM (73% of range)",
+    "bullish_ob": "1.14397\u20131.14566 (4H, valid)",
+    "bearish_ob": "1.1511\u20131.15284 (4H, valid)",
+    "bullish_fvg": "1.15003\u20131.1508 (1H, unfilled)",
+    "bearish_fvg": "1.1482\u20131.14894 (1H, unfilled)",
+    "recent_liquidity_sweep": "BSL swept at 1.15182 (4h ago, strong rejection)",
+    "ote_zone": [
+      1.14436,
+      1.147
+    ]
+  },
+  "fundamental": {
+    "usd_rate": 3.62,
+    "fed_target_lower_rate": 3.5,
+    "fed_target_upper_rate": 3.75,
+    "pair_rate": 2.0,
+    "ecb_main_refi_rate": 2.15,
+    "ecb_marginal_lending_rate": 2.4,
+    "ecb_deposit_rate": 2.0,
+    "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+    "dxy_direction": "NEUTRAL",
+    "dxy_level": "99.58",
+    "cot_net": "Asset Mgr: +366,299 | Hedge Funds: +5,231 (as of 2026-03-10)",
+    "cot_bias": "BULLISH",
+    "retail_sentiment": "40% SHORT, 60% LONG (contrarian BEARISH) \u2014 OANDA position book",
+    "risk_sentiment": "NEUTRAL",
+    "rates_source": "Fed open-market page + ECB key-rates page @ 2026-03-17 14:58 UTC",
+    "next_event_name": "USD \u2014 Core PPI m/m",
+    "next_news_event": "USD \u2014 Core PPI m/m",
+    "time_to_event": "21 hours 31 minutes",
+    "news_risk": "LOW",
+    "recent_headline": "US Director of the National Counterterrorism Center resigns over Iran war",
+    "active_session": "London Close",
+    "kill_zone_active": "YES \u2014 London Close (10 AM-12 PM EST)",
+    "trade_window_active": true
+  },
+  "portfolio": {
+    "equity": 100000.0,
+    "open_trades": 0,
+    "open_risk_pct": 0.0,
+    "daily_pnl_pct": 0.0,
+    "trades_today": 0,
+    "usd_exposure": "NONE",
+    "margin_used_pct": 0.0
+  },
+  "fetch_time": "2026-03-17T14:58:01.201728+00:00"
+}

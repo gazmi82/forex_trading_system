@@ -320,7 +320,6 @@ def build_calendar_snapshot(now: datetime) -> dict:
     ]
 
     for url in urls:
-        before_count = len(candidates)
         try:
             response = requests.get(url, timeout=15)
             response.raise_for_status()
@@ -354,9 +353,6 @@ def build_calendar_snapshot(now: datetime) -> dict:
                 }
             )
 
-        if len(candidates) > before_count:
-            break
-
     if not candidates:
         return {
             "next_event_name": "CLEAR — no high-impact USD/EUR event in calendar",
@@ -366,7 +362,11 @@ def build_calendar_snapshot(now: datetime) -> dict:
             "source": "Forex Factory calendar",
         }
 
-    next_event = min(candidates, key=lambda event: abs((event["event_time"] - now).total_seconds()))
+    candidates = sorted(
+        candidates,
+        key=lambda event: event["event_time"],
+    )
+    next_event = candidates[0]
     event_name = f"{next_event['country']} — {next_event['event']}"
     time_to_event = humanize_delta(next_event["event_time"], now)
     return {
@@ -375,6 +375,14 @@ def build_calendar_snapshot(now: datetime) -> dict:
         "time_to_event": time_to_event,
         "news_risk": classify_news_risk(event_name, time_to_event),
         "event_time": next_event["event_time"].isoformat(),
+        "upcoming_events": [
+            {
+                "country": event["country"],
+                "event": event["event"],
+                "event_time": event["event_time"].isoformat(),
+            }
+            for event in candidates
+        ],
         "source": "Forex Factory calendar",
     }
 

@@ -1,0 +1,24 @@
+{
+  "service": "demo_loop",
+  "state": "SLEEPING",
+  "loop_count": 58,
+  "updated_at_utc": "2026-03-27T13:12:18.034850Z",
+  "last_started_at_utc": "2026-03-27T13:12:01.641842Z",
+  "last_completed_at_utc": "2026-03-27T13:12:18.034850Z",
+  "session": "NY Kill Zone",
+  "runtime_mode": "ENTRY_ANALYSIS",
+  "analysis_allowed_now": true,
+  "schedule_reason": "Allowed trade window",
+  "next_poll_seconds": 600,
+  "next_expected_run_at_utc": "2026-03-27T13:22:18.034850Z",
+  "price": 1.15151,
+  "open_trades_count": 0,
+  "last_error": null,
+  "last_signal": {
+    "direction": "NEUTRAL",
+    "confidence": 40,
+    "confluence_score": 40,
+    "execution_allowed": false
+  },
+  "last_failed_at_utc": "2026-03-26T22:56:09.611399Z"
+}

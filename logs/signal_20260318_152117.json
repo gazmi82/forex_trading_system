@@ -1,0 +1,101 @@
+{
+  "timestamp": "2026-03-18T15:21:00Z",
+  "pair": "EUR/USD",
+  "timeframe": "4H",
+  "session": "London Close",
+  "macro_bias": {
+    "weekly": "BEARISH",
+    "daily": "BEARISH",
+    "h4": "BULLISH",
+    "alignment": "CONFLICTING"
+  },
+  "ict_analysis": {
+    "order_block": {
+      "present": true,
+      "type": "BULLISH",
+      "level": 1.14482,
+      "valid": true
+    },
+    "fair_value_gap": {
+      "present": true,
+      "type": "BULLISH",
+      "upper": 1.15402,
+      "lower": 1.15368
+    },
+    "liquidity": {
+      "recent_sweep": true,
+      "swept_level": 1.15056,
+      "direction": "SELL_SIDE"
+    },
+    "premium_discount": "PREMIUM",
+    "ote_zone": [
+      1.14413,
+      1.14659
+    ]
+  },
+  "technical_analysis": {
+    "ema_bias": "BEARISH",
+    "rsi_14": 68.75,
+    "rsi_signal": "OVERBOUGHT",
+    "adx_14": 30.94,
+    "market_regime": "RANGING",
+    "key_levels": {
+      "resistance": [
+        1.2083,
+        1.1929,
+        1.1835
+      ],
+      "support": [
+        1.1411,
+        1.1507,
+        1.153
+      ]
+    }
+  },
+  "fundamental": {
+    "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+    "dxy_direction": "FALLING",
+    "cot_bias": "BULLISH",
+    "next_news_event": "USD Federal Funds Rate in 2h 49m",
+    "news_risk": "MEDIUM"
+  },
+  "confluence_score": 35,
+  "signal_strength": "NEUTRAL",
+  "signal": {
+    "direction": "NEUTRAL",
+    "confidence": 35,
+    "entry_zone": [
+      0.0,
+      0.0
+    ],
+    "stop_loss": 0.0,
+    "take_profit_1": 0.0,
+    "take_profit_2": 0.0,
+    "risk_reward": 0.0,
+    "recommended_lot_size": 0.0,
+    "order_type": "LIMIT"
+  },
+  "reasoning": [
+    "Weekly and Daily bearish structure conflicts with 4H bullish structure - mixed alignment reduces conviction",
+    "Price trading in premium zone (67% of range) - not optimal for buying according to ICT principles",
+    "RSI at 68.75 showing overbought conditions on 4H timeframe",
+    "Federal Funds Rate announcement in 2h 49m creates medium news risk - violates 30min news buffer rule"
+  ],
+  "key_risk": "Major timeframe misalignment combined with upcoming Fed rate decision creates high uncertainty",
+  "knowledge_sources_used": [
+    "The Forex Trading Course - news trading hedge strategies",
+    "Day Trading And Swing Trading - inside day breakout patterns"
+  ],
+  "trade_management": {
+    "tp1_action": "N/A - No trade signal",
+    "tp2_action": "N/A - No trade signal",
+    "time_stop": "N/A - No trade signal"
+  },
+  "do_not_trade_reason": "Confluence score 35 below 45 threshold + news risk within 3 hours + conflicting timeframe alignment",
+  "demo_mode": true,
+  "validator_overrides": [
+    "BLOCKED: Confidence too low (35%)"
+  ],
+  "logged_at_utc": "2026-03-18T15:21:17.132959Z",
+  "log_filename": "signal_20260318_152117.json"
+}

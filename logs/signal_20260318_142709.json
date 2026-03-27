@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-03-18T14:26:00Z",
+  "pair": "EUR/USD",
+  "timeframe": "4H",
+  "session": "London Close",
+  "macro_bias": {
+    "weekly": "BEARISH",
+    "daily": "BEARISH",
+    "h4": "BULLISH",
+    "alignment": "CONFLICTING"
+  },
+  "ict_analysis": {
+    "order_block": {
+      "present": true,
+      "type": "BULLISH",
+      "level": 1.14482,
+      "valid": true
+    },
+    "fair_value_gap": {
+      "present": true,
+      "type": "BULLISH",
+      "upper": 1.15402,
+      "lower": 1.15368
+    },
+    "liquidity": {
+      "recent_sweep": true,
+      "swept_level": 1.15056,
+      "direction": "SELL_SIDE"
+    },
+    "premium_discount": "PREMIUM",
+    "ote_zone": [
+      1.14413,
+      1.14659
+    ]
+  },
+  "technical_analysis": {
+    "ema_bias": "BEARISH",
+    "rsi_14": 68.75,
+    "rsi_signal": "OVERBOUGHT",
+    "adx_14": 30.94,
+    "market_regime": "RANGING",
+    "key_levels": {
+      "resistance": [
+        1.2083,
+        1.1929,
+        1.1835
+      ],
+      "support": [
+        1.1411,
+        1.1507,
+        1.153
+      ]
+    }
+  },
+  "fundamental": {
+    "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+    "dxy_direction": "NEUTRAL",
+    "cot_bias": "BULLISH",
+    "next_news_event": "USD Federal Funds Rate",
+    "news_risk": "MEDIUM"
+  },
+  "confluence_score": 35,
+  "signal_strength": "NEUTRAL",
+  "signal": {
+    "direction": "NEUTRAL",
+    "confidence": 35,
+    "entry_zone": [
+      0.0,
+      0.0
+    ],
+    "stop_loss": 0.0,
+    "take_profit_1": 0.0,
+    "take_profit_2": 0.0,
+    "risk_reward": 0.0,
+    "recommended_lot_size": 0.0,
+    "order_type": "LIMIT"
+  },
+  "reasoning": [
+    "Major timeframe conflict: Weekly/Daily bearish vs 4H bullish creates uncertainty",
+    "Price in premium zone (67% of range) - not optimal for buying per ICT principles",
+    "RSI overbought at 68.75 on 4H suggests potential pullback from current levels",
+    "Rate differential strongly favors USD (+1.62%) contradicting any bullish EUR setup",
+    "Federal Funds Rate decision in 3.5 hours creates significant event risk"
+  ],
+  "key_risk": "Major news event (Fed Rate Decision) in 3.5 hours with conflicting timeframe structure",
+  "knowledge_sources_used": [
+    "The Forex Trading Course - News trading hedge strategies and post-news retracement concepts",
+    "Day Trading And Swing Trading - Inside day breakout methodology for range identification"
+  ],
+  "trade_management": {
+    "tp1_action": "N/A - No trade signal",
+    "tp2_action": "N/A - No trade signal",
+    "time_stop": "N/A - No trade signal"
+  },
+  "do_not_trade_reason": "Confluence score below 45 threshold. Major timeframe conflict (Weekly/Daily bearish vs 4H bullish), price in premium zone unfavorable for buying, and high-impact Fed news in 3.5 hours creates excessive risk. Wait for clearer alignment or post-news retracement setup as suggested in knowledge base sources.",
+  "demo_mode": true,
+  "validator_overrides": [
+    "BLOCKED: Confidence too low (35%)"
+  ],
+  "logged_at_utc": "2026-03-18T14:27:09.177918Z",
+  "log_filename": "signal_20260318_142709.json"
+}

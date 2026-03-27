@@ -1,7 +1,7 @@
 # CLAUDE.md — Forex Trading System Project Context
 # This file is for Claude Code (VS Code) to stay aligned with all decisions,
 # architecture, and progress made in the main Claude.ai chat session.
-# Last updated: March 20, 2026
+# Last updated: March 27, 2026
 
 ---
 
@@ -68,7 +68,7 @@ main.py
 ├── OANDAClient (app/brokers/oanda.py)
 │   ├── Live EUR/USD price feed
 │   ├── OHLCV candles (4H, 1H, Daily, Weekly)
-│   └── Account summary + open positions
+│   └── Account summary + open positions (+ stop-loss extraction for stop-based open risk)
 │
 ├── MarketDataBuilder (app/brokers/oanda.py)
 │   ├── IndicatorCalculator (EMA, RSI, ADX, ATR)
@@ -87,12 +87,13 @@ main.py
 │   ├── Structured feedback fields per closed trade:
 │   │   setup_grade (A/B/C/F), entry_timing, ict_post_hoc,
 │   │   root_cause, pattern_tags
-│   └── Trade signal timeline per trade
+│   └── Trade signal timeline per trade (one JSON file from entry to close)
 │
 └── app/fundamentals/fetcher.py
     ├── DXY intraday signal via Yahoo Finance
     ├── COT positioning via CFTC.gov (weekly, delayed)
     ├── Next high-impact event via Forex Factory
+    │   refreshed in fixed 6-hour UTC slots
     └── Latest FX headline via Finnhub or NewsAPI when configured
 ```
 
@@ -130,7 +131,7 @@ main.py
 │   └── journal/               ← Manual trade journal entries
 │
 ├── chroma_db/                 ← ChromaDB vector store (864 chunks total)
-├── logs/                      ← Signals, closed trades, decision logs
+├── logs/                      ← Signals, per-trade timelines, closed trades, decision logs
 ├── feedback/                  ← Auto-generated markdown trade review notes
 └── venv/                      ← Python virtual environment
 ```
@@ -181,6 +182,7 @@ Fundamentals status:
 - DXY is auto-fetched intraday from Yahoo Finance
 - COT is auto-fetched from CFTC.gov, but remains weekly macro data
 - Forex Factory provides the next high-impact USD / EUR event
+- Calendar refresh is fixed to 6-hour UTC slots; cached upcoming events roll forward locally between slot refreshes
 - Finnhub or NewsAPI provide the latest FX headline when configured
 - USD target range is fetched from the official Fed open-market page and ECB key rates are fetched from the official ECB key-rates page
 - ECB main refi, marginal lending, and deposit rates are exposed; deposit remains the EUR benchmark for the rate differential
@@ -206,7 +208,9 @@ python main.py --mode ingest
 # Show knowledge base statistics
 python main.py --mode stats
 
-# Start 30-minute demo loop
+# Start continuous demo loop
+# Entry windows: every 10 min
+# Outside entry windows: every 30 min
 python main.py --mode demo
 ```
 

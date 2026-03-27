@@ -29,8 +29,7 @@ __pycache__/
 .DS_Store
 .AppleDouble
 
-# Logs and runtime artifacts
-/logs/
+# Runtime store artifacts
 /runtime_store/
 
 # Jupyter

@@ -1,0 +1,101 @@
+{
+  "timestamp": "2026-03-20T07:30:00Z",
+  "pair": "EUR/USD",
+  "timeframe": "4H",
+  "session": "London Kill Zone",
+  "macro_bias": {
+    "weekly": "BULLISH",
+    "daily": "BEARISH",
+    "h4": "NEUTRAL",
+    "alignment": "CONFLICTING"
+  },
+  "ict_analysis": {
+    "order_block": {
+      "present": true,
+      "type": "BULLISH",
+      "level": 1.14768,
+      "valid": true
+    },
+    "fair_value_gap": {
+      "present": true,
+      "type": "BULLISH",
+      "upper": 1.15772,
+      "lower": 1.15676
+    },
+    "liquidity": {
+      "recent_sweep": true,
+      "swept_level": 1.15636,
+      "direction": "SELL_SIDE"
+    },
+    "premium_discount": "PREMIUM",
+    "ote_zone": [
+      1.14794,
+      1.15089
+    ]
+  },
+  "technical_analysis": {
+    "ema_bias": "BEARISH",
+    "rsi_14": 52.34,
+    "rsi_signal": "NEUTRAL",
+    "adx_14": 23.73,
+    "market_regime": "RANGING",
+    "key_levels": {
+      "resistance": [
+        1.1583,
+        1.1929,
+        1.1835
+      ],
+      "support": [
+        1.1411,
+        1.1507,
+        1.153
+      ]
+    }
+  },
+  "fundamental": {
+    "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+    "dxy_direction": "NEUTRAL",
+    "cot_bias": "BULLISH",
+    "next_news_event": "CLEAR",
+    "news_risk": "CLEAR"
+  },
+  "confluence_score": 35,
+  "signal_strength": "NEUTRAL",
+  "signal": {
+    "direction": "NEUTRAL",
+    "confidence": 35,
+    "entry_zone": [
+      0.0,
+      0.0
+    ],
+    "stop_loss": 0.0,
+    "take_profit_1": 0.0,
+    "take_profit_2": 0.0,
+    "risk_reward": 0.0,
+    "recommended_lot_size": 0.0,
+    "order_type": "LIMIT"
+  },
+  "reasoning": [
+    "Weekly bullish vs Daily bearish creates conflicting structure - violates alignment rule",
+    "Price at 65% premium level - should not buy premium per ICT rules",
+    "Recent SSL sweep at 1.15636 with rejection suggests institutional selling interest",
+    "ADX at 23.73 indicates ranging market - breakout strategies have lower probability"
+  ],
+  "key_risk": "Conflicting timeframe structure creates whipsaw potential in ranging market",
+  "knowledge_sources_used": [
+    "Day Trading And Swing Trading - inside days breakout strategy",
+    "The Forex Trading Course - post-news retracement concepts"
+  ],
+  "trade_management": {
+    "tp1_action": "N/A - No trade signal",
+    "tp2_action": "N/A - No trade signal",
+    "time_stop": "N/A - No trade signal"
+  },
+  "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Weekly/Daily structure conflict violates alignment rules. Price in premium zone contradicts ICT buying principles.",
+  "demo_mode": true,
+  "validator_overrides": [
+    "BLOCKED: Confidence too low (35%)"
+  ],
+  "logged_at_utc": "2026-03-20T07:31:08.872185Z",
+  "log_filename": "signal_20260320_073108.json"
+}

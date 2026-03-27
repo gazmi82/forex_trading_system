@@ -57,12 +57,105 @@ _rates_cache: dict = {}
 _rates_cache_time: datetime | None = None
 
 _DXY_CACHE_MINUTES = 5
-_CALENDAR_CACHE_HOURS = int(os.getenv("FOREX_FACTORY_CALENDAR_CACHE_HOURS", "24"))
 _NEWS_CACHE_MINUTES = 10
 _COT_CACHE_HOURS = 12
 _RISK_CACHE_MINUTES = 5
 _SENTIMENT_CACHE_MINUTES = 30
 _RATES_CACHE_HOURS = int(os.getenv("POLICY_RATES_CACHE_HOURS", "2"))
+_CALENDAR_REFRESH_HOURS = max(1, int(os.getenv("FOREX_FACTORY_CALENDAR_REFRESH_HOURS", "6")))
+_CALENDAR_SOURCE = "Forex Factory calendar"
+_CALENDAR_EVENT_GRACE_MINUTES = 30
+
+
+def _calendar_slot_start(now: datetime) -> datetime:
+    slot_hour = (now.hour // _CALENDAR_REFRESH_HOURS) * _CALENDAR_REFRESH_HOURS
+    return now.replace(hour=slot_hour, minute=0, second=0, microsecond=0)
+
+
+def _calendar_event_name(event: dict) -> str:
+    country = str(event.get("country", "")).strip()
+    title = str(event.get("event", "Unknown event")).strip()
+    if country and title:
+        return f"{country} — {title}"
+    return country or title or "Unknown event"
+
+
+def _calendar_clear_payload(
+    message: str,
+    *,
+    source: str | None = None,
+    upcoming_events: list[dict] | None = None,
+) -> dict:
+    payload = {
+        "next_event_name": message,
+        "next_news_event": message,
+        "time_to_event": None,
+        "news_risk": "CLEAR",
+        "source": source or _CALENDAR_SOURCE,
+    }
+    if upcoming_events is not None:
+        payload["upcoming_events"] = upcoming_events
+    return payload
+
+
+def _calendar_event_payload(event: dict, now: datetime, *, source: str | None = None) -> dict:
+    event_time = _parse_utc(event.get("event_time"))
+    if event_time is None:
+        return {}
+
+    event_name = _calendar_event_name(event)
+    time_to_event = _humanize_delta(event_time, now)
+    payload = {
+        "next_event_name": event_name,
+        "next_news_event": event_name,
+        "time_to_event": time_to_event,
+        "news_risk": _classify_news_risk(event_name, time_to_event),
+        "event_time": event_time.isoformat(),
+    }
+    if source:
+        payload["source"] = source
+    return payload
+
+
+def _calendar_cache_view(now: datetime) -> dict:
+    if not _calendar_cache:
+        return {}
+
+    cached = dict(_calendar_cache)
+    source = cached.get("source")
+    upcoming = cached.get("upcoming_events")
+    if isinstance(upcoming, list):
+        for event in upcoming:
+            event_time = _parse_utc((event or {}).get("event_time"))
+            if event_time is None or event_time < now - timedelta(minutes=_CALENDAR_EVENT_GRACE_MINUTES):
+                continue
+            payload = _calendar_event_payload(event, now, source=source)
+            if payload:
+                payload["upcoming_events"] = upcoming
+                return payload
+
+        return _calendar_clear_payload(
+            "CLEAR — no high-impact USD/EUR event in cached calendar window",
+            source=source,
+            upcoming_events=upcoming,
+        )
+
+    event_time = _parse_utc(cached.get("event_time"))
+    if event_time is None:
+        return cached
+
+    if event_time < now - timedelta(minutes=_CALENDAR_EVENT_GRACE_MINUTES):
+        return _calendar_clear_payload(
+            "CLEAR — cached calendar event already passed",
+            source=source,
+        )
+
+    event_name = cached.get("next_event_name") or cached.get("next_news_event")
+    cached["time_to_event"] = _humanize_delta(event_time, now)
+    cached["news_risk"] = _classify_news_risk(event_name, cached["time_to_event"])
+    if cached.get("next_news_event") is None and cached.get("next_event_name") is not None:
+        cached["next_news_event"] = cached["next_event_name"]
+    return cached
 
 
 def fetch_policy_rates(force_refresh: bool = False) -> dict:
@@ -168,12 +261,12 @@ def fetch_next_calendar_event(force_refresh: bool = False) -> dict:
     """
     global _calendar_cache, _calendar_cache_time
 
-    if not force_refresh and _calendar_cache and _cache_fresh(
-        _calendar_cache_time, timedelta(hours=_CALENDAR_CACHE_HOURS)
-    ):
-        return _calendar_cache
-
     now = datetime.now(timezone.utc)
+    cached = _calendar_cache_view(now)
+    slot_start = _calendar_slot_start(now)
+    if not force_refresh and cached and _calendar_cache_time and _calendar_cache_time >= slot_start:
+        return cached
+
     print("  📥 Fetching economic calendar from Forex Factory...")
     result = build_calendar_snapshot(now)
     if not result:
@@ -181,20 +274,21 @@ def fetch_next_calendar_event(force_refresh: bool = False) -> dict:
 
     _calendar_cache = result
     _calendar_cache_time = now
+    cached = _calendar_cache_view(now)
 
-    if result["news_risk"] == "CLEAR":
+    if cached["news_risk"] == "CLEAR":
         print("  ✅ Calendar: clear — no high-impact USD/EUR event upcoming")
     else:
-        event_time = result.get("event_time", "")
+        event_time = cached.get("event_time", "")
         event_suffix = ""
         if event_time:
             parsed = _parse_utc(event_time)
             if parsed is not None:
                 event_suffix = f" ({parsed.strftime('%Y-%m-%d %H:%M UTC')})"
         print(
-            f"  ✅ Calendar: {result['next_event_name']} in {result['time_to_event']}{event_suffix}"
+            f"  ✅ Calendar: {cached['next_event_name']} in {cached['time_to_event']}{event_suffix}"
         )
-    return result
+    return cached
 
 
 def fetch_recent_fx_headline(force_refresh: bool = False) -> dict:

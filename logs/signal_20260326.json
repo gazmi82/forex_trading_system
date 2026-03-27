@@ -1,0 +1,1924 @@
+{
+  "log_type": "signal",
+  "log_date_utc": "2026-03-26",
+  "entries": [
+    {
+      "timestamp": "2026-03-26T12:48:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BEARISH",
+          "level": 1.15374,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15506,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "EQUILIBRIUM",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 40.96,
+        "rsi_signal": "NEUTRAL",
+        "adx_14": 11.5,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1583,
+            1.16,
+            1.1663
+          ],
+          "support": [
+            1.1507,
+            1.15,
+            1.1443
+          ]
+        }
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD Unemployment Claims in 22h 55m",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with 1H bearish structure - no clear directional alignment",
+        "ADX at 11.5 indicates ranging market regime - breakout strategies not suitable per knowledge base",
+        "Recent SSL sweep at 1.15506 with strong rejection suggests institutional liquidity hunt completed",
+        "Rate differential of +1.62% favoring USD creates fundamental headwind for EUR/USD longs",
+        "Price at equilibrium (48% of range) - neither premium nor discount zone for optimal entries"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside days breakout strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement patterns need initial momentum break"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Conflicting timeframe structure (Weekly bullish vs 1H bearish), ranging market regime (ADX 11.5), and equilibrium pricing provide insufficient edge for institutional-grade trade setup.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Mechanical confluence score too low (13/100, minimum 65; Claude scored 35)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-26T12:48:41.649990Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_124841_649990"
+    },
+    {
+      "timestamp": "2026-03-26T12:58:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BEARISH",
+          "level": 1.15374,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15506,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "EQUILIBRIUM",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 40.96,
+        "rsi_signal": "NEUTRAL",
+        "adx_14": 11.5,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1583,
+            1.16,
+            1.1663
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        }
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD Unemployment Claims in 22h 55m",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 11.5 indicates ranging market regime - breakout strategies not suitable per knowledge base",
+        "Recent SSL sweep at 1.15506 with strong rejection suggests institutional liquidity hunt completed",
+        "Rate differential +1.62% favors USD but COT shows bullish EUR positioning - mixed fundamentals",
+        "Price at equilibrium (48% of range) - neither premium nor discount zone for clear directional bias"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside days breakout strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement patterns need clear initial break direction"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Conflicting timeframe structure, ranging market regime (ADX 11.5), and mixed fundamental picture create unfavorable risk-reward environment. Wait for clear alignment and trending conditions.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Mechanical confluence score too low (13/100, minimum 65; Claude scored 35)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-26T12:59:01.694792Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_125901_694792"
+    },
+    {
+      "timestamp": "2026-03-26T13:09:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15898,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        }
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD Unemployment Claims in 22h 55m",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 45,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 45,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies not optimal per knowledge base",
+        "Recent SSL sweep at 1.15234 with strong rejection suggests potential reversal but needs confirmation",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "RSI oversold at 37.09 but in ranging market this is less reliable signal"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market regime create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement strategy more suitable in current ranging environment"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 45 below 65 threshold. Conflicting timeframe structure, ranging market regime (ADX<20), and mixed fundamental picture create low-probability setup. Wait for clearer alignment or breakout confirmation.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Mechanical confluence score too low (13/100, minimum 65; Claude scored 45)",
+        "BLOCKED: Confidence too low (45%)"
+      ],
+      "logged_at_utc": "2026-03-26T13:09:18.706351Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_130918_706351"
+    },
+    {
+      "timestamp": "2026-03-26T13:19:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15898,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.16,
+            1.1835,
+            1.1929
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        }
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD Unemployment Claims in 22h 55m",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 45,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 45,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies not optimal per knowledge base",
+        "Recent SSL sweep at 1.15234 with strong rejection suggests potential reversal but needs confirmation",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "RSI oversold at 37.09 but in ranging market this is less reliable signal"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement strategy more suitable in current ranging conditions"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 45 below 65 threshold. Conflicting timeframe structure (Weekly bullish vs 1H bearish) with ranging ADX 12.48 creates low-probability setup. Wait for clearer alignment or breakout confirmation above ADX 25.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Mechanical confluence score too low (13/100, minimum 65; Claude scored 45)",
+        "BLOCKED: Confidence too low (45%)"
+      ],
+      "logged_at_utc": "2026-03-26T13:19:34.932537Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_131934_932537"
+    },
+    {
+      "timestamp": "2026-03-26T13:29:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15898,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        }
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD Unemployment Claims in 22h 55m",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 45,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 45,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market conditions - breakout strategies not optimal per knowledge base",
+        "Recent SSL sweep at 1.15234 with strong rejection suggests potential reversal but needs confirmation",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "Price in discount zone (33%) but lacking strong directional momentum"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement strategy more suitable in current ranging conditions"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 45 below 65 threshold. Conflicting timeframe structure, ranging market (ADX<20), and lack of clear directional momentum create unfavorable risk/reward environment.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Mechanical confluence score too low (13/100, minimum 65; Claude scored 45)",
+        "BLOCKED: Confidence too low (45%)"
+      ],
+      "logged_at_utc": "2026-03-26T13:29:51.221270Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_132951_221270"
+    },
+    {
+      "timestamp": "2026-03-26T13:39:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15898,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        }
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "FALLING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 45,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 45,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral structure - no clear alignment per ICT methodology",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies from knowledge base not applicable in low momentum environment",
+        "Recent SSL sweep at 1.15234 with strong rejection suggests institutional buying interest, but 1H bearish structure creates conflicting signals",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs despite oversold RSI conditions"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias which is absent",
+        "The Forex Trading Course - Post-news retracement strategy not applicable as no recent news catalyst present"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score of 45 falls below 65 minimum threshold. Weekly bullish vs Daily/4H neutral creates structural conflict. ADX below 20 indicates ranging conditions unsuitable for directional trades. Wait for higher timeframe alignment or clear breakout from current range.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Mechanical confluence score too low (10/100, minimum 65; Claude scored 45)",
+        "BLOCKED: Confidence too low (45%)"
+      ],
+      "logged_at_utc": "2026-03-26T13:40:09.809794Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_134009_809794"
+    },
+    {
+      "timestamp": "2026-03-26T13:45:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00128
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 45,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 45,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies not optimal per knowledge base",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "Recent SSL sweep at 1.15234 with rejection suggests potential reversal but needs confirmation",
+        "Price in discount zone (33%) but lacking strong directional momentum for high-probability entry"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement patterns not applicable in current ranging environment"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 45 below 65 threshold - conflicting timeframe structure, ranging ADX, and lack of clear directional momentum create unfavorable risk/reward environment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (45/100, minimum 65)",
+        "BLOCKED: Confidence too low (45%)"
+      ],
+      "logged_at_utc": "2026-03-26T13:45:27.163765Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_134527_163765"
+    },
+    {
+      "timestamp": "2026-03-26T13:55:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00128
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "FALLING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 55,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 55,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies not optimal per knowledge base",
+        "Recent SSL sweep at 1.15234 with strong rejection suggests potential reversal but needs confirmation",
+        "Rate differential favors USD strength but DXY falling creates conflicting fundamental signals",
+        "Price in discount zone (33%) but lacks valid FVG or strong OB confluence for high-probability entry"
+      ],
+      "key_risk": "Conflicting timeframe alignment and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy not applicable in current ranging ADX environment",
+        "The Forex Trading Course - Post-news retracement concepts relevant but no recent news catalyst present"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 55 below 65 threshold - conflicting timeframe structure, ranging market regime (ADX 12.48), and mixed fundamental signals create low-probability setup",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (55/100, minimum 65)",
+        "BLOCKED: Confidence too low (55%)"
+      ],
+      "logged_at_utc": "2026-03-26T13:55:20.647018Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_135520_647018"
+    },
+    {
+      "timestamp": "2026-03-26T14:02:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00138
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "FALLING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 45,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 45,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with daily/4H neutral structure - no clear alignment per ICT methodology",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies from knowledge base not applicable in low-momentum environment",
+        "Recent SSL sweep at 1.15234 with strong rejection suggests institutional buying interest, but price remains below OTE zone",
+        "Rate differential favors USD strength but falling DXY creates fundamental conflict",
+        "RSI oversold at 37.09 but in ranging market this is not reliable reversal signal"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market regime create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires momentum (ADX >25) which is absent",
+        "The Forex Trading Course - Post-news retracement strategy not applicable in current clear news environment"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 45 below 65 threshold - conflicting timeframe structure, ranging market regime (ADX 12.48), and mixed fundamental picture create low-probability setup",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (45/100, minimum 65)",
+        "BLOCKED: Confidence too low (45%)"
+      ],
+      "logged_at_utc": "2026-03-26T14:02:26.702829Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_140226_702829"
+    },
+    {
+      "timestamp": "2026-03-26T14:08:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00138
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies not optimal per knowledge base",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "Recent SSL sweep at 1.15234 with rejection suggests potential reversal but needs confirmation",
+        "Price in discount zone (33%) but lacking strong directional momentum"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement patterns not applicable in current ranging environment"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 40 below 65 threshold - conflicting timeframe structure, ranging ADX, and lack of clear ICT setup alignment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-26T14:09:05.733858Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_140905_733858"
+    },
+    {
+      "timestamp": "2026-03-26T14:19:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00138
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 45,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 45,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies not optimal per knowledge base",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "Recent SSL sweep at 1.15234 with rejection suggests potential reversal but needs confirmation",
+        "Price in discount zone (33%) but lacking strong directional momentum for high-probability entry"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement patterns not applicable in current ranging environment"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 45 below 65 threshold - conflicting timeframe structure, ranging ADX, and lack of clear ICT setup alignment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (45/100, minimum 65)",
+        "BLOCKED: Confidence too low (45%)"
+      ],
+      "logged_at_utc": "2026-03-26T14:19:25.090944Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_141925_090944"
+    },
+    {
+      "timestamp": "2026-03-26T14:29:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00138
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 45,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 45,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies not optimal per knowledge base",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "Recent SSL sweep at 1.15234 with rejection suggests potential reversal but needs confirmation",
+        "Price in discount zone (33%) but lacking strong directional momentum for high-probability entry"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement patterns not applicable in current ranging environment"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 45 below 65 threshold - conflicting timeframe structure, ranging ADX, and lack of clear ICT setup alignment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (45/100, minimum 65)",
+        "BLOCKED: Confidence too low (45%)"
+      ],
+      "logged_at_utc": "2026-03-26T14:29:46.170399Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_142946_170399"
+    },
+    {
+      "timestamp": "2026-03-26T14:39:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00138
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies not optimal per knowledge base",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "Recent SSL sweep at 1.15234 with rejection suggests potential reversal but needs confirmation",
+        "Price in discount zone (33%) but lacking strong directional momentum"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement patterns not applicable in current ranging environment"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 40 below 65 threshold - conflicting timeframe structure, ranging ADX, and lack of clear ICT setup alignment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-26T14:40:01.965356Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_144001_965356"
+    },
+    {
+      "timestamp": "2026-03-26T14:50:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00138
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with daily/4H neutral and 1H bearish - no clear alignment",
+        "ADX at 12.48 indicates ranging market regime - breakout strategies not optimal per knowledge base",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "Recent SSL sweep at 1.15234 with rejection suggests potential reversal but needs confirmation",
+        "Price in discount zone (33%) but lacking strong directional momentum"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement patterns not applicable in current ranging environment"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 40 below 65 threshold - conflicting timeframe structure, ranging ADX, and lack of clear ICT setup alignment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-26T14:50:21.111441Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_145021_111441"
+    },
+    {
+      "timestamp": "2026-03-26T15:00:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00143
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with daily/4H neutral structure - no clear trend alignment",
+        "ADX at 12.48 indicates ranging market conditions, making breakout strategies unreliable",
+        "Rate differential of +1.62% favoring USD creates fundamental headwind for EUR/USD longs",
+        "Recent SSL sweep at 1.15234 with rejection suggests potential bullish reaction, but lacks confirmation"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy not applicable due to lack of clear contraction pattern",
+        "The Forex Trading Course - Post-news retracement concepts not relevant as no recent news catalyst"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score of 40 falls below 65 minimum threshold. Weekly bullish structure conflicts with daily/4H neutral structure. ADX below 20 indicates ranging conditions unsuitable for directional trades. Rate differential favors USD but COT shows bullish EUR positioning, creating fundamental conflict.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-26T15:00:38.079686Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_150038_079686"
+    },
+    {
+      "timestamp": "2026-03-26T15:10:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00143
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral structure - no clear alignment",
+        "ADX at 12.48 indicates ranging market conditions - breakout strategies not optimal per knowledge base",
+        "Recent SSL sweep at 1.15234 with strong rejection suggests institutional buying interest but needs confirmation",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "RSI oversold at 37.09 but in ranging market this is less reliable signal"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement strategy not applicable in current ranging conditions"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 40 below 65 threshold. Weekly bullish vs Daily/4H neutral creates conflicting signals. ADX 12.48 indicates ranging market where breakout strategies have higher false breakout risk per knowledge base. Rate differential favors USD strength against EUR fundamentally.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-26T15:10:55.274869Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_151055_274869"
+    },
+    {
+      "timestamp": "2026-03-26T15:20:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00143
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral structure - no clear alignment",
+        "ADX at 12.48 indicates ranging market conditions - breakout strategies preferred over trend following",
+        "Rate differential of +1.62% favoring USD creates fundamental headwind for EUR/USD longs",
+        "Recent SSL sweep at 1.15234 with rejection suggests potential bullish momentum, but price remains below OTE zone"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy applicable in ranging conditions"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 40 below 45 minimum threshold - conflicting timeframe structure, ranging market (ADX 12.48), and fundamental USD strength create unfavorable risk/reward environment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-26T15:21:10.816160Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_152110_816160"
+    },
+    {
+      "timestamp": "2026-03-26T15:31:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "BULLISH",
+        "daily": "NEUTRAL",
+        "h4": "NEUTRAL",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": true
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.15234,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15809,
+          1.16073
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "NEUTRAL",
+        "rsi_14": 37.09,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 12.48,
+        "market_regime": "RANGING",
+        "key_levels": {
+          "resistance": [
+            1.1835,
+            1.1929,
+            1.2083
+          ],
+          "support": [
+            1.1507,
+            1.1443,
+            1.1411
+          ]
+        },
+        "atr_1h": 0.00143
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "CLEAR",
+        "news_risk": "CLEAR"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly bullish structure conflicts with Daily/4H neutral structure - no clear alignment",
+        "ADX at 12.48 indicates ranging market conditions - breakout strategies not optimal per knowledge base",
+        "Recent SSL sweep at 1.15234 with strong rejection suggests institutional buying interest",
+        "Rate differential of +1.62% USD favor creates fundamental headwind for EUR/USD longs",
+        "RSI oversold at 37.09 but in ranging market provides limited directional edge"
+      ],
+      "key_risk": "Conflicting timeframe structure and ranging market conditions create low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside Days Breakout Play strategy requires clear directional bias",
+        "The Forex Trading Course - Post-news retracement patterns not applicable in current ranging environment"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 40 below 65 threshold. Conflicting timeframe structure (Weekly bullish vs Daily/4H neutral) combined with ADX 12.48 indicating ranging conditions creates low-probability setup. Knowledge base emphasizes avoiding trades in ranging markets without clear breakout confirmation.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-26T15:31:27.678949Z",
+      "log_filename": "signal_20260326.json",
+      "log_entry_id": "20260326_153127_678949"
+    }
+  ],
+  "entry_count": 18,
+  "last_logged_at_utc": "2026-03-26T15:31:27.678949Z"
+}

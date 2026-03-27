@@ -240,6 +240,19 @@ class OANDAClient:
             "currency": data["currency"],
         }
 
+    @staticmethod
+    def _extract_stop_loss_price(trade: dict) -> float | None:
+        for key in ("stopLossOrder", "guaranteedStopLossOrder", "trailingStopLossOrder"):
+            order = trade.get(key) or {}
+            price = order.get("price") or order.get("triggerPrice")
+            if price in (None, ""):
+                continue
+            try:
+                return float(price)
+            except (TypeError, ValueError):
+                continue
+        return None
+
     def get_open_trades(self) -> list:
         """Get all currently open trades."""
         import requests
@@ -258,6 +271,7 @@ class OANDAClient:
                     "open_price": float(trade["price"]),
                     "unrealized_pl": float(trade["unrealizedPL"]),
                     "open_time": trade["openTime"],
+                    "stop_loss_price": self._extract_stop_loss_price(trade),
                 }
             )
 
@@ -361,12 +375,7 @@ class MarketDataBuilder:
 
             equity = account_equity or account["equity"]
 
-            open_risk_pct = 0.0
-            if open_trades:
-                open_risk_pct = round(
-                    sum(abs(trade["unrealized_pl"]) for trade in open_trades) / equity * 100,
-                    2,
-                )
+            open_risk_pct = self._calculate_open_risk_pct(open_trades, equity)
 
             start_bal = self._get_daily_start_balance(account["balance"])
             daily_pnl_pct = (
@@ -417,6 +426,48 @@ class MarketDataBuilder:
                 log_dir=self.log_dir,
             )
             raise
+
+    @staticmethod
+    def _estimate_trade_risk_usd(trade: dict) -> float:
+        stop_loss = trade.get("stop_loss_price")
+        if stop_loss in (None, ""):
+            return 0.0
+
+        try:
+            units = abs(float(trade.get("units", 0)))
+            open_price = float(trade.get("open_price", 0))
+            stop_loss_price = float(stop_loss)
+        except (TypeError, ValueError):
+            return 0.0
+
+        if units <= 0 or open_price <= 0:
+            return 0.0
+
+        risk_in_quote = abs(open_price - stop_loss_price) * units
+        instrument = str(trade.get("instrument", "")).upper()
+        if instrument.endswith("_USD"):
+            return risk_in_quote
+
+        if instrument.startswith("USD_"):
+            return risk_in_quote / open_price
+
+        return risk_in_quote
+
+    def _calculate_open_risk_pct(self, open_trades: list, equity: float) -> float:
+        if not open_trades or equity <= 0:
+            return 0.0
+
+        total_risk_usd = 0.0
+        for trade in open_trades:
+            stop_based_risk = self._estimate_trade_risk_usd(trade)
+            if stop_based_risk > 0:
+                total_risk_usd += stop_based_risk
+                continue
+
+            # Fall back to unrealized P/L only when the broker payload has no stop.
+            total_risk_usd += abs(float(trade.get("unrealized_pl", 0.0)))
+
+        return round(total_risk_usd / equity * 100, 2)
 
     def _get_daily_start_balance(self, current_balance: float) -> float:
         """

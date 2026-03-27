@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 from app.fundamentals import get_auto_fundamentals as packaged_get_auto_fundamentals
@@ -87,7 +88,7 @@ class FundamentalsFetcherTests(unittest.TestCase):
         self.assertEqual(result["risk_sentiment"], "NEUTRAL")
 
     @patch("app.fundamentals.providers.requests.get")
-    def test_calendar_fetch_uses_daily_cache(self, mock_get):
+    def test_calendar_fetch_uses_cache_on_immediate_repeat(self, mock_get):
         original_cache = fetcher_module._calendar_cache
         original_cache_time = fetcher_module._calendar_cache_time
         try:
@@ -115,7 +116,131 @@ class FundamentalsFetcherTests(unittest.TestCase):
 
             self.assertEqual(first["next_event_name"], "USD — CPI")
             self.assertEqual(second["next_event_name"], "USD — CPI")
-            self.assertEqual(mock_get.call_count, 1)
+            self.assertEqual(mock_get.call_count, 2)
+        finally:
+            fetcher_module._calendar_cache = original_cache
+            fetcher_module._calendar_cache_time = original_cache_time
+
+    def test_calendar_cached_event_recomputes_time_to_event_and_risk(self):
+        original_cache = fetcher_module._calendar_cache
+        original_cache_time = fetcher_module._calendar_cache_time
+        try:
+            base_now = datetime(2030, 3, 18, 12, 0, tzinfo=timezone.utc)
+            fetcher_module._calendar_cache = {
+                "next_event_name": "USD — CPI",
+                "next_news_event": "USD — CPI",
+                "time_to_event": "8 hours",
+                "news_risk": "LOW",
+                "event_time": (base_now + timedelta(hours=2)).isoformat(),
+                "upcoming_events": [
+                    {
+                        "country": "USD",
+                        "event": "CPI",
+                        "event_time": (base_now + timedelta(hours=2)).isoformat(),
+                    }
+                ],
+            }
+            fetcher_module._calendar_cache_time = base_now
+
+            class _FixedDateTime(datetime):
+                @classmethod
+                def now(cls, tz=None):
+                    return base_now if tz is None else base_now.astimezone(tz)
+
+            with patch("app.fundamentals.fetcher.datetime", _FixedDateTime):
+                result = fetcher_module.fetch_next_calendar_event(force_refresh=False)
+
+            self.assertEqual(result["time_to_event"], "2 hours")
+            self.assertEqual(result["news_risk"], "MEDIUM")
+        finally:
+            fetcher_module._calendar_cache = original_cache
+            fetcher_module._calendar_cache_time = original_cache_time
+
+    def test_calendar_cache_advances_to_next_cached_event_without_refetch(self):
+        original_cache = fetcher_module._calendar_cache
+        original_cache_time = fetcher_module._calendar_cache_time
+        try:
+            base_now = datetime(2030, 3, 18, 12, 0, tzinfo=timezone.utc)
+            fetcher_module._calendar_cache = {
+                "next_event_name": "USD — CPI",
+                "next_news_event": "USD — CPI",
+                "time_to_event": "15 minutes",
+                "news_risk": "HIGH",
+                "event_time": (base_now + timedelta(minutes=15)).isoformat(),
+                "upcoming_events": [
+                    {
+                        "country": "USD",
+                        "event": "CPI",
+                        "event_time": (base_now - timedelta(minutes=45)).isoformat(),
+                    },
+                    {
+                        "country": "EUR",
+                        "event": "ECB Presser",
+                        "event_time": (base_now + timedelta(hours=1)).isoformat(),
+                    },
+                ],
+            }
+            fetcher_module._calendar_cache_time = base_now
+
+            class _FixedDateTime(datetime):
+                @classmethod
+                def now(cls, tz=None):
+                    return base_now if tz is None else base_now.astimezone(tz)
+
+            with patch("app.fundamentals.fetcher.datetime", _FixedDateTime):
+                result = fetcher_module.fetch_next_calendar_event(force_refresh=False)
+
+            self.assertEqual(result["next_event_name"], "EUR — ECB Presser")
+        finally:
+            fetcher_module._calendar_cache = original_cache
+            fetcher_module._calendar_cache_time = original_cache_time
+
+    @patch("app.fundamentals.fetcher.build_calendar_snapshot")
+    def test_calendar_cache_refreshes_on_new_fixed_slot(self, mock_build_calendar):
+        original_cache = fetcher_module._calendar_cache
+        original_cache_time = fetcher_module._calendar_cache_time
+        try:
+            base_now = datetime(2030, 3, 18, 12, 1, tzinfo=timezone.utc)
+            fetcher_module._calendar_cache = {
+                "next_event_name": "USD — CPI",
+                "next_news_event": "USD — CPI",
+                "time_to_event": "5 hours",
+                "news_risk": "LOW",
+                "event_time": (base_now + timedelta(hours=5)).isoformat(),
+                "upcoming_events": [
+                    {
+                        "country": "USD",
+                        "event": "CPI",
+                        "event_time": (base_now + timedelta(hours=5)).isoformat(),
+                    }
+                ],
+            }
+            fetcher_module._calendar_cache_time = datetime(2030, 3, 18, 5, 59, tzinfo=timezone.utc)
+            mock_build_calendar.return_value = {
+                "next_event_name": "EUR — ECB Presser",
+                "next_news_event": "EUR — ECB Presser",
+                "time_to_event": "1 hour",
+                "news_risk": "MEDIUM",
+                "event_time": (base_now + timedelta(hours=1)).isoformat(),
+                "upcoming_events": [
+                    {
+                        "country": "EUR",
+                        "event": "ECB Presser",
+                        "event_time": (base_now + timedelta(hours=1)).isoformat(),
+                    }
+                ],
+            }
+
+            class _FixedDateTime(datetime):
+                @classmethod
+                def now(cls, tz=None):
+                    return base_now if tz is None else base_now.astimezone(tz)
+
+            with patch("app.fundamentals.fetcher.datetime", _FixedDateTime):
+                result = fetcher_module.fetch_next_calendar_event(force_refresh=False)
+
+            self.assertEqual(result["next_event_name"], "EUR — ECB Presser")
+            mock_build_calendar.assert_called_once()
         finally:
             fetcher_module._calendar_cache = original_cache
             fetcher_module._calendar_cache_time = original_cache_time

@@ -27,7 +27,7 @@ app/
 │   ├── models.py             # API response schemas
 │   ├── log_queries.py        # Read-side log helpers for the API
 │   ├── frontend_contract.py  # Machine-readable frontend semantics
-│   └── live_snapshot_service.py
+│   └── live_snapshot_service.py # Cached live snapshot refresh service
 ├── brokers/
 │   └── oanda.py              # Broker market/account integration
 ├── cli/
@@ -39,7 +39,7 @@ app/
 │   ├── trade_executor.py     # Order placement and monitoring
 │   └── trade_journal.py      # Trade state, timelines, and close records
 ├── fundamentals/
-│   ├── fetcher.py            # High-level fundamentals aggregation
+│   ├── fetcher.py            # Cached fundamentals aggregation and freshness policy
 │   ├── providers.py          # Source-specific fetch logic
 │   └── common.py             # Shared parsing and cache helpers
 ├── logs/
@@ -63,15 +63,18 @@ app/
 ### `api`
 - Read-oriented surface for the frontend.
 - Should compose data from logs and live snapshots, not embed trading logic.
+- Returns the latest available cached snapshot and refreshes upstream data asynchronously when requested.
 
 ### `fundamentals` and `brokers`
 - External data acquisition only.
 - Keep source-specific parsing here so the analysis and execution layers stay focused on trading logic.
+- `fundamentals/fetcher.py` owns freshness policy. The economic-calendar feed currently refreshes on fixed 6-hour UTC slots and advances through cached upcoming events locally between refreshes.
+- `brokers/oanda.py` owns broker-derived portfolio state such as stop-based open risk when stop-loss data is present.
 
 ### `logs` and `trade_feedback`
 - Preserve what happened and why.
 - Signal logs capture each analysis.
-- Trade timelines connect entry analysis, loop updates, and close events.
+- Trade timelines connect entry analysis, loop updates, and close events in one JSON file per trade.
 - Feedback turns closed trades into review material and RAG memory.
 
 ## Design Rules
