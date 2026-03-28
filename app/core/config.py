@@ -127,6 +127,7 @@ TRADING_CONFIG = {
 
     # Position management
     "tp1_close_percent":    0.50,       # Fraction of position to close at TP1 (0.50 = 50%)
+    "tp1_target_fraction_of_tp2": 0.60,  # Place TP1 at 60% of the distance from entry to TP2
     "tp2_trail":            True,       # Trail remaining position after TP1; False = fixed TP2 only
     "trail_atr_multiplier": 1.0,        # ATR(1H) multiplier for the post-TP1 trailing stop
     "early_momentum_exit":  True,       # Exit weak trades that fail to expand toward TP2 soon after entry

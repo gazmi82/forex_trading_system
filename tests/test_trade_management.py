@@ -4,6 +4,7 @@ import unittest
 
 from app.core.trade_management import (
     assess_early_momentum_exit,
+    resolve_tp1_price,
     resolve_adaptive_time_stop_hours,
 )
 
@@ -88,6 +89,15 @@ class TradeManagementTests(unittest.TestCase):
         self.assertFalse(assessment.should_exit)
         self.assertAlmostEqual(assessment.gap_pips, 8.0, places=2)
         self.assertAlmostEqual(assessment.progress_ratio, 0.8, places=4)
+
+    def test_resolve_tp1_price_places_target_at_sixty_percent_of_tp2_distance(self):
+        tp1 = resolve_tp1_price(
+            {"tp1_target_fraction_of_tp2": 0.60},
+            entry_price=1.15374,
+            tp2_price=1.14413,
+        )
+
+        self.assertEqual(tp1, 1.14797)
 
 
 if __name__ == "__main__":

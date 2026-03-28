@@ -111,6 +111,55 @@ class RuntimeGuardTests(unittest.TestCase):
             any("Claude confluence score too low" in item for item in result["validator_overrides"])
         )
 
+    def test_validate_signal_rewrites_tp1_to_configured_fraction_of_tp2(self):
+        agent = ForexAnalystAgent.__new__(ForexAnalystAgent)
+        agent.config = {
+            "min_confidence": 65,
+            "max_risk_per_trade": 0.01,
+            "max_daily_loss": 0.02,
+            "max_weekly_loss": 0.05,
+            "max_portfolio_risk": 0.03,
+            "tp1_target_fraction_of_tp2": 0.60,
+        }
+        agent._has_session_loss_streak = lambda session, limit=2: False
+
+        signal = {
+            "confluence_score": 82,
+            "signal": {
+                "direction": "SELL",
+                "confidence": 78,
+                "entry_zone": [1.1535, 1.1540],
+                "take_profit_1": 1.14800,
+                "take_profit_2": 1.14413,
+                "risk_reward": 2.8,
+            },
+        }
+        market_data = {
+            "demo_mode": True,
+            "price": 1.1537,
+            "ohlcv": {},
+            "indicators": {},
+            "fundamental": {
+                "active_session": "NY Kill Zone",
+                "next_news_event": "",
+                "time_to_event": "4 hours",
+                "pair_rate": 2.0,
+                "usd_rate": 4.5,
+                "dxy_direction": "RISING",
+                "cot_bias": "BEARISH",
+                "news_risk": "LOW",
+            },
+            "portfolio": {
+                "daily_pnl_pct": 0.0,
+                "weekly_pnl_pct": 0.0,
+                "open_risk_pct": 0.0,
+            },
+        }
+
+        result = agent._validate_signal(signal, market_data)
+
+        self.assertEqual(result["signal"]["take_profit_1"], 1.14798)
+
     def test_validate_signal_blocks_when_weekly_loss_would_be_exceeded(self):
         agent = ForexAnalystAgent.__new__(ForexAnalystAgent)
         agent.config = {

@@ -168,6 +168,13 @@ class SignalReplayTests(unittest.TestCase):
             self.assertTrue(all("entry_zone" in row["signal"] for row in rows))
             self.assertTrue(all("take_profit_1" in row["signal"] for row in rows))
             self.assertTrue(all("take_profit_2" in row["signal"] for row in rows))
+            for row in rows:
+                sig = row["signal"]
+                if sig["direction"] not in {"BUY", "SELL"}:
+                    continue
+                entry = round((float(sig["entry_zone"][0]) + float(sig["entry_zone"][1])) / 2, 5)
+                expected_tp1 = round(entry + ((float(sig["take_profit_2"]) - entry) * 0.60), 5)
+                self.assertEqual(sig["take_profit_1"], expected_tp1)
             self.assertTrue(all("confluence_score" in row for row in rows))
             self.assertTrue(all("component_scores" in row for row in rows))
             self.assertTrue(all("available_component_points" in row for row in rows))

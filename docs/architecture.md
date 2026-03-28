@@ -65,7 +65,7 @@ app/
 
 ### `execution`
 - Turns a valid proposal into broker actions.
-- Owns TP1, first-hour early-momentum exits for stalled trades, trailing stop, close handling, and trade timelines.
+- Owns TP1 placement and partial-close behavior, first-hour early-momentum exits for stalled trades, trailing stop, close handling, and trade timelines.
 - Should not reinterpret market context. It should trust validated signal fields.
 
 ### `api`

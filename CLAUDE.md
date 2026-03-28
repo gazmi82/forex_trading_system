@@ -78,6 +78,7 @@ main.py
 ├── TradeExecutor (app/execution/trade_executor.py)
 │   ├── Order validation + sizing
 │   ├── OANDA order placement / monitoring
+│   ├── TP1 at configurable fraction of entry→TP2 (currently 60%)
 │   ├── TP1 partial close (tp1_close_percent from config)
 │   ├── First-hour early momentum exit for stalled trades
 │   ├── ATR-based trailing stop after TP1 (tp2_trail from config)
@@ -307,7 +308,7 @@ Every analysis produces a JSON signal with this structure:
   "key_risk": "string",
   "knowledge_sources_used": ["Book Title — relevant concept"],
   "trade_management": {
-    "tp1_action": "Close 50% at TP1, move SL to entry",
+    "tp1_action": "TP1 sits at 60% of the distance to TP2; close 50% there and move SL to entry",
     "tp2_action": "Trail remaining 50%",
     "time_stop": "Close if -0.5R after 8 hours"
   },

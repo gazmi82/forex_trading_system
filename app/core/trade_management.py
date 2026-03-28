@@ -14,6 +14,36 @@ class EarlyMomentumAssessment:
     trigger_reason: str
 
 
+def resolve_tp1_price(
+    config: Mapping[str, Any],
+    *,
+    entry_price: Any,
+    tp2_price: Any,
+    fallback_tp1: Any = None,
+) -> float | None:
+    """
+    Place TP1 at a configurable fraction of the distance from entry to TP2.
+
+    This keeps live validation and deterministic replay aligned on the same
+    trade-management structure instead of relying on prompt wording alone.
+    """
+    try:
+        entry = float(entry_price)
+        tp2 = float(tp2_price)
+    except (TypeError, ValueError):
+        return _coerce_optional_price(fallback_tp1)
+
+    if entry <= 0 or tp2 <= 0 or entry == tp2:
+        return _coerce_optional_price(fallback_tp1)
+
+    fraction = _coerce_nonnegative_float(
+        config.get("tp1_target_fraction_of_tp2", 0.50),
+        0.50,
+    )
+    fraction = min(max(fraction, 0.0), 1.0)
+    return round(entry + ((tp2 - entry) * fraction), 5)
+
+
 def resolve_time_stop_hours(
     config_value: Any,
     session: str,
@@ -210,3 +240,10 @@ def _coerce_nonnegative_float(value: Any, fallback: float) -> float:
     if parsed < 0:
         return float(fallback)
     return float(parsed)
+
+
+def _coerce_optional_price(value: Any) -> float | None:
+    try:
+        return round(float(value), 5)
+    except (TypeError, ValueError):
+        return None

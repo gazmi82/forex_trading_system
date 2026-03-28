@@ -297,8 +297,9 @@ Continuous runtime:
 
 6. TRADE MANAGEMENT
    After entry, the executor monitors every cycle:
-   - TP1 hit → close tp1_close_percent of position (default 50%),
-     move stop loss to entry (breakeven)
+   - TP1 is placed at the configured fraction of the entry→TP2 distance
+     (currently 60%); when hit, close tp1_close_percent of position
+     (default 50%) and move stop loss to entry (breakeven)
    - Before TP1, check the first 60 minutes of post-fill price action:
      if the best favorable price is still more than 15 pips from TP2,
      close the trade early as a stalled setup

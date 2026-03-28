@@ -13,7 +13,8 @@ import pandas as pd
 from app.analysis.market_analysis import IndicatorCalculator, MarketStructureAnalyzer
 from app.backtesting.historical_fundamentals_provider import HistoricalFundamentalsProvider
 from app.backtesting.replay_confluence import calculate_confluence
-from app.core.config import AGENT_CONFIG
+from app.core.config import AGENT_CONFIG, TRADING_CONFIG
+from app.core.trade_management import resolve_tp1_price
 
 
 NY_TZ = ZoneInfo("America/New_York")
@@ -69,6 +70,7 @@ class SignalReplayEngine:
         self.fundamentals_provider = fundamentals_provider or HistoricalFundamentalsProvider(
             getattr(loader, "cache_dir", Path("backtest_data"))
         )
+        self.trading_config = dict(TRADING_CONFIG)
         self.min_confidence = int(min_confidence)
         self.strong_signal = int(strong_signal)
 
@@ -380,8 +382,7 @@ class SignalReplayEngine:
         zone = [round(price - fallback_half_width, 5), round(price + fallback_half_width, 5)]
         return zone, "price_fallback"
 
-    @staticmethod
-    def _trade_levels(direction: str, entry_zone: list[float], market_data: dict) -> tuple[float, float, float, float]:
+    def _trade_levels(self, direction: str, entry_zone: list[float], market_data: dict) -> tuple[float, float, float, float]:
         if direction == "NEUTRAL" or len(entry_zone) < 2:
             return 0.0, 0.0, 0.0, 0.0
 
@@ -394,13 +395,17 @@ class SignalReplayEngine:
         if direction == "BUY":
             stop_loss = round(zone_low - buffer, 5)
             risk = max(entry_price - stop_loss, 0.0005)
-            tp1 = round(entry_price + risk, 5)
             tp2 = round(entry_price + (risk * 2), 5)
         else:
             stop_loss = round(zone_high + buffer, 5)
             risk = max(stop_loss - entry_price, 0.0005)
-            tp1 = round(entry_price - risk, 5)
             tp2 = round(entry_price - (risk * 2), 5)
+
+        tp1 = resolve_tp1_price(
+            self.trading_config,
+            entry_price=entry_price,
+            tp2_price=tp2,
+        ) or 0.0
 
         return stop_loss, tp1, tp2, 2.0
 

@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Any, Callable, Mapping
 
 from app.analysis.scheduler import ALLOWED_ENTRY_SESSIONS
+from app.core.trade_management import resolve_tp1_price
 
 
 logger = logging.getLogger(__name__)
@@ -151,6 +152,7 @@ def validate_signal(
         return signal
 
     _attach_runtime_technical_details(signal, market_data)
+    _normalize_trade_management_levels(signal, config)
 
     def block(reason: str):
         nonlocal execution_allowed, execution_direction
@@ -246,6 +248,36 @@ def _attach_runtime_technical_details(signal: dict[str, Any], market_data: Mappi
         atr_1h = indicators.get("atr_1h")
         if atr_1h not in (None, ""):
             technical["atr_1h"] = atr_1h
+
+
+def _normalize_trade_management_levels(signal: dict[str, Any], config: Mapping[str, Any]) -> None:
+    sig = signal.get("signal")
+    if not isinstance(sig, dict):
+        return
+
+    entry_zone = sig.get("entry_zone") or []
+    if not isinstance(entry_zone, list) or len(entry_zone) < 2:
+        return
+
+    try:
+        entry_price = (float(entry_zone[0]) + float(entry_zone[1])) / 2.0
+    except (TypeError, ValueError):
+        return
+
+    direction = str(sig.get("direction", "")).upper()
+    if direction not in {"BUY", "SELL"}:
+        return
+
+    tp1 = resolve_tp1_price(
+        config,
+        entry_price=entry_price,
+        tp2_price=sig.get("take_profit_2"),
+        fallback_tp1=sig.get("take_profit_1"),
+    )
+    if tp1 is not None:
+        sig["take_profit_1"] = tp1
+
+
 def _safe_score(value: Any) -> int:
     try:
         return int(float(value or 0))

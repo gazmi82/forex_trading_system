@@ -232,7 +232,8 @@ mechanical scorer. Claude is non-deterministic and costs money.
 Given a `BacktestSignal`, walk forward through subsequent candles and
 determine the outcome following the live executor's rules exactly:
 - Entry fills when price touches the entry zone midpoint.
-- TP1 hit → close `tp1_close_percent`, move SL to entry.
+- TP1 is placed at the configured fraction of the entry→TP2 distance
+  (currently 60%); when hit, close `tp1_close_percent` and move SL to entry.
 - If TP1 has not hit and the first-hour expansion toward TP2 is too weak,
   exit the trade early as a stalled setup.
 - After TP1 → apply the current live ATR-based trailing-stop rule.
