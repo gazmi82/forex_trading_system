@@ -12,13 +12,14 @@
 # =============================================================================
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
 
 from app.analysis.scheduler import ALLOWED_ENTRY_SESSIONS
 from app.core.trade_management import (
+    assess_early_momentum_exit,
     resolve_adaptive_time_stop_hours,
     trail_distance_from_context,
 )
@@ -348,6 +349,7 @@ class TradeExecutor:
         """
         Check tracked trades for:
         - TP1 hit → close 50%, move SL to breakeven
+        - Early momentum exit → close stalled trades after the first hour
         - Time stop → close if -0.5R after N hours
         - Broker-managed close (SL / TP / manual)
         """
@@ -392,25 +394,43 @@ class TradeExecutor:
                 continue
 
             live_trade = live_trades[trade_id]
-            time_stop_msg = self._apply_time_stop_if_needed(trade, live_trade, now)
-            if time_stop_msg:
-                actions.append(time_stop_msg)
-                print(f"\n⏱  TIME STOP: {time_stop_msg}")
-                del tracked[key]
-                continue
+            early_snapshot = self._get_early_momentum_snapshot(trade, now)
+            merged_high, merged_low = self._merge_monitor_extremes(
+                recent_extremes,
+                early_snapshot,
+            )
 
             tp1_msg = self._apply_tp1_if_needed(
                 trade,
                 live_trade,
                 bid_price,
                 ask_price,
-                recent_extremes["high"],
-                recent_extremes["low"],
+                merged_high,
+                merged_low,
             )
             if tp1_msg:
                 actions.append(tp1_msg)
                 print(f"\n🎯 TP1 HIT: {tp1_msg}")
                 logger.info(tp1_msg)
+
+            early_msg = self._apply_early_momentum_exit_if_needed(
+                trade,
+                live_trade,
+                early_snapshot,
+            )
+            if early_msg:
+                actions.append(early_msg)
+                print(f"\n⚡ EARLY EXIT: {early_msg}")
+                logger.info(early_msg)
+                del tracked[key]
+                continue
+
+            time_stop_msg = self._apply_time_stop_if_needed(trade, live_trade, now)
+            if time_stop_msg:
+                actions.append(time_stop_msg)
+                print(f"\n⏱  TIME STOP: {time_stop_msg}")
+                del tracked[key]
+                continue
 
             trail_msg = self._apply_trailing_stop_if_needed(
                 trade,
@@ -426,6 +446,24 @@ class TradeExecutor:
 
         self.journal.save_open_trades(tracked)
         return actions
+
+    @staticmethod
+    def _merge_monitor_extremes(
+        recent_extremes: dict,
+        early_snapshot: dict | None,
+    ) -> tuple[float | None, float | None]:
+        highs = [recent_extremes.get("high")]
+        lows = [recent_extremes.get("low")]
+        if early_snapshot:
+            highs.append(early_snapshot.get("window_high"))
+            lows.append(early_snapshot.get("window_low"))
+
+        clean_highs = [float(item) for item in highs if item is not None]
+        clean_lows = [float(item) for item in lows if item is not None]
+        return (
+            max(clean_highs) if clean_highs else None,
+            min(clean_lows) if clean_lows else None,
+        )
 
     def _get_recent_monitor_extremes(self) -> dict:
         """
@@ -451,6 +489,75 @@ class TradeExecutor:
             logger.warning(f"Recent candle aggregation failed: {exc}")
             return {"high": None, "low": None}
 
+    def _get_early_momentum_snapshot(
+        self,
+        trade: dict,
+        now: datetime,
+    ) -> dict | None:
+        if trade.get("early_momentum_checked"):
+            return None
+
+        open_time_str = trade.get("open_time")
+        if not open_time_str:
+            return None
+
+        try:
+            open_time = datetime.fromisoformat(open_time_str)
+        except Exception:
+            return None
+
+        minutes = self.config.get("early_momentum_minutes", 60)
+        deadline_minutes = max(int(float(minutes)), 1)
+        deadline = open_time + timedelta(minutes=deadline_minutes)
+        if now < deadline:
+            return None
+
+        candles = self._get_monitor_window_candles(open_time, deadline)
+        if candles is None or getattr(candles, "empty", True):
+            return None
+
+        try:
+            window_high = float(candles["high"].max())
+            window_low = float(candles["low"].min())
+        except Exception as exc:
+            logger.warning(f"Early-momentum candle aggregation failed: {exc}")
+            return None
+
+        direction = str(trade.get("direction", "")).upper()
+        favorable_price = window_high if direction == "BUY" else window_low
+        assessment = assess_early_momentum_exit(
+            self.config,
+            direction=direction,
+            entry_price=trade.get("entry_price"),
+            tp2_price=trade.get("tp2"),
+            favorable_price=favorable_price,
+        )
+        return {
+            "deadline": deadline,
+            "window_high": window_high,
+            "window_low": window_low,
+            "assessment": assessment,
+        }
+
+    def _get_monitor_window_candles(self, start: datetime, end: datetime):
+        try:
+            if hasattr(self.client, "get_candles_range"):
+                return self.client.get_candles_range(
+                    self.INSTRUMENT,
+                    "M1",
+                    start=start,
+                    end=end,
+                )
+        except Exception as exc:
+            logger.warning(f"Ranged M1 fetch for trade monitor failed: {exc}")
+
+        try:
+            minutes = max(int((end - start).total_seconds() / 60) + 2, 2)
+            return self.client.get_candles(self.INSTRUMENT, "M1", count=minutes)
+        except Exception as exc:
+            logger.warning(f"Fallback M1 fetch for trade monitor failed: {exc}")
+            return None
+
     def _activate_pending_order_if_filled(self, trade: dict, actions: list[str]) -> str | None:
         if trade.get("trade_id") or not trade.get("order_id"):
             return trade.get("trade_id")
@@ -464,6 +571,37 @@ class TradeExecutor:
         print(f"\n✅ Limit order {order_id} filled → trade {filled_id}")
         actions.append(f"Order {order_id} filled as trade {filled_id}")
         return filled_id
+
+    def _apply_early_momentum_exit_if_needed(
+        self,
+        trade: dict,
+        live_trade: dict,
+        early_snapshot: dict | None,
+    ) -> str | None:
+        if trade.get("early_momentum_checked"):
+            return None
+        if not early_snapshot:
+            return None
+
+        trade["early_momentum_checked"] = True
+        if trade.get("tp1_hit"):
+            return None
+
+        assessment = early_snapshot.get("assessment")
+        if not assessment or not assessment.enabled or not assessment.should_exit:
+            return None
+
+        trade_id = trade.get("trade_id")
+        if not trade_id:
+            return None
+
+        unrealized = float(live_trade["unrealized_pl"])
+        self._close_trade(trade_id)
+        self.journal.record_trade_close(trade, "EARLY_MOMENTUM_EXIT", unrealized)
+        return (
+            f"Closed trade {trade_id} after {assessment.minutes:.0f}m: "
+            f"{assessment.trigger_reason or 'insufficient progress toward TP2'}"
+        )
 
     def _apply_time_stop_if_needed(
         self,

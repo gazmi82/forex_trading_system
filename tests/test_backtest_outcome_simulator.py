@@ -133,6 +133,64 @@ class OutcomeSimulatorTests(unittest.TestCase):
         self.assertEqual(rows[0]["close_reason"], "TIME_STOP")
         self.assertLess(rows[0]["pnl_r"], 0)
 
+    def test_simulator_applies_early_momentum_exit_before_time_stop(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = Path(tmpdir)
+            rows = []
+            for _ in range(62):
+                rows.append(
+                    {
+                        "open": 1.1000,
+                        "high": 1.1005,
+                        "low": 1.0997,
+                        "close": 1.1002,
+                        "volume": 100,
+                    }
+                )
+            frame = _frame_from_rows("2026-03-25T12:00:00Z", rows)
+            _write_m1_dataset(base, frame)
+            signal = {
+                "pair": "EUR/USD",
+                "timestamp": "2026-03-25T12:00:00Z",
+                "session": "London Close",
+                "confluence_score": 72,
+                "signal_strength": "MODERATE",
+                "execution_allowed": True,
+                "validator_overrides": [],
+                "signal": {
+                    "direction": "BUY",
+                    "confidence": 72,
+                    "entry_zone": [1.1000, 1.1000],
+                    "stop_loss": 1.0980,
+                    "take_profit_1": 1.1020,
+                    "take_profit_2": 1.1040,
+                    "risk_reward": 2.0,
+                },
+            }
+            signals_path = _write_signal_file(base, [signal])
+            loader = HistoricalDataLoader(None, base)
+            simulator = OutcomeSimulator(
+                loader,
+                output_root=base / "results",
+                trading_config={
+                    "early_momentum_exit": True,
+                    "early_momentum_minutes": 60,
+                    "early_momentum_max_gap_pips": 15.0,
+                },
+            )
+
+            summary = simulator.simulate(signals_path, local_only=True)
+            rows = [
+                json.loads(line)
+                for line in Path(summary.output_path).read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertEqual(summary.filled_trades, 1)
+        self.assertEqual(rows[0]["close_reason"], "EARLY_MOMENTUM_EXIT")
+        self.assertGreater(rows[0]["pnl_r"], 0)
+        self.assertLess(rows[0]["pnl_r"], 0.5)
+
     def test_simulator_trails_runner_in_same_candle_as_tp1(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             base = Path(tmpdir)

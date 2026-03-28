@@ -368,6 +368,7 @@ class TradeJournal:
             "tp2": sig.get("take_profit_2"),
             "risk_reward": sig.get("risk_reward"),
             "tp1_hit": False,
+            "early_momentum_checked": False,
             "open_time": datetime.now(timezone.utc).isoformat(),
             "confluence": signal.get("confluence_score"),
             "confidence": sig.get("confidence"),
@@ -726,7 +727,11 @@ class TradeJournal:
             "close_reason_detail": (
                 "Broker-managed protective order closed the trade."
                 if reason == "CLOSED_BY_OANDA"
-                else "Trade was closed by the executor's time-stop rule."
+                else (
+                    "Trade was closed by the executor's early momentum rule after the first-hour expansion toward TP2 was too weak."
+                    if reason == "EARLY_MOMENTUM_EXIT"
+                    else "Trade was closed by the executor's time-stop rule."
+                )
             ),
             "setup_grade": setup_grade,
             "entry_timing": entry_timing,

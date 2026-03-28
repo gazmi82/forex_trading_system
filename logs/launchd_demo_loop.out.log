@@ -11569,3 +11569,208 @@ Press Ctrl+C to stop.
    export OANDA_API_KEY='your-api-key'
    export OANDA_ACCOUNT_ID='101-001-38764497-001'
    Then rerun the command.
+
+[01:49:46] Loop #170
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:49:46,720 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:50:46] Loop #171
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:50:47,028 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:51:47] Loop #172
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:51:47,388 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:52:47] Loop #173
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:52:47,738 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:53:47] Loop #174
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:53:48,131 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:54:48] Loop #175
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:54:48,467 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:55:48] Loop #176
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:55:48,808 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:56:48] Loop #177
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:56:49,561 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:57:49] Loop #178
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:57:50,046 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:58:50] Loop #179
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:58:54,149 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:59:54] Loop #180
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:59:54,489 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[02:00:54] Loop #181
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15115 (spread: 6.1 pips)
+  Calculating indicators...
+  📥 Fetching policy rates from Fed and ECB webpages...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ News: investingLive Americas market news wrap: Oil prices surge as war worries mount (Forexlive)
+  ✅ DXY: 100.19 → NEUTRAL  (1h MA: 100.15, 15m: +0.03%, vs MA: +0.04%)
+2026-03-28 03:00:55,361 [WARNING] app.fundamentals.providers: OANDA position book fetch failed: 502 Server Error: Bad Gateway for url: https://api-fxpractice.oanda.com/v3/instruments/EUR_USD/positionBook
+  ✅ Risk sentiment: NEUTRAL (SPY 632.71, 15m: -0.04%, vs MA: -0.03%)
+  ✅ Rates: USD 3.62% (3.50-3.75) | ECB deposit 2.00% | MRO 2.15% | MLF 2.40% | Diff +1.62%
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15115
+  Session: Asian Session
+  ⏸ Entry analysis skipped — Outside allowed trade window — Asian session (Asian Session)
+
+  Next monitor-only cycle in 30 minutes...
+
+[11:41:05] Loop #182
+2026-03-28 12:41:06,544 [WARNING] app.cli.main: Demo loop resumed after stall: Missed expected next run by 33010s
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 12:41:09,207 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[11:43:51] Loop #183
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15115 (spread: 6.1 pips)
+  Calculating indicators...
+  📥 Fetching policy rates from Fed and ECB webpages...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching COT data from CFTC.gov...
+  📥 Fetching FX headlines from Finnhub...  📥 Fetching EUR/USD retail positioning from OANDA position book...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ Risk sentiment: NEUTRAL (SPY 632.71, 15m: -0.04%, vs MA: -0.03%)
+  ✅ DXY: 100.19 → NEUTRAL  (1h MA: 100.15, 15m: +0.03%, vs MA: +0.04%)
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ COT: BULLISH | Asset Mgr net: +287,940 | Hedge Funds: -13,538 (as of 2026-03-24)
+  ✅ News: investingLive Americas market news wrap: Oil prices surge as war worries mount (Forexlive)
+  ✅ Rates: USD 3.62% (3.50-3.75) | ECB deposit 2.00% | MRO 2.15% | MLF 2.40% | Diff +1.62%
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15115
+  Session: Weekend
+  ⏸ Entry analysis skipped — Weekend block (Saturday) (Weekend)
+
+  Next monitor-only cycle in 30 minutes...

@@ -30,11 +30,19 @@ app/
 │   └── live_snapshot_service.py # Cached live snapshot refresh service
 ├── brokers/
 │   └── oanda.py              # Broker market/account integration
+├── backtesting/
+│   ├── data_loader.py        # Historical candle loading and timeframe alignment
+│   ├── signal_replayer.py    # Deterministic replay engine
+│   ├── replay_confluence.py  # Replay-specific confluence normalization
+│   ├── outcome_simulator.py  # Historical trade lifecycle simulation
+│   ├── report.py             # Backtest performance reporting
+│   └── historical_fundamentals_provider.py # Local macro/news datasets for replay
 ├── cli/
 │   └── main.py               # CLI runtime modes and loop entrypoint
 ├── core/
 │   ├── config.py             # Runtime configuration
-│   └── text_utils.py         # Formatting / normalization helpers
+│   ├── text_utils.py         # Formatting / normalization helpers
+│   └── trade_management.py   # Shared trade-management rules
 ├── execution/
 │   ├── trade_executor.py     # Order placement and monitoring
 │   └── trade_journal.py      # Trade state, timelines, and close records
@@ -57,7 +65,7 @@ app/
 
 ### `execution`
 - Turns a valid proposal into broker actions.
-- Owns TP1, trailing stop, close handling, and trade timelines.
+- Owns TP1, first-hour early-momentum exits for stalled trades, trailing stop, close handling, and trade timelines.
 - Should not reinterpret market context. It should trust validated signal fields.
 
 ### `api`
@@ -70,6 +78,11 @@ app/
 - Keep source-specific parsing here so the analysis and execution layers stay focused on trading logic.
 - `fundamentals/fetcher.py` owns freshness policy. The economic-calendar feed currently refreshes on fixed 6-hour UTC slots and advances through cached upcoming events locally between refreshes.
 - `brokers/oanda.py` owns broker-derived portfolio state such as stop-based open risk when stop-loss data is present.
+
+### `backtesting`
+- Replays the deterministic stack without live API calls.
+- Uses local CSV-backed macro/news datasets through `historical_fundamentals_provider.py`.
+- Should stay close to live execution behavior for TP1, early exits, trailing, and time-stop logic so replay remains comparable to runtime behavior.
 
 ### `logs` and `trade_feedback`
 - Preserve what happened and why.

@@ -358,3 +358,17 @@
 2026-03-28 02:46:44,670 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
 2026-03-28 02:47:45,392 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
 2026-03-28 02:48:46,207 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:49:46,720 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:50:47,028 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:51:47,388 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:52:47,738 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:53:48,131 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:54:48,467 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:55:48,808 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:56:49,561 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:57:50,046 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:58:54,149 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:59:54,489 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 03:00:55,361 [WARNING] app.fundamentals.providers: OANDA position book fetch failed: 502 Server Error: Bad Gateway for url: https://api-fxpractice.oanda.com/v3/instruments/EUR_USD/positionBook
+2026-03-28 12:41:06,544 [WARNING] app.cli.main: Demo loop resumed after stall: Missed expected next run by 33010s
+2026-03-28 12:41:09,207 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD

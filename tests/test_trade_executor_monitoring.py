@@ -25,6 +25,9 @@ class _MonitorClient:
     def get_candles(self, instrument: str, granularity: str, count: int = 200):
         return self._candles.copy()
 
+    def get_candles_range(self, instrument: str, granularity: str, *, start, end):
+        return self._candles.copy()
+
     def get_account_summary(self):
         return {"equity": 100000.0}
 
@@ -243,6 +246,7 @@ class TradeExecutorMonitoringTests(unittest.TestCase):
                 client,
                 {
                     "demo_mode": True,
+                    "early_momentum_exit": False,
                     "time_stop_hours": {
                         "London Close": 3,
                         "default": 8,
@@ -294,6 +298,7 @@ class TradeExecutorMonitoringTests(unittest.TestCase):
                 client,
                 {
                     "demo_mode": True,
+                    "early_momentum_exit": False,
                     "time_stop_hours": {
                         "London Close": 3,
                         "default": 8,
@@ -331,6 +336,62 @@ class TradeExecutorMonitoringTests(unittest.TestCase):
         self.assertFalse(any("Time stop" in item for item in actions))
         self.assertEqual(executor.close_calls, [])
         self.assertIn("trade_1", tracked)
+
+    def test_monitor_applies_early_momentum_exit_when_trade_stalls(self):
+        candles = pd.DataFrame(
+            {
+                "high": [1.15100, 1.15080, 1.15060],
+                "low": [1.14980, 1.14970, 1.14960],
+                "close": [1.14990, 1.14985, 1.14980],
+            }
+        )
+        client = _MonitorClient(
+            current_price={
+                "bid": 1.14970,
+                "ask": 1.14990,
+                "mid": 1.14980,
+            },
+            open_trades=[
+                {
+                    "id": "200",
+                    "instrument": "EUR_USD",
+                    "units": 100000.0,
+                    "open_price": 1.15374,
+                    "unrealized_pl": -384.0,
+                    "open_time": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(),
+                }
+            ],
+            candles=candles,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            executor = _RecordingTradeExecutor(
+                client,
+                {
+                    "demo_mode": True,
+                    "early_momentum_exit": True,
+                    "early_momentum_minutes": 60,
+                    "early_momentum_max_gap_pips": 15.0,
+                },
+                Path(tmpdir),
+            )
+            executor.journal.save_open_trades(
+                {
+                    "trade_1": self._tracked_trade(
+                        open_time=(datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(),
+                        stop_loss=1.15650,
+                        tp1=1.14800,
+                        tp2=1.14413,
+                    )
+                }
+            )
+
+            actions = executor.monitor_open_trades()
+            tracked = executor.journal.load_open_trades()
+
+        self.assertTrue(any("Closed trade 200 after 60m" in item for item in actions))
+        self.assertEqual(executor.close_calls, ["200"])
+        self.assertEqual(tracked, {})
 
 if __name__ == "__main__":
     unittest.main()

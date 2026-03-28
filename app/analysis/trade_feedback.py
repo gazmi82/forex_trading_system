@@ -361,6 +361,11 @@ class TradeFeedbackManager:
                 "The remaining position was closed by the executor's time-stop logic because the trade stayed open too long "
                 "without recovering enough relative to risk."
             )
+        elif close_reason == "EARLY_MOMENTUM_EXIT":
+            parts.append(
+                "The executor closed the trade early because the first-hour expansion toward TP2 was too weak, "
+                "so the setup was treated as stalling rather than trending."
+            )
         elif close_reason == "CLOSED_BY_OANDA":
             parts.append(
                 "The remaining position disappeared from OANDA's open-trades list, so a broker-managed protective order closed it."

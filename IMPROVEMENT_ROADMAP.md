@@ -1,10 +1,10 @@
 # Improvement Roadmap — Score 38 → 75
-## Forex Trading System | Last updated: March 25, 2026
+## Forex Trading System | Last updated: March 28, 2026
 
-This document defines every improvement required to raise the system
-confidence score from 38/100 to 75/100. Each item includes the problem
-it solves, the implementation approach, and acceptance criteria that
-confirm it is done correctly.
+This document tracks the improvements that took the system from the
+original 38/100 baseline toward the current 75/100 implementation
+target. Each item includes the problem it solves, the implementation
+approach, and acceptance criteria that confirm it is done correctly.
 
 Improvements are grouped into five pillars. Complete them in phase order
 — each phase builds on the one before it.
@@ -27,13 +27,14 @@ Improvements are grouped into five pillars. Complete them in phase order
 
 | Dimension              | Current                                | Target                              |
 |------------------------|----------------------------------------|-------------------------------------|
-| Edge validation        | No backtesting — untested              | 2+ years backtested, 200+ samples   |
+| Edge validation        | 2-year replay + outcome simulator available | 2+ years backtested, 200+ samples |
 | Confluence scoring     | Claude analysis + mechanical gate      | Mechanically calculated             |
 | Performance visibility | Edge report and weekly summary available | Win rate by tag, session, grade |
 | Trailing stop          | ATR-based from entry-time 1H ATR       | ATR-based                           |
 | Weekly loss limit      | Enforced in validator + executor       | Enforced in validator + executor    |
 | ICT OB detection       | Mitigation-aware + displacement        | Mitigation-aware + displacement     |
 | FVG detection          | Partial and full fill tracking         | Partial and full fill tracking      |
+| Replay fundamentals    | Local rates / DXY / COT / calendar CSVs | Maintain and extend dataset quality |
 
 ---
 
@@ -41,7 +42,7 @@ Improvements are grouped into five pillars. Complete them in phase order
 
 | Phase | After | Score  | Key Unlock                                      |
 |-------|-------|--------|-------------------------------------------------|
-| —     | Now   | 38/100 | Good rules, unproven edge, Claude scores itself |
+| —     | Roadmap start | 38/100 | Good rules, unproven edge, Claude scores itself |
 | 1     | M2-3  | 50/100 | Independent scoring, weekly limit enforced      |
 | 2     | M3-4  | 60/100 | Backtested expectancy — edge proven or fixed    |
 | 3     | M4-5  | 67/100 | Data-driven session and setup filtering         |
@@ -198,7 +199,7 @@ Class `HistoricalDataLoader`:
 ---
 
 ### Item 2.2 — Signal Replay Engine [DONE]
-**Status:** `DONE` — the replay engine rebuilds historical market context from CSV datasets, walks every NY session window, and emits one mechanical signal record per window without calling Claude. It currently neutralizes unavailable historical macro feeds, but the roadmap acceptance criteria for replay speed, no-lookahead behavior, and signal output shape are satisfied.
+**Status:** `DONE` — the replay engine rebuilds historical market context from CSV datasets, walks every weekday kill-zone window, and emits one mechanical signal record per window without calling Claude. Historical rates, DXY, COT, and calendar context are now loaded through `historical_fundamentals_provider.py` from local CSV datasets.
 
 **New file:** `app/backtesting/signal_replayer.py`
 
@@ -224,7 +225,7 @@ mechanical scorer. Claude is non-deterministic and costs money.
 ---
 
 ### Item 2.3 — Outcome Simulator [DONE]
-**Status:** `DONE` — replayed signals can now be simulated into closed-trade style records using historical M1 candles, TP1 partials, breakeven move, trailing-stop logic, and time-stop handling.
+**Status:** `DONE` — replayed signals can now be simulated into closed-trade style records using historical M1 candles, TP1 partials, breakeven move, first-hour early momentum exits for stalled trades, ATR-based trailing-stop logic, and time-stop handling.
 
 **New file:** `app/backtesting/outcome_simulator.py`
 
@@ -232,8 +233,9 @@ Given a `BacktestSignal`, walk forward through subsequent candles and
 determine the outcome following the live executor's rules exactly:
 - Entry fills when price touches the entry zone midpoint.
 - TP1 hit → close `tp1_close_percent`, move SL to entry.
-- After TP1 → apply the current live trailing-stop rule
-  (entry-to-TP1 distance, until Phase 4 upgrades it to ATR-based).
+- If TP1 has not hit and the first-hour expansion toward TP2 is too weak,
+  exit the trade early as a stalled setup.
+- After TP1 → apply the current live ATR-based trailing-stop rule.
 - Time stop → close at session's configured hours if < -0.5R.
 - Final close at TP2 or SL.
 
@@ -246,6 +248,7 @@ can read both live and backtest results.
 **Acceptance criteria:**
 - Outcome logic matches live executor rule for rule.
 - Partial close (TP1 hit, runner stopped at entry) modelled correctly.
+- Early weak-momentum exits are modelled consistently in replay and live runtime.
 
 ---
 

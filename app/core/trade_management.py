@@ -1,6 +1,17 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Mapping
+
+
+@dataclass(frozen=True)
+class EarlyMomentumAssessment:
+    enabled: bool
+    minutes: float
+    gap_pips: float | None
+    progress_ratio: float | None
+    should_exit: bool
+    trigger_reason: str
 
 
 def resolve_time_stop_hours(
@@ -105,6 +116,80 @@ def resolve_adaptive_time_stop_hours(
     max_extension = _coerce_nonnegative_float(ext_cfg.get("max_total_hours"), 2.0)
     extension = min(extension, max_extension)
     return round(base_hours + extension, 2), reasons
+
+
+def assess_early_momentum_exit(
+    config: Mapping[str, Any],
+    *,
+    direction: str,
+    entry_price: Any,
+    tp2_price: Any,
+    favorable_price: Any,
+) -> EarlyMomentumAssessment:
+    """
+    Evaluate whether a trade has shown enough expansion toward TP2 in the first
+    configured minutes after entry.
+
+    By default the rule is:
+    - enabled
+    - check once after 60 minutes
+    - exit if the best favorable price is still more than 15 pips from TP2
+
+    An optional progress ratio can also be configured if a percentage-based
+    threshold is preferred in addition to the absolute gap check.
+    """
+    if not bool(config.get("early_momentum_exit", True)):
+        return EarlyMomentumAssessment(False, 0.0, None, None, False, "")
+
+    minutes = _coerce_positive_float(config.get("early_momentum_minutes"), 60.0)
+    try:
+        entry = float(entry_price)
+        tp2 = float(tp2_price)
+        favorable = float(favorable_price)
+    except (TypeError, ValueError):
+        return EarlyMomentumAssessment(True, minutes, None, None, False, "")
+
+    total_distance = abs(tp2 - entry)
+    if total_distance <= 0:
+        return EarlyMomentumAssessment(True, minutes, None, None, False, "")
+
+    direction_upper = str(direction or "").strip().upper()
+    if direction_upper == "BUY":
+        progressed = favorable - entry
+    elif direction_upper == "SELL":
+        progressed = entry - favorable
+    else:
+        return EarlyMomentumAssessment(True, minutes, None, None, False, "")
+
+    progress_ratio = max(0.0, progressed / total_distance)
+    gap_pips = abs(tp2 - favorable) * 10000
+
+    max_gap_pips = config.get("early_momentum_max_gap_pips", 15.0)
+    min_progress = config.get("early_momentum_min_tp2_progress")
+
+    meets_gap = True
+    if max_gap_pips not in (None, ""):
+        meets_gap = gap_pips <= _coerce_nonnegative_float(max_gap_pips, 15.0)
+
+    meets_progress = True
+    if min_progress not in (None, ""):
+        meets_progress = progress_ratio >= _coerce_nonnegative_float(min_progress, 0.0)
+
+    should_exit = not (meets_gap and meets_progress)
+    reasons = []
+    if not meets_gap and max_gap_pips not in (None, ""):
+        reasons.append(f"tp2 gap {gap_pips:.1f} pips > {float(max_gap_pips):.1f}")
+    if not meets_progress and min_progress not in (None, ""):
+        reasons.append(f"progress {progress_ratio:.2f} < {float(min_progress):.2f}")
+
+    return EarlyMomentumAssessment(
+        True,
+        round(minutes, 2),
+        round(gap_pips, 2),
+        round(progress_ratio, 4),
+        should_exit,
+        "; ".join(reasons),
+    )
 
 
 def _coerce_positive_float(value: Any, fallback: float) -> float:

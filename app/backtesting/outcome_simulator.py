@@ -9,6 +9,7 @@ from typing import Any
 import pandas as pd
 
 from app.core.trade_management import (
+    assess_early_momentum_exit,
     resolve_adaptive_time_stop_hours,
     trail_distance_from_context,
 )
@@ -178,6 +179,9 @@ class OutcomeSimulator:
             macro_bias=(signal.get("macro_bias") if isinstance(signal.get("macro_bias"), dict) else {}),
             confluence_score=signal.get("confluence_score"),
         )
+        early_exit_after = fill_time + timedelta(
+            minutes=max(int(float(self.config.get("early_momentum_minutes", 60))), 1)
+        )
         time_stop_after = fill_time + timedelta(hours=max_hours)
         close_pct = float(self.config.get("tp1_close_percent", 0.50))
         remaining_fraction = 1.0
@@ -195,11 +199,17 @@ class OutcomeSimulator:
             atr_1h_at_entry=(technical.get("atr_1h") if isinstance(technical, dict) else None),
             trail_atr_multiplier=self.config.get("trail_atr_multiplier", 1.0),
         )
+        early_momentum_checked = False
+        best_favorable_price = entry_price
         for candle in future[future.index >= fill_candle.name].itertuples():
             candle_time = candle.Index.to_pydatetime().astimezone(timezone.utc)
             high = float(candle.high)
             low = float(candle.low)
             close = float(candle.close)
+            if direction == "BUY":
+                best_favorable_price = max(best_favorable_price, high)
+            else:
+                best_favorable_price = min(best_favorable_price, low)
 
             if direction == "BUY":
                 protective_hit = low <= current_sl
@@ -283,11 +293,12 @@ class OutcomeSimulator:
                     partial_close_events=partial_close_events,
                 )
 
-            # Mirror the live monitor ordering:
+            # Mirror the live monitor lifecycle closely enough for replay:
             # 1. broker-managed SL / TP2
             # 2. time-stop decision using the current marked price
-            # 3. executor-managed TP1 handling from recent extremes
-            # 4. trailing-stop ratchet after TP1
+            # 3. executor-managed TP1 handling
+            # 4. first-hour momentum exit for stalled trades
+            # 5. trailing-stop ratchet after TP1
             if candle_time >= time_stop_after:
                 floating_r = self._remaining_r(
                     direction,
@@ -324,9 +335,9 @@ class OutcomeSimulator:
                 tp1_closed_fraction = close_pct
                 stop_moved_to_entry = True
                 partial_close_events.append(
-                        {
-                            "timestamp": _to_utc_z(candle_time),
-                            "type": "TP1_PARTIAL",
+                    {
+                        "timestamp": _to_utc_z(candle_time),
+                        "type": "TP1_PARTIAL",
                         "price": round(tp1, 5),
                         "size_fraction_closed": close_pct,
                         "estimated_realized_pnl_r": round(partial_r, 4),
@@ -334,6 +345,41 @@ class OutcomeSimulator:
                 )
                 remaining_fraction = max(0.0, 1.0 - close_pct)
                 current_sl = entry_price
+
+            if not early_momentum_checked and candle_time >= early_exit_after:
+                early_momentum_checked = True
+                assessment = assess_early_momentum_exit(
+                    self.config,
+                    direction=direction,
+                    entry_price=entry_price,
+                    tp2_price=tp2,
+                    favorable_price=best_favorable_price,
+                )
+                if assessment.enabled and assessment.should_exit and not tp1_hit:
+                    total_r = partial_realized_r + self._remaining_r(
+                        direction,
+                        entry_price,
+                        close,
+                        risk_distance,
+                        remaining_fraction,
+                    )
+                    return self._closed_trade_record(
+                        signal,
+                        entry_price=entry_price,
+                        stop_loss=stop_loss,
+                        tp2=tp2,
+                        fill_time=fill_time,
+                        close_time=candle_time,
+                        close_reason="EARLY_MOMENTUM_EXIT",
+                        total_pnl_r=total_r,
+                        partial_realized_r=partial_realized_r,
+                        risk_reward=risk_reward,
+                        tp1_hit=tp1_hit,
+                        tp1_fill_price=tp1_fill_price,
+                        tp1_closed_fraction=tp1_closed_fraction,
+                        stop_moved_to_entry=stop_moved_to_entry,
+                        partial_close_events=partial_close_events,
+                    )
 
             if tp1_hit and remaining_fraction > 0 and self.config.get("tp2_trail", True):
                 if direction == "BUY":
@@ -522,6 +568,7 @@ def _close_reason_detail(reason: str) -> str:
         "STOP_LOSS": "Historical price touched the active protective stop before any further target progression.",
         "BREAKEVEN_STOP": "Remaining position was stopped at entry after TP1 moved the stop to breakeven.",
         "TAKE_PROFIT_2": "Historical price reached the broker-managed final take-profit level.",
+        "EARLY_MOMENTUM_EXIT": "The trade was closed early because the first-hour expansion toward TP2 was too weak.",
         "TIME_STOP": "Trade was still below -0.5R after the configured holding limit and was closed at market.",
         "DATA_END": "Historical dataset ended before another exit condition triggered; the remaining position was marked to the final available close.",
     }

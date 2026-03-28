@@ -129,6 +129,10 @@ TRADING_CONFIG = {
     "tp1_close_percent":    0.50,       # Fraction of position to close at TP1 (0.50 = 50%)
     "tp2_trail":            True,       # Trail remaining position after TP1; False = fixed TP2 only
     "trail_atr_multiplier": 1.0,        # ATR(1H) multiplier for the post-TP1 trailing stop
+    "early_momentum_exit":  True,       # Exit weak trades that fail to expand toward TP2 soon after entry
+    "early_momentum_minutes": 60,       # Evaluate the rule once, 60 minutes after the trade is filled
+    "early_momentum_max_gap_pips": 15.0,  # Exit if best favorable price is still > N pips from TP2
+    "early_momentum_min_tp2_progress": None,  # Optional extra filter, e.g. 0.50 for 50% progress to TP2
     "adaptive_time_stop":   True,       # Extend the session time stop when the thesis quality supports patience
     "time_stop_hours": {
         "London Kill Zone": 4,

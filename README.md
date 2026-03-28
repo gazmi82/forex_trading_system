@@ -299,6 +299,9 @@ Continuous runtime:
    After entry, the executor monitors every cycle:
    - TP1 hit → close tp1_close_percent of position (default 50%),
      move stop loss to entry (breakeven)
+   - Before TP1, check the first 60 minutes of post-fill price action:
+     if the best favorable price is still more than 15 pips from TP2,
+     close the trade early as a stalled setup
    - After TP1 → trail stop at ATR-based distance as price advances
      toward TP2 (one-directional only, never moves against the trade)
    - Time stop → close if -0.5R after session-appropriate hours
@@ -383,6 +386,18 @@ The current fundamentals stack is mixed live + delayed:
 
 This means the system has live broker data plus partially live fundamentals,
 but it is not a fully streaming macro stack.
+
+Historical replay uses a separate local fundamentals dataset under
+`backtest_data/fundamentals/`:
+- Fed and ECB policy-rate history
+- DXY history
+- EUR COT history
+- High-impact USD/EUR calendar events
+
+Those CSVs are resolved through
+`app/backtesting/historical_fundamentals_provider.py` so replay scoring can
+use rate differential, DXY direction, COT bias, and news-clear context
+without live API calls.
 
 Deferred infrastructure work:
 - Economic calendar, news feed, and USD/EUR policy-rate fetching should later be migrated to solid documented provider endpoints.

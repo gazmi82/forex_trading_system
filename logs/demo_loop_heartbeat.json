@@ -1,24 +1,24 @@
 {
   "service": "demo_loop",
-  "state": "ERROR_WAIT",
-  "loop_count": 169,
-  "updated_at_utc": "2026-03-28T01:48:46.213609Z",
-  "last_started_at_utc": "2026-03-28T01:48:45.473607Z",
-  "last_completed_at_utc": "2026-03-27T20:37:31.451252Z",
-  "session": "New York Session",
-  "runtime_mode": "MONITOR_ONLY",
+  "state": "SLEEPING",
+  "loop_count": 183,
+  "updated_at_utc": "2026-03-28T11:43:53.559085Z",
+  "last_started_at_utc": "2026-03-28T11:43:51.365645Z",
+  "last_completed_at_utc": "2026-03-28T11:43:53.559085Z",
+  "session": "Weekend",
+  "runtime_mode": "WEEKEND_BLOCK",
   "analysis_allowed_now": false,
-  "schedule_reason": "Outside allowed trade window \u2014 New York session after London close",
-  "next_poll_seconds": 60,
-  "next_expected_run_at_utc": "2026-03-28T01:49:46.213609Z",
-  "price": 1.1511,
+  "schedule_reason": "Weekend block (Saturday)",
+  "next_poll_seconds": 1800,
+  "next_expected_run_at_utc": "2026-03-28T12:13:53.559085Z",
+  "price": 1.15115,
   "open_trades_count": 0,
-  "last_error": "market_data_fetch_failed: No price data for EUR_USD",
+  "last_error": null,
   "last_signal": {
     "direction": "NEUTRAL",
     "confidence": 35,
     "confluence_score": 35,
     "execution_allowed": false
   },
-  "last_failed_at_utc": "2026-03-28T01:48:46.213609Z"
+  "last_failed_at_utc": "2026-03-28T11:41:09.225315Z"
 }

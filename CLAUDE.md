@@ -1,7 +1,7 @@
 # CLAUDE.md — Forex Trading System Project Context
 # This file is for Claude Code (VS Code) to stay aligned with all decisions,
 # architecture, and progress made in the main Claude.ai chat session.
-# Last updated: March 27, 2026
+# Last updated: March 28, 2026
 
 ---
 
@@ -79,6 +79,7 @@ main.py
 │   ├── Order validation + sizing
 │   ├── OANDA order placement / monitoring
 │   ├── TP1 partial close (tp1_close_percent from config)
+│   ├── First-hour early momentum exit for stalled trades
 │   ├── ATR-based trailing stop after TP1 (tp2_trail from config)
 │   └── Trade outcome feedback loop
 │
@@ -88,6 +89,14 @@ main.py
 │   │   setup_grade (A/B/C/F), entry_timing, ict_post_hoc,
 │   │   root_cause, pattern_tags
 │   └── Trade signal timeline per trade (one JSON file from entry to close)
+│
+├── app/backtesting/
+│   ├── HistoricalDataLoader (data_loader.py)
+│   ├── SignalReplayEngine (signal_replayer.py)
+│   ├── replay_confluence.py
+│   ├── OutcomeSimulator (outcome_simulator.py)
+│   ├── report.py
+│   └── HistoricalFundamentalsProvider (historical_fundamentals_provider.py)
 │
 └── app/fundamentals/fetcher.py
     ├── DXY intraday signal via Yahoo Finance
@@ -187,6 +196,7 @@ Fundamentals status:
 - USD target range is fetched from the official Fed open-market page and ECB key rates are fetched from the official ECB key-rates page
 - ECB main refi, marginal lending, and deposit rates are exposed; deposit remains the EUR benchmark for the rate differential
 - Retail sentiment auto-fetches from the OANDA EUR/USD position book when available
+- Historical replay can load local Fed/ECB rates, DXY, EUR COT, and high-impact USD/EUR calendar CSVs from `backtest_data/fundamentals/`
 - Closed trades now generate both:
   - structured feedback stored directly into the feedback RAG collection
   - readable markdown review notes in `feedback/`
@@ -420,68 +430,28 @@ the system stops and prints actionable warnings. It does not substitute static d
 
 ## NEXT STEPS (Priority Order)
 
-See `IMPROVEMENT_ROADMAP.md` for the full path from score 38 → 75.
-Summary of phases below.
+See `IMPROVEMENT_ROADMAP.md` for the full implementation history. Current
+state summary below.
 
 ```
 COMPLETED (March 2026):
-  ✅ Build OANDA broker layer                 — March 10
-  ✅ Create OANDA demo account ($100k)        — March 11
-  ✅ Ingest research papers (21/23)           — March 11 (388 chunks)
-  ✅ Fix RSI/ADX division-by-zero             — March 20
-  ✅ Fix FVG false positives                  — March 20
-  ✅ Fix Premium/Discount zone detection      — March 20
-  ✅ Fix daily PnL surviving restarts         — March 20
-  ✅ Fix trades_today accurate count          — March 20
-  ✅ Fix session loss streak after restart    — March 20
-  ✅ Fix open risk sum (absolute per trade)   — March 20
-  ✅ Fix daily loss projection before block   — March 20
-  ✅ Fix greedy JSON regex → brace-depth      — March 20
-  ✅ Add OANDA candle retry + backoff         — March 20
-  ✅ Fix fundamentals MANUAL_CHECK strings    — March 20
-  ✅ Structured trade feedback (grade/root)   — March 20
-  ✅ Claude-haiku trade lesson generation     — March 20
-  ✅ Wire tp1_close_percent from config       — March 20
-  ✅ ATR-based trailing stop after TP1        — March 20
-  ✅ Remove dead code + consolidate constants — March 20
+  ✅ Build OANDA broker layer and demo runtime
+  ✅ Mechanical confluence scorer + execution gate
+  ✅ Weekly loss limit enforcement
+  ✅ Historical data loader, replay engine, outcome simulator, and reports
+  ✅ Historical fundamentals provider with local rates / DXY / COT / calendar CSVs
+  ✅ Structured trade feedback + per-trade timeline logging
+  ✅ TP1 partial close from config
+  ✅ ATR-based trailing stop after TP1
+  ✅ First-hour early momentum exit for stalled trades
 
-IMMEDIATE (still needed this week):
-  ⬜ Generate OANDA API key
-     → oanda.com → My Account → Manage API Access → Generate
-  ⬜ Set env vars: OANDA_API_KEY + OANDA_ACCOUNT_ID=101-001-38764497-001
-  ⬜ Test live connection: python main.py --mode test
-  ⬜ Ingest 2 missing research PDFs
-     → Deep learning forex prediction.pdf
-     → Triennial Central Bank Survey — Foreign exchange turnover.pdf
-  ⬜ Add ICT YouTube transcripts to documents/ict/
-
-PHASE 1 — Score 38 → 50 (Month 2-3):
-  ⬜ Build mechanical confluence scorer (app/analysis/confluence_scorer.py)
-     → Deterministic Python calculation, not Claude self-report
-     → Wire into _validate_signal as the gate for execution
-  ⬜ Enforce weekly loss limit (5%) in agent + executor
-
-PHASE 2 — Score 50 → 60 (Month 3-4):
-  ⬜ Build backtester (app/backtesting/)
-     → Historical data loader (OANDA candles, 2+ years)
-     → Signal replay engine (no Claude API, mechanical scorer only)
-     → Trade outcome simulator (same rules as live executor)
-     → Performance report (win rate, expectancy, by session/tag)
-
-PHASE 3 — Score 60 → 67 (Month 4-5):
-  ⬜ Edge database aggregator (app/performance/edge_report.py)
-     → Win rate / avg R / expectancy per pattern tag, session, grade
-  ⬜ Weekly performance summary (auto-generated every Friday)
-  ⬜ Harden live fundamentals infrastructure
-
-PHASE 4 — Score 67 → 72 (Month 5-6):
-  ⬜ Session-specific time stop calibration
-  ⬜ Build performance dashboard (Streamlit)
-
-PHASE 5 — Score 72 → 75 (Month 6-8):
-  ⬜ Order block mitigation tracking
-  ⬜ FVG fill status tracking
-  ⬜ Displacement candle validation for OB detection
+CURRENT PRIORITIES:
+  ⬜ Improve replay realism further
+     → sequential one-account simulation
+     → spread / slippage modeling
+  ⬜ Continue hardening live fundamentals infrastructure
+  ⬜ Add more ICT transcripts and remaining research PDFs
+  ⬜ Build a cleaner performance dashboard on top of existing API/log outputs
 ```
 
 ---
