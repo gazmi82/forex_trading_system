@@ -1,0 +1,65 @@
+{
+  "generated_at_utc": "2026-03-27T20:36:04.215779Z",
+  "source_file": "/Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison/t50/EUR_USD/EUR_USD_simulated_closed_trades_20240101T000000Z_20260101T000000Z.jsonl",
+  "total_trades": 527,
+  "wins": 245,
+  "losses": 282,
+  "breakeven": 0,
+  "win_rate": 0.4649,
+  "avg_r": -0.0244,
+  "expectancy_r": -0.0244,
+  "gross_profit_r": 238.7192,
+  "gross_loss_r": -251.5958,
+  "profit_factor": 0.9488,
+  "max_consecutive_losses": 27,
+  "max_drawdown_r": 52.9667,
+  "session_breakdown": {
+    "London Kill Zone": {
+      "trades": 186,
+      "win_rate": 0.4677,
+      "avg_r": -0.0153,
+      "expectancy_r": -0.0153,
+      "profit_factor": 0.9683
+    },
+    "NY Kill Zone": {
+      "trades": 168,
+      "win_rate": 0.4583,
+      "avg_r": -0.0587,
+      "expectancy_r": -0.0587,
+      "profit_factor": 0.8812
+    },
+    "London Close": {
+      "trades": 173,
+      "win_rate": 0.4682,
+      "avg_r": -0.001,
+      "expectancy_r": -0.001,
+      "profit_factor": 0.9978
+    }
+  },
+  "score_bucket_breakdown": {
+    "0-64": {
+      "trades": 506,
+      "win_rate": 0.4585,
+      "avg_r": -0.0358,
+      "expectancy_r": -0.0358,
+      "profit_factor": 0.9262
+    },
+    "65-74": {
+      "trades": 21,
+      "win_rate": 0.619,
+      "avg_r": 0.2492,
+      "expectancy_r": 0.2492,
+      "profit_factor": 1.847
+    }
+  },
+  "minimum_thresholds": {
+    "expectancy_positive": false,
+    "profit_factor_above_1_3": false,
+    "negative_expectancy_sessions": [
+      "London Kill Zone",
+      "NY Kill Zone",
+      "London Close"
+    ]
+  },
+  "status": "not_ready"
+}

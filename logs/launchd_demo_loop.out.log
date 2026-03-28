@@ -9981,3 +9981,1591 @@ Press Ctrl+C to stop.
   📝 Logged analysis to: logs/signal_20260327.json
 
   Next entry analysis in 10 minutes...
+
+[14:44:35] Loop #67
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.1529 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching policy rates from Fed and ECB webpages...  📥 Fetching DXY from Yahoo Finance...
+
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Retail sentiment: 43% SHORT, 57% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ DXY: 99.95 → NEUTRAL  (1h MA: 99.96, 15m: +0.03%, vs MA: -0.01%)
+  ✅ Risk sentiment: RISK_OFF (SPY 638.85, 15m: -0.04%, vs MA: -0.12%)  ✅ News: The Nasdaq and the S&P continue lower. What levels are in play technically? (Forexlive)
+
+  ✅ Rates: USD 3.62% (3.50-3.75) | ECB deposit 2.00% | MRO 2.15% | MLF 2.40% | Diff +1.62%
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.1529
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 15:44:36,935 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 15:44:51,684 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+
+  📊 Signal: NEUTRAL | Confidence: 35% | Score: 35/100 | BLOCKED
+  Signal:  NEUTRAL | 35% | Score: 35/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[14:54:51] Loop #68
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15301 (spread: 1.7 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Risk sentiment: NEUTRAL (SPY 639.59, 15m: +0.12%, vs MA: +0.02%)
+  ✅ News: The Nasdaq and the S&P continue lower. What levels are in play technically? (Forexlive)
+  ✅ DXY: 99.97 → NEUTRAL  (1h MA: 99.95, 15m: +0.01%, vs MA: +0.02%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15301
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 15:54:52,699 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 15:55:07,740 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+
+  📊 Signal: NEUTRAL | Confidence: 35% | Score: 35/100 | BLOCKED
+  Signal:  NEUTRAL | 35% | Score: 35/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[15:05:07] Loop #69
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15307 (spread: 1.5 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ News: Iran hackers claim the breach of Kash Patel's personal email (Forexlive)
+  ✅ DXY: 99.95 → NEUTRAL  (1h MA: 99.95, 15m: -0.03%, vs MA: +0.00%)
+  ✅ Risk sentiment: RISK_ON (SPY 640.73, 15m: +0.18%, vs MA: +0.14%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15307
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 16:05:09,199 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 16:05:12,189 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.454000 seconds
+2026-03-27 16:05:13,125 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.942962 seconds
+2026-03-27 16:05:14,858 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTnqihimBkwossJxdH1o'}. Retrying in 1.5s
+2026-03-27 16:05:17,088 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.469809 seconds
+2026-03-27 16:05:18,204 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.809601 seconds
+2026-03-27 16:05:19,633 [WARNING] app.analysis.agent: Claude API transient failure (attempt 2/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTnr5yu3UHNQc9vmLfsb'}. Retrying in 3.0s
+2026-03-27 16:05:23,589 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.497922 seconds
+2026-03-27 16:05:25,054 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.792239 seconds
+2026-03-27 16:05:26,480 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTnrb95hzfuCeS1X2xft'}
+2026-03-27 16:05:26,539 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude API unavailable']
+
+  ❌ Claude analysis failure: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTnrb95hzfuCeS1X2xft'}
+  ⚠️  Using fallback neutral signal
+
+  📊 Fallback Signal: NEUTRAL | Confidence: 0% | Score: 0/100 | BLOCKED
+  ❌ Claude API failure: API error: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTnrb95hzfuCeS1X2xft'}
+  Signal:  NEUTRAL | 0% | Score: 0/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[15:15:26] Loop #70
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15312 (spread: 1.4 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ News: Iran hackers claim the breach of Kash Patel's personal email (Forexlive)
+  ✅ Retail sentiment: 43% SHORT, 57% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ Risk sentiment: NEUTRAL (SPY 639.67, 15m: -0.16%, vs MA: -0.01%)
+  ✅ DXY: 99.95 → NEUTRAL  (1h MA: 99.95, 15m: -0.01%, vs MA: +0.00%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15312
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 16:15:28,056 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 16:15:43,050 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+
+  📊 Signal: NEUTRAL | Confidence: 40% | Score: 40/100 | BLOCKED
+  Signal:  NEUTRAL | 40% | Score: 40/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[15:25:43] Loop #71
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15341 (spread: 1.5 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ News: Iran hackers claim the breach of Kash Patel's personal email (Forexlive)
+  ✅ Risk sentiment: NEUTRAL (SPY 640.12, 15m: +0.06%, vs MA: +0.05%)
+  ✅ DXY: 99.96 → NEUTRAL  (1h MA: 99.95, 15m: +0.01%, vs MA: +0.01%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15341
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 16:25:44,339 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 16:25:50,065 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.426663 seconds
+2026-03-27 16:25:51,395 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.777974 seconds
+2026-03-27 16:25:52,723 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTpQzDfM39Gv4hDJhyUA'}. Retrying in 1.5s
+2026-03-27 16:25:54,997 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.376378 seconds
+2026-03-27 16:25:56,102 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.895648 seconds
+2026-03-27 16:25:57,727 [WARNING] app.analysis.agent: Claude API transient failure (attempt 2/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTpRLrPb5fF81CjfBiyL'}. Retrying in 3.0s
+2026-03-27 16:26:01,547 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.377663 seconds
+2026-03-27 16:26:02,687 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.836396 seconds
+2026-03-27 16:26:04,804 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTpRpnQn9LajCoD349nh'}
+2026-03-27 16:26:04,810 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude API unavailable']
+
+  ❌ Claude analysis failure: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTpRpnQn9LajCoD349nh'}
+  ⚠️  Using fallback neutral signal
+
+  📊 Fallback Signal: NEUTRAL | Confidence: 0% | Score: 0/100 | BLOCKED
+  ❌ Claude API failure: API error: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTpRpnQn9LajCoD349nh'}
+  Signal:  NEUTRAL | 0% | Score: 0/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[15:36:04] Loop #72
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15426 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ News: AUDUSD is contained below a swing area. Sellers are in control. (Forexlive)
+  ✅ DXY: 99.93 → NEUTRAL  (1h MA: 99.96, 15m: -0.03%, vs MA: -0.03%)  ✅ Risk sentiment: RISK_ON (SPY 641.7, 15m: +0.23%, vs MA: +0.22%)
+
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15426
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 16:36:06,632 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 16:36:08,831 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.393066 seconds
+2026-03-27 16:36:22,540 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+
+  📊 Signal: NEUTRAL | Confidence: 35% | Score: 35/100 | BLOCKED
+  Signal:  NEUTRAL | 35% | Score: 35/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[15:46:22] Loop #73
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15329 (spread: 1.5 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ Risk sentiment: NEUTRAL (SPY 640.78, 15m: -0.16%, vs MA: +0.05%)
+  ✅ News: AUDUSD is contained below a swing area. Sellers are in control. (Forexlive)  ✅ Retail sentiment: 43% SHORT, 57% LONG (mixed — no clear contrarian edge) — OANDA position book
+
+  ✅ DXY: 99.88 ↓ FALLING  (1h MA: 99.94, 15m: -0.06%, vs MA: -0.06%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15329
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 16:46:23,780 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 16:46:40,062 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+
+  📊 Signal: NEUTRAL | Confidence: 40% | Score: 40/100 | BLOCKED
+  Signal:  NEUTRAL | 40% | Score: 40/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[15:56:40] Loop #74
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15226 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching FX headlines from Finnhub...
+
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ DXY: 99.95 → NEUTRAL  (1h MA: 99.94, 15m: +0.09%, vs MA: +0.01%)
+  ✅ Risk sentiment: NEUTRAL (SPY 640.66, 15m: -0.01%, vs MA: +0.01%)
+  ✅ News: AUDUSD is contained below a swing area. Sellers are in control. (Forexlive)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15226
+  Session: London Close
+  ▶ Entry analysis active — London Close
+2026-03-27 16:56:42,045 [INFO] app.analysis.agent: Starting analysis: EUR/USD
+
+🔍 Retrieving knowledge from RAG for EUR/USD...
+  ✅ Retrieved 26 relevant knowledge chunks
+  🤖 Calling Claude API...
+2026-03-27 16:56:43,902 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.468517 seconds
+2026-03-27 16:56:45,158 [INFO] anthropic._base_client: Retrying request to /v1/messages in 0.859468 seconds
+2026-03-27 16:56:46,700 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTrmeKevoitgBJxNt3BX'}. Retrying in 1.5s
+2026-03-27 16:57:04,109 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+
+  📊 Signal: NEUTRAL | Confidence: 35% | Score: 35/100 | BLOCKED
+  Signal:  NEUTRAL | 35% | Score: 35/100 | BLOCKED
+  📝 Logged analysis to: logs/signal_20260327.json
+
+  Next entry analysis in 10 minutes...
+
+[16:07:04] Loop #75
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15227 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Risk sentiment: RISK_OFF (SPY 639.81, 15m: -0.16%, vs MA: -0.11%)
+  ✅ News: AUDUSD is contained below a swing area. Sellers are in control. (Forexlive)
+  ✅ DXY: 100.04 ↑ RISING  (1h MA: 99.95, 15m: +0.13%, vs MA: +0.09%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15227
+  Session: Low Liquidity
+  ⏸ Entry analysis skipped — Outside allowed trade window — lunch hours / low liquidity (Low Liquidity)
+
+  Next monitor-only cycle in 30 minutes...
+
+[16:37:06] Loop #76
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15193 (spread: 1.7 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ DXY: 100.06 ↑ RISING  (1h MA: 100.0, 15m: -0.01%, vs MA: +0.06%)  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+
+  ✅ Risk sentiment: RISK_OFF (SPY 638.59, 15m: -0.07%, vs MA: -0.17%)
+  ✅ News: USDJPY cracks above 160.00 for the first time since July 2024 (Forexlive)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15193
+  Session: Low Liquidity
+  ⏸ Entry analysis skipped — Outside allowed trade window — lunch hours / low liquidity (Low Liquidity)
+
+  Next monitor-only cycle in 30 minutes...
+
+[17:07:08] Loop #77
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15282 (spread: 1.9 pips)
+  Calculating indicators...
+  📥 Fetching policy rates from Fed and ECB webpages...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ DXY: 100.07 → NEUTRAL  (1h MA: 100.07, 15m: +0.00%, vs MA: +0.00%)
+  ✅ News: Secretary of State Rubio said that the war with Iran will continue for another 4 weeks (Forexlive)
+  ✅ Risk sentiment: RISK_ON (SPY 639.79, 15m: +0.14%, vs MA: +0.13%)
+  ✅ Rates: USD 3.62% (3.50-3.75) | ECB deposit 2.00% | MRO 2.15% | MLF 2.40% | Diff +1.62%
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15282
+  Session: Low Liquidity
+  ⏸ Entry analysis skipped — Outside allowed trade window — lunch hours / low liquidity (Low Liquidity)
+
+  Next monitor-only cycle in 30 minutes...
+
+[17:37:10] Loop #78
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15081 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ News: Trump signals to allies no immediate plans for Iran invasion (Forexlive)
+  ✅ Risk sentiment: RISK_OFF (SPY 636.94, 15m: -0.10%, vs MA: -0.19%)
+  ✅ DXY: 100.18 ↑ RISING  (1h MA: 100.11, 15m: +0.06%, vs MA: +0.07%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15081
+  Session: Low Liquidity
+  ⏸ Entry analysis skipped — Outside allowed trade window — lunch hours / low liquidity (Low Liquidity)
+
+  Next monitor-only cycle in 30 minutes...
+
+[18:07:12] Loop #79
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15107 (spread: 1.6 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ DXY: 100.17 → NEUTRAL  (1h MA: 100.16, 15m: -0.02%, vs MA: +0.01%)
+  ✅ News: Trump signals to allies no immediate plans for Iran invasion (Forexlive)
+  ✅ Risk sentiment: RISK_OFF (SPY 635.81, 15m: -0.09%, vs MA: -0.16%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15107
+  Session: New York Session
+  ⏸ Entry analysis skipped — Outside allowed trade window — New York session after London close (New York Session)
+
+  Next monitor-only cycle in 30 minutes...
+
+[18:37:15] Loop #80
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15144 (spread: 1.7 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...  📥 Fetching EUR/USD retail positioning from OANDA position book...
+
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ DXY: 100.16 → NEUTRAL  (1h MA: 100.18, 15m: -0.04%, vs MA: -0.02%)
+  ✅ News: Trump signals to allies no immediate plans for Iran invasion (Forexlive)
+  ✅ Risk sentiment: NEUTRAL (SPY 635.97, 15m: +0.05%, vs MA: +0.00%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15144
+  Session: New York Session
+  ⏸ Entry analysis skipped — Outside allowed trade window — New York session after London close (New York Session)
+
+  Next monitor-only cycle in 30 minutes...
+
+[19:07:18] Loop #81
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.1511 (spread: 1.7 pips)
+  Calculating indicators...
+  📥 Fetching policy rates from Fed and ECB webpages...  📥 Fetching DXY from Yahoo Finance...
+
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...
+  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+  ✅ News: Trump signals to allies no immediate plans for Iran invasion (Forexlive)
+  ✅ Risk sentiment: RISK_OFF (SPY 634.84, 15m: -0.08%, vs MA: -0.11%)
+  ✅ DXY: 100.15 → NEUTRAL  (1h MA: 100.16, 15m: +0.02%, vs MA: -0.01%)
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ Rates: USD 3.62% (3.50-3.75) | ECB deposit 2.00% | MRO 2.15% | MLF 2.40% | Diff +1.62%
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.1511
+  Session: New York Session
+  ⏸ Entry analysis skipped — Outside allowed trade window — New York session after London close (New York Session)
+
+  Next monitor-only cycle in 30 minutes...
+
+[19:37:20] Loop #82
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15133 (spread: 1.9 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ Risk sentiment: NEUTRAL (SPY 635.01, 15m: -0.03%, vs MA: -0.03%)  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+
+  ✅ DXY: 100.16 → NEUTRAL  (1h MA: 100.16, 15m: +0.01%, vs MA: +0.00%)
+  ✅ News: Trump signals to allies no immediate plans for Iran invasion (Forexlive)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15133
+  Session: New York Session
+  ⏸ Entry analysis skipped — Outside allowed trade window — New York session after London close (New York Session)
+
+  Next monitor-only cycle in 30 minutes...
+
+[20:07:23] Loop #83
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.15175 (spread: 1.7 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...
+  📥 Fetching FX headlines from Finnhub...
+  📥 Fetching EUR/USD retail positioning from OANDA position book...  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ Risk sentiment: RISK_OFF (SPY 633.82, 15m: -0.04%, vs MA: -0.11%)
+  ✅ DXY: 100.13 → NEUTRAL  (1h MA: 100.15, 15m: -0.03%, vs MA: -0.02%)
+  ✅ News: Houthis in Yemen announce entry into the conflict to support Iran (Forexlive)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.15175
+  Session: New York Session
+  ⏸ Entry analysis skipped — Outside allowed trade window — New York session after London close (New York Session)
+
+  Next monitor-only cycle in 30 minutes...
+
+[20:37:24] Loop #84
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+  Current price: 1.1511 (spread: 1.8 pips)
+  Calculating indicators...
+  📥 Fetching DXY from Yahoo Finance...  📥 Fetching FX headlines from Finnhub...
+
+  📥 Fetching EUR/USD retail positioning from OANDA position book...  📥 Fetching S&P 500 risk sentiment from Yahoo Finance...
+
+  ✅ Retail sentiment: 44% SHORT, 56% LONG (mixed — no clear contrarian edge) — OANDA position book
+  ✅ DXY: 100.14 → NEUTRAL  (1h MA: 100.14, 15m: +0.01%, vs MA: +0.00%)
+  ✅ News: investingLive Americas market news wrap: Oil prices surge as war worries mount (Forexlive)
+  ✅ Risk sentiment: RISK_OFF (SPY 633.0, 15m: +0.01%, vs MA: -0.08%)
+  ✅ Live data ready — Account: $98,996.38
+  Price:   1.1511
+  Session: New York Session
+  ⏸ Entry analysis skipped — Outside allowed trade window — New York session after London close (New York Session)
+
+  Next monitor-only cycle in 30 minutes...
+
+[00:20:52] Loop #85
+2026-03-28 01:20:52,848 [WARNING] app.cli.main: Demo loop resumed after stall: Missed expected next run by 11601s
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:20:58,675 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:21:58] Loop #86
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:22:04,230 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:23:04] Loop #87
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:23:09,787 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:24:09] Loop #88
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:24:15,185 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:25:15] Loop #89
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:25:20,697 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:26:20] Loop #90
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:26:26,192 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:27:26] Loop #91
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:27:31,692 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:28:31] Loop #92
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:28:37,427 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:29:37] Loop #93
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:29:42,932 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:30:43] Loop #94
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:30:48,424 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:31:48] Loop #95
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:31:53,961 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:32:54] Loop #96
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:32:59,369 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:33:59] Loop #97
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:34:04,800 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:35:04] Loop #98
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:35:10,224 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:36:10] Loop #99
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:36:15,636 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:37:15] Loop #100
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:37:21,080 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:38:21] Loop #101
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:38:26,624 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:39:26] Loop #102
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:39:32,214 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:40:32] Loop #103
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:40:37,782 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:41:37] Loop #104
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:41:43,182 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:42:43] Loop #105
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:42:48,658 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:43:48] Loop #106
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:43:54,701 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:44:54] Loop #107
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:45:00,565 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:46:00] Loop #108
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:46:06,109 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:47:06] Loop #109
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:47:12,719 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:48:12] Loop #110
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:48:13,257 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:49:13] Loop #111
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:49:13,639 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:50:13] Loop #112
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:50:13,894 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:51:13] Loop #113
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:51:14,165 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:52:14] Loop #114
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:52:15,177 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:53:15] Loop #115
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:53:15,453 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:54:15] Loop #116
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:54:15,830 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:55:15] Loop #117
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:55:16,206 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:56:16] Loop #118
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:56:16,654 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:57:16] Loop #119
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:57:17,029 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:58:17] Loop #120
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:58:17,445 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[00:59:17] Loop #121
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 01:59:17,815 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:00:17] Loop #122
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:00:18,574 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:01:18] Loop #123
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:01:19,519 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:02:19] Loop #124
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:02:19,836 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:03:19] Loop #125
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:03:20,394 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:04:20] Loop #126
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:04:20,973 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:05:21] Loop #127
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:05:26,758 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:06:26] Loop #128
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:06:32,203 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:07:32] Loop #129
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:07:37,992 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:08:38] Loop #130
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:08:43,477 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:09:43] Loop #131
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:09:49,176 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:10:49] Loop #132
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:10:54,702 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:11:54] Loop #133
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:12:00,225 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:13:00] Loop #134
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:13:05,928 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:14:05] Loop #135
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:14:11,384 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:15:11] Loop #136
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:15:16,791 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:16:16] Loop #137
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:16:22,686 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:17:22] Loop #138
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:17:27,597 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:18:27] Loop #139
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:18:28,417 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:19:28] Loop #140
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:19:28,736 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:20:28] Loop #141
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:20:29,499 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:21:29] Loop #142
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:21:30,903 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:22:30] Loop #143
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:22:31,225 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:23:31] Loop #144
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:23:31,534 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:24:31] Loop #145
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:24:32,522 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:25:32] Loop #146
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:25:32,922 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:26:32] Loop #147
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:26:33,230 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:27:33] Loop #148
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:27:33,804 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:28:33] Loop #149
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:28:34,211 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:29:34] Loop #150
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:29:34,615 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:30:34] Loop #151
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:30:35,054 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:31:35] Loop #152
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:31:35,849 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:32:35] Loop #153
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:32:37,137 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:33:37] Loop #154
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:33:37,748 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:34:37] Loop #155
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:34:38,300 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:35:38] Loop #156
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:35:38,661 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:36:38] Loop #157
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:36:39,023 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:37:39] Loop #158
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:37:39,830 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:38:39] Loop #159
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:38:40,228 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:39:40] Loop #160
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:39:40,787 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:40:40] Loop #161
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:40:41,759 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:41:41] Loop #162
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:41:42,204 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:42:42] Loop #163
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:42:42,598 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:43:42] Loop #164
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:43:42,949 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:44:42] Loop #165
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:44:43,924 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: Expecting value: line 1 column 1 (char 0)
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:45:43] Loop #166
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:45:44,277 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:46:44] Loop #167
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:46:44,670 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:47:44] Loop #168
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:47:45,392 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.
+
+[01:48:45] Loop #169
+
+📡 Fetching live data for EUR_USD...
+  Fetching candles, price, and account state in parallel...
+2026-03-28 02:48:46,207 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+
+❌ Live EUR/USD market data unavailable.
+   Reason: OANDA market-data fetch failed: No price data for EUR_USD
+   Action:
+   export OANDA_API_KEY='your-api-key'
+   export OANDA_ACCOUNT_ID='101-001-38764497-001'
+   Then rerun the command.

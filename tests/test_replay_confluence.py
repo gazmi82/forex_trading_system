@@ -25,6 +25,7 @@ from app.backtesting.replay_confluence import (
     _score_trend,
     calculate_confluence,
 )
+from app.fundamentals.payloads import HISTORICAL_NEWS_UNAVAILABLE, HISTORICAL_UNAVAILABLE
 
 # ---------------------------------------------------------------------------
 # Minimal market_data and signal fixtures
@@ -95,14 +96,17 @@ class TestScoreRange(unittest.TestCase):
     def test_all_positive_buy_hits_100(self):
         result = calculate_confluence(_make_market_data("BUY"), _make_signal("BUY"))
         self.assertEqual(result["confluence_score"], 100)
+        self.assertEqual(result["available_component_points"], 150)
 
     def test_all_positive_sell_hits_100(self):
         result = calculate_confluence(_make_market_data("SELL"), _make_signal("SELL"))
         self.assertEqual(result["confluence_score"], 100)
+        self.assertEqual(result["available_component_points"], 150)
 
     def test_empty_market_data_returns_0(self):
         result = calculate_confluence({}, {"signal": {"direction": "BUY"}})
         self.assertEqual(result["confluence_score"], 0)
+        self.assertEqual(result["available_component_points"], 0)
 
     def test_neutral_direction_returns_0(self):
         result = calculate_confluence(_make_market_data("BUY"), _make_signal("NEUTRAL"))
@@ -124,6 +128,28 @@ class TestScoreRange(unittest.TestCase):
     def test_direction_implied_present(self):
         result = calculate_confluence(_make_market_data("BUY"), _make_signal("BUY"))
         self.assertIn(result["direction_implied"], ("BUY", "SELL", "NEUTRAL"))
+
+    def test_historical_macro_unavailable_does_not_penalize_replay_score(self):
+        market_data = _make_market_data("BUY")
+        market_data["fundamental"] = {
+            "pair_rate": None,
+            "usd_rate": None,
+            "dxy_direction": "NEUTRAL",
+            "dxy_level": None,
+            "cot_bias": "NEUTRAL",
+            "cot_net": None,
+            "news_risk": HISTORICAL_UNAVAILABLE,
+            "time_to_event": None,
+            "next_news_event": HISTORICAL_NEWS_UNAVAILABLE,
+        }
+
+        result = calculate_confluence(market_data, _make_signal("BUY"))
+        self.assertEqual(result["available_component_points"], 110)
+        self.assertEqual(
+            set(result["unavailable_components"]),
+            {"rate_differential", "dxy", "cot", "news_clear"},
+        )
+        self.assertEqual(result["confluence_score"], 100)
 
 
 # ---------------------------------------------------------------------------
@@ -368,6 +394,9 @@ class TestCOT(unittest.TestCase):
 class TestNewsClear(unittest.TestCase):
     def test_low_risk_gives_5(self):
         self.assertEqual(_score_news({"news_risk": "LOW", "time_to_event": 30.0}), 5)
+
+    def test_clear_risk_gives_5(self):
+        self.assertEqual(_score_news({"news_risk": "CLEAR", "time_to_event": None}), 5)
 
     def test_far_away_event_gives_5(self):
         self.assertEqual(_score_news({"news_risk": "HIGH", "time_to_event": 360.0}), 5)

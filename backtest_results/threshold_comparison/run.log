@@ -1,0 +1,142 @@
+Starting threshold comparison run at 2026-03-27T19:18:38.403085+00:00Z
+Data root:    /Users/gazmirsulcaj/forex_trading_system/backtest_data
+Output root:  /Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison
+Range:        2024-01-01 → 2026-01-01
+Thresholds:   [50, 55, 65]
+
+[threshold=50] Running replay ...
+  Windows: 1569  |  Tradable: 336
+  Output:  /Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison/t50/EUR_USD/EUR_USD_replay_20240101T000000Z_20260101T000000Z.jsonl
+[threshold=50] Running outcome simulation ...
+  Signals seen: 1569  |  Tradable: 336
+  Filled trades: 305  |  No-fill: 31
+[threshold=50] Generating report ...
+
+[threshold=55] Running replay ...
+  Windows: 1569  |  Tradable: 183
+  Output:  /Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison/t55/EUR_USD/EUR_USD_replay_20240101T000000Z_20260101T000000Z.jsonl
+[threshold=55] Running outcome simulation ...
+  Signals seen: 1569  |  Tradable: 183
+  Filled trades: 172  |  No-fill: 11
+[threshold=55] Generating report ...
+
+[threshold=65] Running replay ...
+  Windows: 1569  |  Tradable: 3
+  Output:  /Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison/t65/EUR_USD/EUR_USD_replay_20240101T000000Z_20260101T000000Z.jsonl
+[threshold=65] Running outcome simulation ...
+  Signals seen: 1569  |  Tradable: 3
+  Filled trades: 3  |  No-fill: 0
+[threshold=65] Generating report ...
+
+Full results saved → /Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison/comparison_results.json
+
+
+==========================================================================================
+  CONFLUENCE THRESHOLD COMPARISON — EUR/USD 2024-2025
+==========================================================================================
+Metric                                            T=50            T=55            T=65
+------------------------------------------------------------------------------------------
+  SIGNAL ANALYSIS
+  --------------------------------------------------------------------------------------
+  Total windows analyzed                          1569            1569            1569
+  Tradable (passed threshold)                      336             183               3
+  Neutral (blocked)                               1233            1386            1566
+  Non-neutral windows                              336             183               3
+  Highest confluence score                          68              68              68
+  Avg confluence score                            40.0            40.0            40.0
+
+  FULL PERIOD (2024 + 2025)
+  --------------------------------------------------------------------------------------
+  Possible trade opens                             305             172               3
+  Filled (closed) trades                           305             172               3
+  Wins                                             140              77               1
+  Losses                                           165              95               2
+  Breakevens                                         0               0               0
+  Win rate                                       45.9%           44.8%           33.3%
+  Net P&L (R)                                 -17.312R        -14.182R         -1.143R
+  Expectancy per trade (R)                    -0.0568R        -0.0825R        -0.3811R
+  Max drawdown (R)                             48.427R         32.801R          2.000R
+  Starting balance                                 N/A             N/A             N/A
+  Starting balance                              $1,000          $1,000          $1,000
+  Final balance                                $829.84         $861.14         $988.50
+  Net P&L (USD, compounded)                   $-170.16        $-138.86         $-11.50
+  Max drawdown (USD)                           $435.53         $296.28          $19.90
+  Max drawdown (%)                              43.55%          29.63%           1.99%
+
+  Profit factor                                  0.883           0.836           0.428
+  Max drawdown (R)                             48.427R         32.801R          2.000R
+  TP1/breakeven/trail included         YES (TP1+trail) YES (TP1+trail) YES (TP1+trail)
+  No-fill signals (no M1 touch)                     31              11               0
+
+  YEAR 2024
+  --------------------------------------------------------------------------------------
+  2024 trades                                      146              86               2
+  2024 wins                                         73              39               0
+  2024 losses                                       73              47               2
+  2024 breakevens                                    0               0               0
+  2024 win rate                                  50.0%           45.3%            0.0%
+  2024 net P&L (R)                             +8.227R         -2.892R         -2.000R
+  2024 final balance                         $1,078.24         $967.47         $980.10
+  2024 net P&L (USD)                           $+78.24         $-32.53         $-19.90
+  2024 max drawdown                            $233.26         $231.75          $19.90
+
+  YEAR 2025
+  --------------------------------------------------------------------------------------
+  2025 trades                                      159              86               1
+  2025 wins                                         67              38               1
+  2025 losses                                       92              48               0
+  2025 breakevens                                    0               0               0
+  2025 win rate                                  42.1%           44.2%          100.0%
+  2025 net P&L (R)                            -25.538R        -11.290R         +0.857R
+  2025 final balance                           $829.83         $861.14         $988.50
+  2025 net P&L (USD)                          $-248.41        $-106.33          $+8.40
+  2025 max drawdown                            $391.90         $219.33           $0.00
+
+==========================================================================================
+  METHOD USED
+==========================================================================================
+  Replay engine:    app/backtesting/signal_replayer.py :: SignalReplayEngine
+  Scorer:           app/backtesting/replay_confluence.py :: calculate_confluence
+  Simulator:        app/backtesting/outcome_simulator.py :: OutcomeSimulator
+  Reporter:         app/backtesting/report.py :: BacktestReportGenerator
+  Data loader:      app/backtesting/data_loader.py :: HistoricalDataLoader
+  Fundamentals:     app/backtesting/historical_fundamentals_provider.py
+  Price data:       backtest_data/raw/EUR_USD/ (2024-01-01 → 2026-01-01)
+  Fundamentals CSV: NONE present (rate/DXY/COT/calendar CSVs missing)
+
+  ASSUMPTIONS / LIMITS
+==========================================================================================
+  1. Fundamental components (rate_differential, DXY, COT, news_clear)
+     are UNAVAILABLE — no CSVs in backtest_data/fundamentals/.
+     Score is normalized against available components only (technical + ICT).
+     This inflates % scores vs. a full fundamental stack.
+
+  2. Scores computed against available points only:
+     Max points if all technical ICT available ≈ 100 pts (trend 15+OB 20+
+     FVG 15+sweep 15+PD 10+OTE 10+RSI 10+ADX 10+EMA 5 = 110 pts max)
+     Normalised to 100 → thresholds 50/55/65 behave differently vs live.
+
+  3. Position sizing uses compounding 1% risk per trade on a $1000 balance.
+     pnl_r from simulator → dollar_gain = equity × 0.01 × pnl_r.
+
+  4. Entry fill requires M1 candle range to touch the entry_zone midpoint.
+     Signals where price never reaches the zone = no-fill = excluded.
+
+  5. Kill-zone windows: London (3 AM EST), NY (8 AM EST), London Close (10 AM).
+     3 windows per trading day × ~520 trading days = theoretical max windows.
+
+  6. Same-candle tie-breaking: protective stop wins over TP on same candle.
+
+  7. TP1 closes 50% at +1R, moves SL to entry (breakeven), then ATR-based
+     trailing stop on remaining 50% until TP2 (+2R) or time/trail-stop exit.
+
+  8. Time stop: closes if still below −0.5R after session-based holding limit.
+
+  COMMANDS EQUIVALENT TO THIS SCRIPT:
+  For default threshold (65), same as:
+    python main.py --mode backtest --replay-data-dir backtest_data \
+      --backtest-output-dir backtest_results/threshold_comparison/t65 \
+      --start 2024-01-01 --end 2026-01-01
+==========================================================================================
+
+Run completed at 2026-03-27T19:30:10.473093+00:00Z

@@ -249,3 +249,112 @@
 2026-03-27 15:14:02,912 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
 2026-03-27 15:24:18,535 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (45/100, minimum 65)', 'BLOCKED: Confidence too low (45%)']
 2026-03-27 15:34:35,484 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 15:44:51,684 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+2026-03-27 15:55:07,740 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+2026-03-27 16:05:14,858 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTnqihimBkwossJxdH1o'}. Retrying in 1.5s
+2026-03-27 16:05:19,633 [WARNING] app.analysis.agent: Claude API transient failure (attempt 2/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTnr5yu3UHNQc9vmLfsb'}. Retrying in 3.0s
+2026-03-27 16:05:26,480 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTnrb95hzfuCeS1X2xft'}
+2026-03-27 16:05:26,539 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude API unavailable']
+2026-03-27 16:15:43,050 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 16:25:52,723 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTpQzDfM39Gv4hDJhyUA'}. Retrying in 1.5s
+2026-03-27 16:25:57,727 [WARNING] app.analysis.agent: Claude API transient failure (attempt 2/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTpRLrPb5fF81CjfBiyL'}. Retrying in 3.0s
+2026-03-27 16:26:04,804 [ERROR] app.analysis.agent: Claude API call failed: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTpRpnQn9LajCoD349nh'}
+2026-03-27 16:26:04,810 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude API unavailable']
+2026-03-27 16:36:22,540 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+2026-03-27 16:46:40,062 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (40/100, minimum 65)', 'BLOCKED: Confidence too low (40%)']
+2026-03-27 16:56:46,700 [WARNING] app.analysis.agent: Claude API transient failure (attempt 1/3): Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}, 'request_id': 'req_011CZTrmeKevoitgBJxNt3BX'}. Retrying in 1.5s
+2026-03-27 16:57:04,109 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (35/100, minimum 65)', 'BLOCKED: Confidence too low (35%)']
+2026-03-27 20:28:50,859 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-27 20:28:50,860 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-27 20:28:50,862 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-27 20:28:50,868 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-27 20:36:00,978 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Claude confluence score too low (60/100, minimum 65)']
+2026-03-27 20:36:00,981 [WARNING] app.analysis.signal_pipeline: Signal blocked: ['BLOCKED: Weekly loss limit reached or would be exceeded (-4.50% this week, 1.0% new risk, limit 5.0%)']
+2026-03-27 20:36:00,983 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: candles unavailable
+2026-03-27 20:36:01,002 [ERROR] app.execution.trade_executor: Order error: broker rejected order
+2026-03-28 01:20:52,848 [WARNING] app.cli.main: Demo loop resumed after stall: Missed expected next run by 11601s
+2026-03-28 01:20:58,675 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:22:04,230 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:23:09,787 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:24:15,185 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:25:20,697 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:26:26,192 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:27:31,692 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:28:37,427 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:29:42,932 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:30:48,424 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:31:53,961 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:32:59,369 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:34:04,800 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:35:10,224 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:36:15,636 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:37:21,080 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:38:26,624 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:39:32,214 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:40:37,782 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:41:43,182 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:42:48,658 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Insufficient authorization to perform request.'}
+2026-03-28 01:43:54,701 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 01:45:00,565 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 01:46:06,109 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 01:47:12,719 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 01:48:13,257 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:49:13,639 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:50:13,894 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:51:14,165 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:52:15,177 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 01:53:15,453 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:54:15,830 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:55:16,206 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:56:16,654 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:57:17,029 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:58:17,445 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 01:59:17,815 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 02:00:18,574 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 02:01:19,519 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 02:02:19,836 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No candle data: {'errorMessage': 'Service unavailable, please try again later.'}
+2026-03-28 02:03:20,394 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:04:20,973 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:05:26,758 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:06:32,203 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:07:37,992 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:08:43,477 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:09:49,176 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:10:54,702 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:12:00,225 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:13:05,928 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:14:11,384 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:15:16,791 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:16:22,686 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:17:27,597 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:18:28,417 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:19:28,736 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:20:29,499 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:21:30,903 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:22:31,225 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:23:31,534 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:24:32,522 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:25:32,922 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:26:33,230 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:27:33,804 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:28:34,211 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:29:34,615 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:30:35,054 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:31:35,849 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:32:37,137 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:33:37,748 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:34:38,300 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:35:38,661 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:36:39,023 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:37:39,830 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:38:40,228 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:39:40,787 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:40:41,759 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:41:42,204 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:42:42,598 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:43:42,949 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:44:43,924 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: Expecting value: line 1 column 1 (char 0)
+2026-03-28 02:45:44,277 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:46:44,670 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:47:45,392 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD
+2026-03-28 02:48:46,207 [ERROR] app.brokers.oanda: Live market_data build failed for EUR_USD: No price data for EUR_USD

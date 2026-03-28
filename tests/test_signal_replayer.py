@@ -9,6 +9,11 @@ from pathlib import Path
 import pandas as pd
 
 from app.backtesting import HistoricalDataLoader, SignalReplayEngine
+from app.fundamentals.payloads import (
+    HISTORICAL_UNAVAILABLE,
+    build_historical_fundamental_snapshot,
+    build_live_fundamental_snapshot,
+)
 from app.backtesting.signal_replayer import iter_kill_zone_windows
 
 
@@ -65,6 +70,48 @@ class _RemoteForbiddenClient:
 
 
 class SignalReplayTests(unittest.TestCase):
+    def test_historical_fundamental_snapshot_uses_shared_sentinels(self):
+        payload = build_historical_fundamental_snapshot("NY Kill Zone")
+
+        self.assertEqual(payload["news_risk"], HISTORICAL_UNAVAILABLE)
+        self.assertEqual(payload["active_session"], "NY Kill Zone")
+        self.assertEqual(payload["kill_zone_active"], "YES — NY Kill Zone replay")
+        self.assertTrue(payload["trade_window_active"])
+
+    def test_historical_fundamental_snapshot_matches_live_shape(self):
+        auto = {
+            "usd_rate": 4.5,
+            "fed_target_lower_rate": 4.25,
+            "fed_target_upper_rate": 4.5,
+            "eur_rate": 2.5,
+            "ecb_main_refi_rate": 2.65,
+            "ecb_marginal_lending_rate": 2.9,
+            "ecb_deposit_rate": 2.5,
+            "rate_differential": "+2.00%",
+            "dxy_direction": "RISING",
+            "dxy_level": "100.25",
+            "cot_net": 12345,
+            "cot_bias": "BEARISH",
+            "retail_sentiment": "55% LONG",
+            "risk_sentiment": "NEUTRAL",
+            "rates_source": "LIVE",
+            "next_event_name": "CPI",
+            "next_news_event": "CPI",
+            "time_to_event": "2h 15m",
+            "news_risk": "HIGH",
+            "recent_headline": "Headline",
+        }
+        session_info = {
+            "active_session": "NY Kill Zone",
+            "kill_zone_active": "YES — NY Kill Zone",
+            "trade_window_active": True,
+        }
+
+        historical = build_historical_fundamental_snapshot("NY Kill Zone")
+        live = build_live_fundamental_snapshot(auto, session_info)
+
+        self.assertEqual(set(historical.keys()), set(live.keys()))
+
     def test_iter_kill_zone_windows_uses_new_york_schedule(self):
         windows = list(
             iter_kill_zone_windows(
@@ -123,8 +170,16 @@ class SignalReplayTests(unittest.TestCase):
             self.assertTrue(all("take_profit_2" in row["signal"] for row in rows))
             self.assertTrue(all("confluence_score" in row for row in rows))
             self.assertTrue(all("component_scores" in row for row in rows))
+            self.assertTrue(all("available_component_points" in row for row in rows))
+            self.assertTrue(all("unavailable_components" in row for row in rows))
             self.assertTrue(all("technical_analysis" in row for row in rows))
             self.assertTrue(all("atr_1h" in row["technical_analysis"] for row in rows))
+            self.assertTrue(
+                all(
+                    row["market_data"]["fundamental"]["news_risk"] == HISTORICAL_UNAVAILABLE
+                    for row in rows
+                )
+            )
 
 
 if __name__ == "__main__":

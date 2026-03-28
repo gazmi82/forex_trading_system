@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 
 from app.analysis.market_analysis import IndicatorCalculator, MarketStructureAnalyzer
+from app.backtesting.historical_fundamentals_provider import HistoricalFundamentalsProvider
 from app.backtesting.replay_confluence import calculate_confluence
 from app.core.config import AGENT_CONFIG
 
@@ -58,12 +59,16 @@ class SignalReplayEngine:
         loader,
         *,
         output_root: Path | None = None,
+        fundamentals_provider: HistoricalFundamentalsProvider | None = None,
         min_confidence: int = AGENT_CONFIG["min_confidence"],
         strong_signal: int = AGENT_CONFIG["strong_signal"],
     ):
         self.loader = loader
         self.output_root = Path(output_root or "backtest_results")
         self.output_root.mkdir(parents=True, exist_ok=True)
+        self.fundamentals_provider = fundamentals_provider or HistoricalFundamentalsProvider(
+            getattr(loader, "cache_dir", Path("backtest_data"))
+        )
         self.min_confidence = int(min_confidence)
         self.strong_signal = int(strong_signal)
 
@@ -177,6 +182,8 @@ class SignalReplayEngine:
             "confluence_score": replay_result["confluence_score"],
             "signal_strength": strength,
             "component_scores": replay_result["component_scores"],
+            "available_component_points": replay_result.get("available_component_points"),
+            "unavailable_components": replay_result.get("unavailable_components", []),
             "direction_implied": replay_result["direction_implied"],
             "entry_zone_source": entry_source,
             "execution_allowed": execution_allowed,
@@ -281,25 +288,7 @@ class SignalReplayEngine:
             "m15_trend": m15_struct["trend"],
         }
 
-        fundamental = {
-            "usd_rate": None,
-            "pair_rate": None,
-            "rate_differential": "HISTORICAL_UNAVAILABLE",
-            "dxy_direction": "NEUTRAL",
-            "dxy_level": None,
-            "cot_net": None,
-            "cot_bias": "NEUTRAL",
-            "retail_sentiment": "HISTORICAL_UNAVAILABLE",
-            "risk_sentiment": "HISTORICAL_UNAVAILABLE",
-            "next_event_name": "HISTORICAL_NEWS_UNAVAILABLE",
-            "next_news_event": "HISTORICAL_NEWS_UNAVAILABLE",
-            "time_to_event": None,
-            "news_risk": "HIGH",
-            "recent_headline": "HISTORICAL_NEWS_UNAVAILABLE",
-            "active_session": window.session,
-            "kill_zone_active": f"YES — {window.session} replay",
-            "trade_window_active": True,
-        }
+        fundamental = self.fundamentals_provider.snapshot(window.timestamp, window.session)
 
         return {
             "pair": instrument.replace("_", "/"),

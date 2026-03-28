@@ -586,37 +586,13 @@ class MarketDataBuilder:
         they are not replaced with static example values.
         """
         from app.fundamentals.fetcher import get_auto_fundamentals
+        from app.fundamentals.payloads import build_live_fundamental_snapshot
 
         daily_trend = (ohlcv or {}).get("daily_trend", "NEUTRAL")
         h4_trend = (ohlcv or {}).get("h4_trend", "NEUTRAL")
 
         auto = get_auto_fundamentals(daily_trend, h4_trend)
-
-        return {
-            "usd_rate": auto["usd_rate"],
-            "fed_target_lower_rate": auto["fed_target_lower_rate"],
-            "fed_target_upper_rate": auto["fed_target_upper_rate"],
-            "pair_rate": auto["eur_rate"],
-            "ecb_main_refi_rate": auto["ecb_main_refi_rate"],
-            "ecb_marginal_lending_rate": auto["ecb_marginal_lending_rate"],
-            "ecb_deposit_rate": auto["ecb_deposit_rate"],
-            "rate_differential": auto["rate_differential"],
-            "dxy_direction": auto["dxy_direction"],
-            "dxy_level": auto["dxy_level"],
-            "cot_net": auto["cot_net"],
-            "cot_bias": auto["cot_bias"],
-            "retail_sentiment": auto["retail_sentiment"],
-            "risk_sentiment": auto["risk_sentiment"],
-            "rates_source": auto["rates_source"],
-            "next_event_name": auto["next_event_name"],
-            "next_news_event": auto["next_news_event"],
-            "time_to_event": auto["time_to_event"],
-            "news_risk": auto["news_risk"],
-            "recent_headline": auto["recent_headline"],
-            "active_session": session_info["active_session"],
-            "kill_zone_active": session_info["kill_zone_active"],
-            "trade_window_active": session_info["trade_window_active"],
-        }
+        return build_live_fundamental_snapshot(auto, session_info)
 
     def _calculate_usd_exposure(self, open_trades: list) -> str:
         """Calculate total USD exposure across open trades."""

@@ -16,27 +16,43 @@
 
 from __future__ import annotations
 
-# ---------------------------------------------------------------------------
-# Max points per component (must sum to 150 — scores are capped per bucket)
-# ---------------------------------------------------------------------------
-_TREND_MAX          = 15
-_OB_MAX             = 20
-_FVG_MAX            = 15
-_SWEEP_MAX          = 15
-_PD_MAX             = 10
-_OTE_MAX            = 10
-_RSI_MAX            = 10
-_ADX_MAX            = 10
-_EMA_MAX            = 5
-_RATE_DIFF_MAX      = 15
-_DXY_MAX            = 10
-_COT_MAX            = 10
-_NEWS_MAX           = 5
+from app.fundamentals.common import relative_minutes
+from app.fundamentals.payloads import HISTORICAL_NEWS_UNAVAILABLE
 
-_TOTAL_POSSIBLE = (
-    _TREND_MAX + _OB_MAX + _FVG_MAX + _SWEEP_MAX + _PD_MAX + _OTE_MAX
-    + _RSI_MAX + _ADX_MAX + _EMA_MAX + _RATE_DIFF_MAX + _DXY_MAX + _COT_MAX + _NEWS_MAX
-)  # 150 — score is normalised to 0-100 before returning
+# ---------------------------------------------------------------------------
+# Max points per component (must sum to 150 for the full live-style stack)
+# ---------------------------------------------------------------------------
+_TREND_MAX = 15
+_OB_MAX = 20
+_FVG_MAX = 15
+_SWEEP_MAX = 15
+_PD_MAX = 10
+_OTE_MAX = 10
+_RSI_MAX = 10
+_ADX_MAX = 10
+_EMA_MAX = 5
+_RATE_DIFF_MAX = 15
+_DXY_MAX = 10
+_COT_MAX = 10
+_NEWS_MAX = 5
+
+_COMPONENT_MAX = {
+    "trend_alignment": _TREND_MAX,
+    "order_block": _OB_MAX,
+    "fvg": _FVG_MAX,
+    "liquidity_sweep": _SWEEP_MAX,
+    "premium_discount": _PD_MAX,
+    "ote": _OTE_MAX,
+    "rsi": _RSI_MAX,
+    "adx": _ADX_MAX,
+    "ema": _EMA_MAX,
+    "rate_differential": _RATE_DIFF_MAX,
+    "dxy": _DXY_MAX,
+    "cot": _COT_MAX,
+    "news_clear": _NEWS_MAX,
+}
+
+_TOTAL_POSSIBLE = sum(_COMPONENT_MAX.values())  # 150
 
 
 def calculate_confluence(market_data: dict, signal: dict) -> dict:
@@ -100,15 +116,26 @@ def calculate_confluence(market_data: dict, signal: dict) -> dict:
         "cot":               _score_cot(direction, fundamental),
         "news_clear":        _score_news(fundamental),
     }
+    component_availability = _available_component_weights(ohlcv, indicators, fundamental)
 
     raw_total = sum(components.values())
-    # Normalise from 0-150 to 0-100
-    normalised = round(min(100, (raw_total / _TOTAL_POSSIBLE) * 100))
+    available_total = sum(component_availability.values())
+    if available_total <= 0:
+        normalised = 0
+    else:
+        # Historical replay can legitimately miss macro/news feeds, so score only
+        # against the buckets that were actually available for this snapshot.
+        normalised = round(min(100, (raw_total / available_total) * 100))
+    unavailable_components = [
+        name for name, max_points in component_availability.items() if max_points == 0
+    ]
 
     return {
         "confluence_score":  normalised,
         "direction_implied": _implied_direction(ohlcv, fundamental),
         "component_scores":  components,
+        "available_component_points": available_total,
+        "unavailable_components": unavailable_components,
     }
 
 
@@ -333,10 +360,10 @@ def _score_news(fundamental: dict) -> int:
       +5  news_risk is LOW   OR   next event is more than 240 minutes away.
     """
     risk = (fundamental.get("news_risk") or "HIGH").upper()
-    if risk == "LOW":
+    if risk in {"LOW", "CLEAR"}:
         return _NEWS_MAX
 
-    minutes = _to_float(fundamental.get("time_to_event"))
+    minutes = _time_to_event_minutes(fundamental.get("time_to_event"))
     if minutes is not None and minutes > 240:
         return _NEWS_MAX
 
@@ -399,3 +426,75 @@ def _to_float(value) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _time_to_event_minutes(value) -> float | None:
+    minutes = _to_float(value)
+    if minutes is not None:
+        return minutes
+    if value is None:
+        return None
+    return relative_minutes(str(value))
+
+
+def _available_component_weights(ohlcv: dict, indicators: dict, fundamental: dict) -> dict[str, int]:
+    return {
+        "trend_alignment": _TREND_MAX if _trend_available(ohlcv) else 0,
+        "order_block": _OB_MAX if _order_block_available(indicators) else 0,
+        "fvg": _FVG_MAX if _fvg_available(indicators) else 0,
+        "liquidity_sweep": _SWEEP_MAX if "recent_liquidity_sweep" in indicators else 0,
+        "premium_discount": _PD_MAX if "premium_discount_zone" in indicators else 0,
+        "ote": _OTE_MAX if "ote_zone" in indicators else 0,
+        "rsi": _RSI_MAX if ("rsi_4h" in indicators or "rsi_1h" in indicators) else 0,
+        "adx": _ADX_MAX if "adx_4h" in indicators else 0,
+        "ema": _EMA_MAX if ("ema20_4h" in indicators and "ema50_4h" in indicators) else 0,
+        "rate_differential": _RATE_DIFF_MAX if _rate_data_available(fundamental) else 0,
+        "dxy": _DXY_MAX if _dxy_data_available(fundamental) else 0,
+        "cot": _COT_MAX if _cot_data_available(fundamental) else 0,
+        "news_clear": _NEWS_MAX if _news_data_available(fundamental) else 0,
+    }
+
+
+def _trend_available(ohlcv: dict) -> bool:
+    required = ("weekly_trend", "daily_trend", "h4_trend")
+    return all(key in ohlcv for key in required)
+
+
+def _order_block_available(indicators: dict) -> bool:
+    return "bullish_ob" in indicators or "bearish_ob" in indicators
+
+
+def _fvg_available(indicators: dict) -> bool:
+    return "bullish_fvg" in indicators or "bearish_fvg" in indicators
+
+
+def _rate_data_available(fundamental: dict) -> bool:
+    return _to_float(fundamental.get("usd_rate")) is not None and _to_float(
+        fundamental.get("pair_rate")
+    ) is not None
+
+
+def _dxy_data_available(fundamental: dict) -> bool:
+    if _to_float(fundamental.get("dxy_level")) is not None:
+        return True
+    return str(fundamental.get("dxy_direction") or "").upper() in {"RISING", "FALLING"}
+
+
+def _cot_data_available(fundamental: dict) -> bool:
+    if _to_float(fundamental.get("cot_net")) is not None:
+        return True
+    return str(fundamental.get("cot_bias") or "").upper() in {"BULLISH", "BEARISH"}
+
+
+def _news_data_available(fundamental: dict) -> bool:
+    risk = str(fundamental.get("news_risk") or "").upper()
+    event_name = str(
+        fundamental.get("next_news_event") or fundamental.get("next_event_name") or ""
+    ).upper()
+    if _time_to_event_minutes(fundamental.get("time_to_event")) is not None:
+        return True
+    if risk in {"LOW", "MEDIUM", "HIGH", "CLEAR"}:
+        return True
+    if event_name and event_name not in {HISTORICAL_NEWS_UNAVAILABLE, "N/A"}:
+        return True
+    return False

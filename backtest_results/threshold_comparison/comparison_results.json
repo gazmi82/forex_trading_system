@@ -1,0 +1,206 @@
+[
+  {
+    "threshold": 50,
+    "signals_meta": {
+      "total_windows": 1569,
+      "tradable_windows": 588,
+      "neutral_windows": 981,
+      "non_neutral_windows": 588,
+      "highest_score": 70,
+      "avg_score": 46.0
+    },
+    "full_period": {
+      "total_trades": 527,
+      "wins": 245,
+      "losses": 282,
+      "breakeven": 0,
+      "win_rate_pct": 46.5,
+      "net_pnl_r": -12.877,
+      "expectancy_r": -0.0244,
+      "max_drawdown_r": 52.967,
+      "profit_factor": 0.949,
+      "final_balance": 858.14,
+      "net_pnl_usd": -141.86,
+      "max_drawdown_usd": 465.75,
+      "max_drawdown_pct": 46.57
+    },
+    "year_split": {
+      "2024": {
+        "total_trades": 249,
+        "wins": 128,
+        "losses": 121,
+        "breakeven": 0,
+        "win_rate_pct": 51.4,
+        "net_pnl_r": 22.308,
+        "expectancy_r": 0.0896,
+        "max_drawdown_r": 28.263,
+        "profit_factor": 1.202,
+        "final_balance": 1234.41,
+        "net_pnl_usd": 234.41,
+        "max_drawdown_usd": 278.04,
+        "max_drawdown_pct": 27.8
+      },
+      "2025": {
+        "total_trades": 278,
+        "wins": 117,
+        "losses": 161,
+        "breakeven": 0,
+        "win_rate_pct": 42.1,
+        "net_pnl_r": -35.185,
+        "expectancy_r": -0.1266,
+        "max_drawdown_r": 62.542,
+        "profit_factor": 0.751,
+        "final_balance": 858.13,
+        "net_pnl_usd": -376.28,
+        "max_drawdown_usd": 578.89,
+        "max_drawdown_pct": 46.9
+      }
+    },
+    "sim_summary": {
+      "signals_seen": 1569,
+      "tradable_signals": 588,
+      "filled_trades": 527,
+      "no_fill_signals": 61
+    },
+    "tp1_trail_included": true,
+    "report_path": "/Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison/t50/report_t50.json",
+    "profit_factor_from_report": 0.9488,
+    "max_drawdown_r_from_report": 52.9667
+  },
+  {
+    "threshold": 55,
+    "signals_meta": {
+      "total_windows": 1569,
+      "tradable_windows": 245,
+      "neutral_windows": 1324,
+      "non_neutral_windows": 245,
+      "highest_score": 70,
+      "avg_score": 46.0
+    },
+    "full_period": {
+      "total_trades": 233,
+      "wins": 109,
+      "losses": 124,
+      "breakeven": 0,
+      "win_rate_pct": 46.8,
+      "net_pnl_r": -4.389,
+      "expectancy_r": -0.0188,
+      "max_drawdown_r": 32.775,
+      "profit_factor": 0.96,
+      "final_balance": 947.07,
+      "net_pnl_usd": -52.93,
+      "max_drawdown_usd": 328.69,
+      "max_drawdown_pct": 32.87
+    },
+    "year_split": {
+      "2024": {
+        "total_trades": 106,
+        "wins": 58,
+        "losses": 48,
+        "breakeven": 0,
+        "win_rate_pct": 54.7,
+        "net_pnl_r": 19.004,
+        "expectancy_r": 0.1793,
+        "max_drawdown_r": 16.998,
+        "profit_factor": 1.423,
+        "final_balance": 1202.23,
+        "net_pnl_usd": 202.23,
+        "max_drawdown_usd": 171.92,
+        "max_drawdown_pct": 17.19
+      },
+      "2025": {
+        "total_trades": 127,
+        "wins": 51,
+        "losses": 76,
+        "breakeven": 0,
+        "win_rate_pct": 40.2,
+        "net_pnl_r": -23.394,
+        "expectancy_r": -0.1842,
+        "max_drawdown_r": 35.4,
+        "profit_factor": 0.638,
+        "final_balance": 947.07,
+        "net_pnl_usd": -255.16,
+        "max_drawdown_usd": 361.4,
+        "max_drawdown_pct": 30.06
+      }
+    },
+    "sim_summary": {
+      "signals_seen": 1569,
+      "tradable_signals": 245,
+      "filled_trades": 233,
+      "no_fill_signals": 12
+    },
+    "tp1_trail_included": true,
+    "report_path": "/Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison/t55/report_t55.json",
+    "profit_factor_from_report": 0.9599,
+    "max_drawdown_r_from_report": 32.7748
+  },
+  {
+    "threshold": 65,
+    "signals_meta": {
+      "total_windows": 1569,
+      "tradable_windows": 21,
+      "neutral_windows": 1548,
+      "non_neutral_windows": 21,
+      "highest_score": 70,
+      "avg_score": 46.0
+    },
+    "full_period": {
+      "total_trades": 21,
+      "wins": 13,
+      "losses": 8,
+      "breakeven": 0,
+      "win_rate_pct": 61.9,
+      "net_pnl_r": 5.233,
+      "expectancy_r": 0.2492,
+      "max_drawdown_r": 2.85,
+      "profit_factor": 1.847,
+      "final_balance": 1052.93,
+      "net_pnl_usd": 52.93,
+      "max_drawdown_usd": 30.33,
+      "max_drawdown_pct": 3.03
+    },
+    "year_split": {
+      "2024": {
+        "total_trades": 12,
+        "wins": 10,
+        "losses": 2,
+        "breakeven": 0,
+        "win_rate_pct": 83.3,
+        "net_pnl_r": 7.259,
+        "expectancy_r": 0.6049,
+        "max_drawdown_r": 1.535,
+        "profit_factor": 5.728,
+        "final_balance": 1074.8,
+        "net_pnl_usd": 74.8,
+        "max_drawdown_usd": 15.47,
+        "max_drawdown_pct": 1.55
+      },
+      "2025": {
+        "total_trades": 9,
+        "wins": 3,
+        "losses": 6,
+        "breakeven": 0,
+        "win_rate_pct": 33.3,
+        "net_pnl_r": -2.026,
+        "expectancy_r": -0.2251,
+        "max_drawdown_r": 3.071,
+        "profit_factor": 0.564,
+        "final_balance": 1052.92,
+        "net_pnl_usd": -21.88,
+        "max_drawdown_usd": 32.79,
+        "max_drawdown_pct": 3.05
+      }
+    },
+    "sim_summary": {
+      "signals_seen": 1569,
+      "tradable_signals": 21,
+      "filled_trades": 21,
+      "no_fill_signals": 0
+    },
+    "tp1_trail_included": true,
+    "report_path": "/Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison/t65/report_t65.json",
+    "profit_factor_from_report": 1.847,
+    "max_drawdown_r_from_report": 2.8503
+  }
+]
