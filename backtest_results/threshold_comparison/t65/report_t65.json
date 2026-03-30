@@ -1,54 +1,56 @@
 {
-  "generated_at_utc": "2026-03-28T12:30:07.421955Z",
+  "generated_at_utc": "2026-03-28T14:44:45.528045Z",
   "source_file": "/Users/gazmirsulcaj/forex_trading_system/backtest_results/threshold_comparison/t65/EUR_USD/EUR_USD_simulated_closed_trades_20240101T000000Z_20260101T000000Z.jsonl",
-  "total_trades": 21,
-  "wins": 16,
-  "losses": 5,
+  "total_trades": 7,
+  "wins": 5,
+  "losses": 2,
   "breakeven": 0,
-  "win_rate": 0.7619,
-  "avg_r": 0.4161,
-  "expectancy_r": 0.4161,
-  "gross_profit_r": 10.8558,
-  "gross_loss_r": -2.1175,
-  "profit_factor": 5.1267,
+  "win_rate": 0.7143,
+  "avg_r": 0.3054,
+  "expectancy_r": 0.3054,
+  "gross_profit_r": 3.4644,
+  "gross_loss_r": -1.3266,
+  "profit_factor": 2.6115,
   "max_consecutive_losses": 2,
-  "max_drawdown_r": 1.2323,
+  "max_drawdown_r": 1.3266,
   "session_breakdown": {
     "NY Kill Zone": {
-      "trades": 7,
-      "win_rate": 0.8571,
-      "avg_r": 0.4834,
-      "expectancy_r": 0.4834,
-      "profit_factor": 6.5991
+      "trades": 3,
+      "win_rate": 1.0,
+      "avg_r": 0.5689,
+      "expectancy_r": 0.5689,
+      "profit_factor": null
     },
     "London Close": {
-      "trades": 8,
-      "win_rate": 0.5,
-      "avg_r": 0.122,
-      "expectancy_r": 0.122,
-      "profit_factor": 1.645
+      "trades": 2,
+      "win_rate": 0.0,
+      "avg_r": -0.6633,
+      "expectancy_r": -0.6633,
+      "profit_factor": 0.0
     },
     "London Kill Zone": {
-      "trades": 6,
+      "trades": 2,
       "win_rate": 1.0,
-      "avg_r": 0.7297,
-      "expectancy_r": 0.7297,
+      "avg_r": 0.8788,
+      "expectancy_r": 0.8788,
       "profit_factor": null
     }
   },
   "score_bucket_breakdown": {
     "65-74": {
-      "trades": 21,
-      "win_rate": 0.7619,
-      "avg_r": 0.4161,
-      "expectancy_r": 0.4161,
-      "profit_factor": 5.1267
+      "trades": 7,
+      "win_rate": 0.7143,
+      "avg_r": 0.3054,
+      "expectancy_r": 0.3054,
+      "profit_factor": 2.6115
     }
   },
   "minimum_thresholds": {
     "expectancy_positive": true,
     "profit_factor_above_1_3": true,
-    "negative_expectancy_sessions": []
+    "negative_expectancy_sessions": [
+      "London Close"
+    ]
   },
-  "status": "ready"
+  "status": "mixed"
 }

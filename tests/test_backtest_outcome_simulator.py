@@ -79,7 +79,140 @@ class OutcomeSimulatorTests(unittest.TestCase):
         self.assertEqual(summary.no_fill_signals, 0)
         self.assertEqual(rows[0]["close_reason"], "TAKE_PROFIT_2")
         self.assertTrue(rows[0]["tp1_hit"])
-        self.assertAlmostEqual(rows[0]["pnl_r"], 1.5, places=4)
+        self.assertLess(rows[0]["pnl_r"], 1.5)
+        self.assertGreater(rows[0]["pnl_usd"], 0)
+
+    def test_simulator_sequential_mode_blocks_overlapping_signal_times(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = Path(tmpdir)
+            rows = []
+            for idx in range(121):
+                rows.append(
+                    {
+                        "open": 1.1000,
+                        "high": 1.1003,
+                        "low": 1.0996,
+                        "close": 1.1001 if idx < 70 else 1.0988,
+                        "volume": 100,
+                    }
+                )
+            frame = _frame_from_rows("2026-03-25T12:00:00Z", rows)
+            _write_m1_dataset(base, frame)
+            signals = [
+                {
+                    "pair": "EUR/USD",
+                    "timestamp": "2026-03-25T12:00:00Z",
+                    "session": "NY Kill Zone",
+                    "confluence_score": 78,
+                    "signal_strength": "MODERATE",
+                    "execution_allowed": True,
+                    "validator_overrides": [],
+                    "signal": {
+                        "direction": "BUY",
+                        "confidence": 78,
+                        "entry_zone": [1.1000, 1.1000],
+                        "stop_loss": 1.0980,
+                        "take_profit_1": 1.1012,
+                        "take_profit_2": 1.1040,
+                        "risk_reward": 2.0,
+                    },
+                },
+                {
+                    "pair": "EUR/USD",
+                    "timestamp": "2026-03-25T12:30:00Z",
+                    "session": "London Close",
+                    "confluence_score": 78,
+                    "signal_strength": "MODERATE",
+                    "execution_allowed": True,
+                    "validator_overrides": [],
+                    "signal": {
+                        "direction": "BUY",
+                        "confidence": 78,
+                        "entry_zone": [1.1000, 1.1000],
+                        "stop_loss": 1.0980,
+                        "take_profit_1": 1.1012,
+                        "take_profit_2": 1.1040,
+                        "risk_reward": 2.0,
+                    },
+                },
+            ]
+            signals_path = _write_signal_file(base, signals)
+            loader = HistoricalDataLoader(None, base)
+            simulator = OutcomeSimulator(loader, output_root=base / "results")
+
+            summary = simulator.simulate(signals_path, local_only=True)
+            rows = [
+                json.loads(line)
+                for line in Path(summary.output_path).read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+
+        self.assertEqual(summary.filled_trades, 1)
+        self.assertEqual(summary.blocked_by_open_position, 1)
+        self.assertEqual(len(rows), 1)
+
+    def test_simulator_blocks_new_trade_after_daily_loss_limit(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = Path(tmpdir)
+            frame = _frame_from_rows(
+                "2026-03-25T12:00:00Z",
+                [
+                    {"open": 1.1000, "high": 1.1001, "low": 1.0978, "close": 1.0980, "volume": 100},
+                    {"open": 1.0980, "high": 1.1001, "low": 1.0979, "close": 1.0981, "volume": 100},
+                    {"open": 1.0981, "high": 1.1001, "low": 1.0979, "close": 1.0981, "volume": 100},
+                ],
+            )
+            _write_m1_dataset(base, frame)
+            signals = [
+                {
+                    "pair": "EUR/USD",
+                    "timestamp": "2026-03-25T12:00:00Z",
+                    "session": "NY Kill Zone",
+                    "confluence_score": 78,
+                    "signal_strength": "MODERATE",
+                    "execution_allowed": True,
+                    "validator_overrides": [],
+                    "signal": {
+                        "direction": "BUY",
+                        "confidence": 78,
+                        "entry_zone": [1.1000, 1.1000],
+                        "stop_loss": 1.0980,
+                        "take_profit_1": 1.1012,
+                        "take_profit_2": 1.1040,
+                        "risk_reward": 2.0,
+                    },
+                },
+                {
+                    "pair": "EUR/USD",
+                    "timestamp": "2026-03-25T12:02:00Z",
+                    "session": "London Close",
+                    "confluence_score": 78,
+                    "signal_strength": "MODERATE",
+                    "execution_allowed": True,
+                    "validator_overrides": [],
+                    "signal": {
+                        "direction": "BUY",
+                        "confidence": 78,
+                        "entry_zone": [1.0981, 1.0981],
+                        "stop_loss": 1.0961,
+                        "take_profit_1": 1.0993,
+                        "take_profit_2": 1.1021,
+                        "risk_reward": 2.0,
+                    },
+                },
+            ]
+            signals_path = _write_signal_file(base, signals)
+            loader = HistoricalDataLoader(None, base)
+            simulator = OutcomeSimulator(
+                loader,
+                output_root=base / "results",
+                trading_config={"max_daily_loss": 0.01},
+            )
+
+            summary = simulator.simulate(signals_path, local_only=True)
+
+        self.assertEqual(summary.filled_trades, 1)
+        self.assertEqual(summary.blocked_by_daily_loss, 1)
 
     def test_simulator_applies_time_stop(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -235,7 +368,8 @@ class OutcomeSimulatorTests(unittest.TestCase):
         self.assertEqual(summary.filled_trades, 1)
         self.assertTrue(rows[0]["tp1_hit"])
         self.assertEqual(rows[0]["close_reason"], "STOP_LOSS")
-        self.assertAlmostEqual(rows[0]["pnl_r"], 1.5, places=4)
+        self.assertGreater(rows[0]["pnl_r"], 1.0)
+        self.assertLess(rows[0]["pnl_r"], 1.5)
 
     def test_simulator_uses_atr_based_trailing_when_signal_has_entry_atr(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -282,7 +416,8 @@ class OutcomeSimulatorTests(unittest.TestCase):
         self.assertEqual(summary.filled_trades, 1)
         self.assertTrue(rows[0]["tp1_hit"])
         self.assertEqual(rows[0]["close_reason"], "STOP_LOSS")
-        self.assertAlmostEqual(rows[0]["pnl_r"], 1.5, places=4)
+        self.assertGreater(rows[0]["pnl_r"], 1.0)
+        self.assertLess(rows[0]["pnl_r"], 1.5)
 
     def test_backtest_report_summarizes_results(self):
         with tempfile.TemporaryDirectory() as tmpdir:

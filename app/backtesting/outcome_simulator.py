@@ -26,6 +26,9 @@ class SimulationSummary:
     tradable_signals: int
     filled_trades: int
     no_fill_signals: int
+    blocked_by_open_position: int = 0
+    blocked_by_daily_loss: int = 0
+    blocked_by_weekly_loss: int = 0
 
 
 class OutcomeSimulator:
@@ -57,12 +60,15 @@ class OutcomeSimulator:
         output_path: Path | None = None,
     ) -> SimulationSummary:
         signals = _read_jsonl(signals_path)
-        tradable = [
+        tradable = sorted(
+            [
             item
             for item in signals
             if bool(item.get("execution_allowed"))
             and str((item.get("signal") or {}).get("direction", "NEUTRAL")).upper() in {"BUY", "SELL"}
-        ]
+            ],
+            key=lambda item: _parse_utc(item.get("timestamp")) or datetime.max.replace(tzinfo=timezone.utc),
+        )
 
         instrument_slug = instrument.replace("/", "_").upper()
         output_file = Path(output_path or self._default_output_path(instrument_slug, signals_path))
@@ -120,14 +126,61 @@ class OutcomeSimulator:
 
         filled = 0
         no_fill = 0
+        blocked_overlap = 0
+        blocked_daily_loss = 0
+        blocked_weekly_loss = 0
+        sequential_mode = bool(self.config.get("backtest_single_position_mode", True))
+        enforce_loss_limits = bool(self.config.get("backtest_enforce_loss_limits", True))
+        equity = float(self.config.get("backtest_starting_balance", 1000.0) or 1000.0)
+        active_until: datetime | None = None
+        current_day = None
+        day_start_equity = equity
+        current_week = None
+        week_start_equity = equity
+
         with open(output_file, "w", encoding="utf-8") as handle:
             for signal in tradable:
+                signal_time = _parse_utc(signal.get("timestamp"))
+                if signal_time is None:
+                    no_fill += 1
+                    continue
+
+                if current_day != signal_time.date():
+                    current_day = signal_time.date()
+                    day_start_equity = equity
+
+                iso_week = (signal_time.isocalendar().year, signal_time.isocalendar().week)
+                if current_week != iso_week:
+                    current_week = iso_week
+                    week_start_equity = equity
+
+                if sequential_mode and active_until and signal_time < active_until:
+                    blocked_overlap += 1
+                    continue
+
+                block_reason = self._account_block_reason(
+                    equity=equity,
+                    day_start_equity=day_start_equity,
+                    week_start_equity=week_start_equity,
+                ) if enforce_loss_limits else ""
+                if block_reason == "daily_loss":
+                    blocked_daily_loss += 1
+                    continue
+                if block_reason == "weekly_loss":
+                    blocked_weekly_loss += 1
+                    continue
+
                 result = self.simulate_signal(signal, candles)
                 if result is None:
                     no_fill += 1
                     continue
+                result = self._apply_account_valuation(result, equity)
                 filled += 1
                 handle.write(json.dumps(result) + "\n")
+                equity = float(result.get("account_equity_after", equity))
+                closed_at = _parse_utc(result.get("closed_at"))
+                if sequential_mode and closed_at is not None:
+                    active_until = closed_at
 
         return SimulationSummary(
             instrument=instrument_slug,
@@ -137,6 +190,9 @@ class OutcomeSimulator:
             tradable_signals=len(tradable),
             filled_trades=filled,
             no_fill_signals=no_fill,
+            blocked_by_open_position=blocked_overlap,
+            blocked_by_daily_loss=blocked_daily_loss,
+            blocked_by_weekly_loss=blocked_weekly_loss,
         )
 
     def simulate_signal(self, signal: dict[str, Any], candles: pd.DataFrame) -> dict[str, Any] | None:
@@ -158,7 +214,8 @@ class OutcomeSimulator:
         tp1 = float(sig.get("take_profit_1", 0) or 0)
         tp2 = float(sig.get("take_profit_2", 0) or 0)
         risk_reward = float(sig.get("risk_reward", 0) or 0)
-        risk_distance = abs(entry_price - stop_loss)
+        modeled_entry_price = self._effective_entry_price(direction, entry_price)
+        risk_distance = abs(modeled_entry_price - stop_loss)
         if risk_distance <= 0:
             return None
 
@@ -225,14 +282,15 @@ class OutcomeSimulator:
             if protective_hit:
                 total_r = partial_realized_r + self._remaining_r(
                     direction,
-                    entry_price,
-                    current_sl,
+                    modeled_entry_price,
+                    self._effective_exit_price(direction, current_sl),
                     risk_distance,
                     remaining_fraction,
                 )
                 return self._closed_trade_record(
                     signal,
                     entry_price=entry_price,
+                    modeled_entry_price=modeled_entry_price,
                     stop_loss=stop_loss,
                     tp2=tp2,
                     fill_time=fill_time,
@@ -250,7 +308,14 @@ class OutcomeSimulator:
 
             if tp2_hit:
                 if not tp1_hit and tp1:
-                    partial_r = self._price_to_r(direction, entry_price, tp1, risk_distance) * close_pct
+                    partial_r = (
+                        self._price_to_r(
+                            direction,
+                            modeled_entry_price,
+                            self._effective_exit_price(direction, tp1),
+                            risk_distance,
+                        ) * close_pct
+                    )
                     partial_realized_r += partial_r
                     tp1_hit = True
                     tp1_fill_price = tp1
@@ -270,14 +335,15 @@ class OutcomeSimulator:
 
                 total_r = partial_realized_r + self._remaining_r(
                     direction,
-                    entry_price,
-                    tp2,
+                    modeled_entry_price,
+                    self._effective_exit_price(direction, tp2),
                     risk_distance,
                     remaining_fraction,
                 )
                 return self._closed_trade_record(
                     signal,
                     entry_price=entry_price,
+                    modeled_entry_price=modeled_entry_price,
                     stop_loss=stop_loss,
                     tp2=tp2,
                     fill_time=fill_time,
@@ -302,8 +368,8 @@ class OutcomeSimulator:
             if candle_time >= time_stop_after:
                 floating_r = self._remaining_r(
                     direction,
-                    entry_price,
-                    close,
+                    modeled_entry_price,
+                    self._effective_exit_price(direction, close),
                     risk_distance,
                     remaining_fraction,
                 )
@@ -312,6 +378,7 @@ class OutcomeSimulator:
                     return self._closed_trade_record(
                         signal,
                         entry_price=entry_price,
+                        modeled_entry_price=modeled_entry_price,
                         stop_loss=stop_loss,
                         tp2=tp2,
                         fill_time=fill_time,
@@ -328,7 +395,14 @@ class OutcomeSimulator:
                     )
 
             if tp1_hit_now:
-                partial_r = self._price_to_r(direction, entry_price, tp1, risk_distance) * close_pct
+                partial_r = (
+                    self._price_to_r(
+                        direction,
+                        modeled_entry_price,
+                        self._effective_exit_price(direction, tp1),
+                        risk_distance,
+                    ) * close_pct
+                )
                 partial_realized_r += partial_r
                 tp1_hit = True
                 tp1_fill_price = tp1
@@ -358,14 +432,15 @@ class OutcomeSimulator:
                 if assessment.enabled and assessment.should_exit and not tp1_hit:
                     total_r = partial_realized_r + self._remaining_r(
                         direction,
-                        entry_price,
-                        close,
+                        modeled_entry_price,
+                        self._effective_exit_price(direction, close),
                         risk_distance,
                         remaining_fraction,
                     )
                     return self._closed_trade_record(
                         signal,
                         entry_price=entry_price,
+                        modeled_entry_price=modeled_entry_price,
                         stop_loss=stop_loss,
                         tp2=tp2,
                         fill_time=fill_time,
@@ -396,14 +471,15 @@ class OutcomeSimulator:
         close_price = float(last_candle["close"])
         total_r = partial_realized_r + self._remaining_r(
             direction,
-            entry_price,
-            close_price,
+            modeled_entry_price,
+            self._effective_exit_price(direction, close_price),
             risk_distance,
             remaining_fraction,
         )
         return self._closed_trade_record(
             signal,
             entry_price=entry_price,
+            modeled_entry_price=modeled_entry_price,
             stop_loss=stop_loss,
             tp2=tp2,
             fill_time=fill_time,
@@ -430,6 +506,65 @@ class OutcomeSimulator:
             return None
         return touched.iloc[0]
 
+    def _account_block_reason(
+        self,
+        *,
+        equity: float,
+        day_start_equity: float,
+        week_start_equity: float,
+    ) -> str:
+        risk_pct = float(self.config.get("max_risk_per_trade", 0.01) or 0.01) * 100
+        max_daily_loss = float(self.config.get("max_daily_loss", 0.02) or 0.02) * 100
+        max_weekly_loss = float(self.config.get("max_weekly_loss", 0.05) or 0.05) * 100
+
+        daily_pnl_pct = self._account_pnl_pct(equity, day_start_equity)
+        if daily_pnl_pct <= -max_daily_loss or (daily_pnl_pct - risk_pct) < -max_daily_loss:
+            return "daily_loss"
+
+        weekly_pnl_pct = self._account_pnl_pct(equity, week_start_equity)
+        if weekly_pnl_pct <= -max_weekly_loss or (weekly_pnl_pct - risk_pct) < -max_weekly_loss:
+            return "weekly_loss"
+
+        return ""
+
+    @staticmethod
+    def _account_pnl_pct(equity: float, start_equity: float) -> float:
+        if start_equity <= 0:
+            return 0.0
+        return ((equity - start_equity) / start_equity) * 100
+
+    def _apply_account_valuation(self, trade_record: dict[str, Any], equity_before: float) -> dict[str, Any]:
+        risk_usd = max(equity_before * float(self.config.get("max_risk_per_trade", 0.01) or 0.01), 0.0001)
+        pnl_r = float(trade_record.get("pnl_r", 0) or 0)
+        partial_realized_r = float(trade_record.get("partial_realized_pnl_r", 0) or 0)
+        pnl_usd = risk_usd * pnl_r
+        equity_after = equity_before + pnl_usd
+
+        updated = dict(trade_record)
+        updated["risk_amount_usd"] = round(risk_usd, 2)
+        updated["pnl_usd"] = round(pnl_usd, 2)
+        updated["partial_realized_pnl_usd"] = round(risk_usd * partial_realized_r, 2)
+        updated["account_equity_before"] = round(equity_before, 2)
+        updated["account_equity_after"] = round(equity_after, 2)
+        return updated
+
+    def _execution_cost_distance(self) -> float:
+        spread_pips = max(float(self.config.get("backtest_spread_pips", 0.0) or 0.0), 0.0)
+        slippage_pips = max(float(self.config.get("backtest_slippage_pips", 0.0) or 0.0), 0.0)
+        return ((spread_pips / 2.0) + slippage_pips) / 10000.0
+
+    def _effective_entry_price(self, direction: str, price: float) -> float:
+        cost = self._execution_cost_distance()
+        if direction == "BUY":
+            return round(price + cost, 5)
+        return round(price - cost, 5)
+
+    def _effective_exit_price(self, direction: str, price: float) -> float:
+        cost = self._execution_cost_distance()
+        if direction == "BUY":
+            return round(price - cost, 5)
+        return round(price + cost, 5)
+
     @staticmethod
     def _price_to_r(direction: str, entry: float, price: float, risk_distance: float) -> float:
         move = (price - entry) if direction == "BUY" else (entry - price)
@@ -450,6 +585,7 @@ class OutcomeSimulator:
         signal: dict[str, Any],
         *,
         entry_price: float,
+        modeled_entry_price: float,
         stop_loss: float,
         tp2: float,
         fill_time: datetime,
@@ -493,6 +629,7 @@ class OutcomeSimulator:
             "pair": signal.get("pair", "EUR/USD"),
             "direction": signal_payload.get("direction", ""),
             "entry_price": round(entry_price, 5),
+            "modeled_entry_price": round(modeled_entry_price, 5),
             "stop_loss": round(stop_loss, 5),
             "take_profit": round(float(tp2 or 0), 5),
             "lot_size": 1.0,
@@ -516,6 +653,7 @@ class OutcomeSimulator:
             "tp1_fill_price": round(float(tp1_fill_price), 5) if tp1_fill_price else None,
             "tp1_closed_units": round(tp1_closed_fraction, 4),
             "stop_moved_to_entry": stop_moved_to_entry,
+            "partial_realized_pnl_r": round(partial_realized_r, 4),
             "partial_realized_pnl_usd": round(partial_realized_r, 4),
             "partial_close_events": partial_close_events,
             "pnl_is_partial_estimate": False,

@@ -29,6 +29,7 @@ from app.backtesting import (
     OutcomeSimulator,
     SignalReplayEngine,
 )
+from app.core.config import TRADING_CONFIG
 
 INSTRUMENT   = "EUR_USD"
 START        = datetime(2024, 1, 1, tzinfo=timezone.utc)
@@ -36,7 +37,7 @@ END          = datetime(2026, 1, 1, tzinfo=timezone.utc)   # covers all of 2024+
 DATA_DIR     = PROJECT_ROOT / "backtest_data"
 OUTPUT_ROOT  = PROJECT_ROOT / "backtest_results" / "threshold_comparison"
 THRESHOLDS   = [50, 55, 65]
-STARTING_BAL = 1_000.0   # USD
+STARTING_BAL = float(TRADING_CONFIG.get("backtest_starting_balance", 1_000.0) or 1_000.0)
 RISK_PCT     = 0.01       # 1% per trade (matches TRADING_CONFIG)
 
 
@@ -221,6 +222,9 @@ def run_for_threshold(threshold: int) -> dict:
             "tradable_signals": sim_summary.tradable_signals,
             "filled_trades": sim_summary.filled_trades,
             "no_fill_signals": sim_summary.no_fill_signals,
+            "blocked_by_open_position": sim_summary.blocked_by_open_position,
+            "blocked_by_daily_loss": sim_summary.blocked_by_daily_loss,
+            "blocked_by_weekly_loss": sim_summary.blocked_by_weekly_loss,
         },
         "tp1_trail_included": True,   # OutcomeSimulator always evaluates TP1 + trailing stop
         "report_path": str(report_path),

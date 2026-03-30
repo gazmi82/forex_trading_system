@@ -134,6 +134,11 @@ TRADING_CONFIG = {
     "early_momentum_minutes": 60,       # Evaluate the rule once, 60 minutes after the trade is filled
     "early_momentum_max_gap_pips": 15.0,  # Exit if best favorable price is still > N pips from TP2
     "early_momentum_min_tp2_progress": None,  # Optional extra filter, e.g. 0.50 for 50% progress to TP2
+    "backtest_starting_balance": 1000.0,  # Starting equity for sequential replay valuation
+    "backtest_spread_pips": 0.8,         # Full EUR/USD spread assumption for replay
+    "backtest_slippage_pips": 0.1,       # One-way slippage assumption for replay fills/exits
+    "backtest_single_position_mode": True,  # Replay only one active position at a time
+    "backtest_enforce_loss_limits": True,   # Apply daily/weekly loss gates in sequential replay
     "adaptive_time_stop":   True,       # Extend the session time stop when the thesis quality supports patience
     "time_stop_hours": {
         "London Kill Zone": 4,

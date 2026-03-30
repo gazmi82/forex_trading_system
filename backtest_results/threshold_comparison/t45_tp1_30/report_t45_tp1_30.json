@@ -1,0 +1,65 @@
+{
+  "generated_at_utc": "2026-03-30T10:28:02.442115Z",
+  "source_file": "backtest_results/threshold_comparison/t45_tp1_30/EUR_USD/EUR_USD_simulated_closed_trades_20240101T000000Z_20260101T000000Z.jsonl",
+  "total_trades": 42,
+  "wins": 20,
+  "losses": 22,
+  "breakeven": 0,
+  "win_rate": 0.4762,
+  "avg_r": -0.1239,
+  "expectancy_r": -0.1239,
+  "gross_profit_r": 10.2127,
+  "gross_loss_r": -15.4176,
+  "profit_factor": 0.6624,
+  "max_consecutive_losses": 4,
+  "max_drawdown_r": 5.4421,
+  "session_breakdown": {
+    "London Kill Zone": {
+      "trades": 26,
+      "win_rate": 0.5385,
+      "avg_r": -0.1154,
+      "expectancy_r": -0.1154,
+      "profit_factor": 0.6654
+    },
+    "NY Kill Zone": {
+      "trades": 7,
+      "win_rate": 0.2857,
+      "avg_r": -0.2788,
+      "expectancy_r": -0.2788,
+      "profit_factor": 0.5043
+    },
+    "London Close": {
+      "trades": 9,
+      "win_rate": 0.4444,
+      "avg_r": -0.0282,
+      "expectancy_r": -0.0282,
+      "profit_factor": 0.8991
+    }
+  },
+  "score_bucket_breakdown": {
+    "0-64": {
+      "trades": 41,
+      "win_rate": 0.4634,
+      "avg_r": -0.1447,
+      "expectancy_r": -0.1447,
+      "profit_factor": 0.6153
+    },
+    "65-74": {
+      "trades": 1,
+      "win_rate": 1.0,
+      "avg_r": 0.7258,
+      "expectancy_r": 0.7258,
+      "profit_factor": null
+    }
+  },
+  "minimum_thresholds": {
+    "expectancy_positive": false,
+    "profit_factor_above_1_3": false,
+    "negative_expectancy_sessions": [
+      "London Kill Zone",
+      "NY Kill Zone",
+      "London Close"
+    ]
+  },
+  "status": "not_ready"
+}

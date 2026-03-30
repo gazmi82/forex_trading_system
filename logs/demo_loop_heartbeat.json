@@ -1,17 +1,17 @@
 {
   "service": "demo_loop",
   "state": "SLEEPING",
-  "loop_count": 184,
-  "updated_at_utc": "2026-03-28T12:13:55.403914Z",
-  "last_started_at_utc": "2026-03-28T12:13:53.674659Z",
-  "last_completed_at_utc": "2026-03-28T12:13:55.403914Z",
-  "session": "Weekend",
-  "runtime_mode": "WEEKEND_BLOCK",
+  "loop_count": 277,
+  "updated_at_utc": "2026-03-30T20:07:54.571421Z",
+  "last_started_at_utc": "2026-03-30T20:07:51.925053Z",
+  "last_completed_at_utc": "2026-03-30T20:07:54.571421Z",
+  "session": "New York Session",
+  "runtime_mode": "MONITOR_ONLY",
   "analysis_allowed_now": false,
-  "schedule_reason": "Weekend block (Saturday)",
+  "schedule_reason": "Outside allowed trade window \u2014 New York session after London close",
   "next_poll_seconds": 1800,
-  "next_expected_run_at_utc": "2026-03-28T12:43:55.403914Z",
-  "price": 1.15115,
+  "next_expected_run_at_utc": "2026-03-30T20:37:54.571421Z",
+  "price": 1.14623,
   "open_trades_count": 0,
   "last_error": null,
   "last_signal": {
@@ -20,5 +20,5 @@
     "confluence_score": 35,
     "execution_allowed": false
   },
-  "last_failed_at_utc": "2026-03-28T11:41:09.225315Z"
+  "last_failed_at_utc": "2026-03-28T18:46:45.002854Z"
 }

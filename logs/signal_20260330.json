@@ -1,0 +1,2688 @@
+{
+  "log_type": "signal",
+  "log_date_utc": "2026-03-30",
+  "entries": [
+    {
+      "timestamp": "2026-03-30T07:03:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": true,
+          "type": "BEARISH",
+          "upper": 1.15094,
+          "lower": 1.15026
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14881,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15763,
+          1.16006
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 30.59,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 43.46,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1583,
+            1.1929,
+            1.1835
+          ],
+          "support": [
+            1.1411,
+            1.1443,
+            1.1507
+          ]
+        },
+        "atr_1h": 0.00119
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly and Daily timeframes show NEUTRAL/mixed structure creating conflicting signals with bearish 4H",
+        "Recent SSL sweep at 1.14881 with strong rejection suggests potential bullish reversal, but price remains in discount zone",
+        "RSI oversold at 30.59 with high ADX 43.46 indicates strong trending conditions but potential exhaustion",
+        "Rate differential +1.62% favors USD but COT shows bullish positioning creating fundamental conflict",
+        "Bullish Order Block mitigated and no valid bearish OB present reduces ICT confluence"
+      ],
+      "key_risk": "Conflicting timeframe alignment and mixed fundamental signals create low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside days breakout methodology for range contraction"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 40 below 65 threshold - conflicting timeframe structure and mixed fundamental signals create unfavorable risk:reward environment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-30T07:03:39.816164Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_070339_816164"
+    },
+    {
+      "timestamp": "2026-03-30T12:00:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15725,
+          1.15958
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 26.85,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 44.67,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1543
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00119
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major timeframe misalignment: Weekly/Daily neutral vs 4H bearish creates conflicting signals",
+        "Recent SSL sweep at 1.14876 with strong rejection suggests potential reversal, but price remains in discount zone",
+        "RSI oversold at 26.85 on 4H with high ADX (44.67) indicates strong bearish momentum but potential exhaustion",
+        "Rate differential strongly favors USD (+1.62%) but COT shows bullish EUR positioning creating fundamental conflict",
+        "Bullish OB at 1.15365 already mitigated, no fresh ICT setups available for high-probability entry"
+      ],
+      "key_risk": "Timeframe misalignment and conflicting fundamental signals create low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology and range contraction analysis"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score below 45 threshold due to major timeframe misalignment and conflicting fundamental/technical signals",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-30T12:00:19.582006Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_120019_582006"
+    },
+    {
+      "timestamp": "2026-03-30T12:10:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15725,
+          1.15958
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 26.85,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 44.67,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1543
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00119
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major timeframe misalignment: Weekly/Daily neutral vs 4H bearish creates conflicting signals",
+        "Recent SSL sweep at 1.14876 with strong rejection suggests potential reversal, but price remains in discount zone",
+        "RSI oversold at 26.85 on 4H with high ADX (44.67) indicates strong bearish momentum but potential exhaustion",
+        "Rate differential strongly favors USD (+1.62%) but COT shows bullish EUR positioning creating fundamental conflict",
+        "Bullish OB at 1.15365 already mitigated, no fresh institutional levels for entry"
+      ],
+      "key_risk": "Timeframe misalignment and conflicting fundamental signals create low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology for range-bound markets"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Major timeframe misalignment (Weekly/Daily neutral vs 4H bearish) violates alignment rules. No valid ICT setup with mitigated OB and no fresh institutional levels.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T12:10:37.123717Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_121037_123717"
+    },
+    {
+      "timestamp": "2026-03-30T12:20:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15725,
+          1.15958
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 26.85,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 44.67,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1543
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00119
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Multi-timeframe misalignment: Weekly/Daily neutral vs 4H bearish creates conflicting signals",
+        "Recent SSL sweep at 1.14876 with strong rejection suggests potential reversal, but price remains in discount zone",
+        "RSI oversold at 26.85 with high ADX 44.67 indicates strong bearish momentum but potential exhaustion",
+        "Rate differential +1.62% favors USD but COT shows bullish EUR positioning creating fundamental conflict",
+        "Bullish OB at 1.15365 already mitigated, no fresh institutional levels for entry"
+      ],
+      "key_risk": "Conflicting timeframe structure and fundamental vs COT positioning creates low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns after liquidity sweeps",
+        "Day Trading And Swing Trading - Inside day breakout strategy for range-bound markets"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Multi-timeframe misalignment with Weekly/Daily neutral conflicting with 4H bearish structure. Fundamental rate differential favors USD but COT positioning shows bullish EUR bias. No valid ICT setup with mitigated OB and no fresh institutional levels.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T12:20:55.197629Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_122055_197629"
+    },
+    {
+      "timestamp": "2026-03-30T12:30:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15725,
+          1.15958
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 26.85,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 44.67,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1443
+          ],
+          "support": [
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00119
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Recent SSL sweep at 1.14876 with strong rejection suggests institutional buying interest, but price remains in discount zone",
+        "4H RSI at 26.85 shows extreme oversold conditions with ADX at 44.67 confirming strong trending environment",
+        "Rate differential of +1.62% favoring USD creates fundamental headwind for EUR/USD recovery",
+        "Timeframe misalignment with Weekly/Daily neutral but 4H bearish prevents high-conviction setup",
+        "Bullish OB at 1.15205-1.15525 already mitigated, reducing structural support for bounce"
+      ],
+      "key_risk": "Conflicting timeframe structure and mitigated order block reduce setup quality despite oversold conditions",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology for range contractions"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score of 35 falls below 45 minimum threshold. Timeframe misalignment and mitigated bullish order block create low-probability setup despite oversold RSI and recent liquidity sweep.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T12:31:13.078226Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_123113_078226"
+    },
+    {
+      "timestamp": "2026-03-30T12:41:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15725,
+          1.15958
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 26.85,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 44.67,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1543
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00119
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major timeframe misalignment: Weekly/Daily neutral vs 4H bearish creates conflicting signals",
+        "Recent SSL sweep at 1.14876 with strong rejection suggests potential reversal, but price remains in discount zone",
+        "RSI oversold at 26.85 on 4H with high ADX (44.67) indicates strong bearish momentum but potential exhaustion",
+        "Rate differential strongly favors USD (+1.62%) but COT shows bullish EUR positioning creating fundamental conflict",
+        "Bullish OB at 1.15365 already mitigated, no fresh ICT setups available for high-probability entry"
+      ],
+      "key_risk": "Timeframe misalignment and conflicting fundamental signals create low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns after liquidity sweeps",
+        "Day Trading And Swing Trading - Inside day breakout setups and range contraction analysis"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 threshold - major timeframe misalignment and conflicting fundamental/COT signals create low-probability environment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T12:41:30.340751Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_124130_340751"
+    },
+    {
+      "timestamp": "2026-03-30T12:51:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.15725,
+          1.15958
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 26.85,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 44.67,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1543
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00119
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major timeframe misalignment: Weekly/Daily neutral vs 4H bearish creates conflicting signals",
+        "Recent SSL sweep at 1.14876 with strong rejection suggests potential reversal, but price remains in discount zone",
+        "RSI oversold at 26.85 on 4H with high ADX 44.67 indicates strong bearish momentum but potential exhaustion",
+        "Rate differential +1.62% favors USD but COT shows bullish EUR positioning creating fundamental conflict",
+        "Bullish OB at 1.15365 already mitigated, no fresh institutional levels for entry"
+      ],
+      "key_risk": "Timeframe misalignment and conflicting fundamental signals create low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology for range identification"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Major timeframe misalignment (Weekly/Daily neutral vs 4H bearish) creates conflicting directional bias. Despite being in NY Kill Zone with recent liquidity sweep, lack of fresh institutional levels and fundamental conflicts between rate differentials and COT positioning make this a low-probability setup.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T12:51:49.974177Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_125149_974177"
+    },
+    {
+      "timestamp": "2026-03-30T13:01:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1562
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00121
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major timeframe misalignment: Weekly/Daily neutral vs 4H bearish creates conflicting signals",
+        "RSI at extreme oversold (18.26) suggests potential bounce, but ADX 47.28 shows strong trending momentum",
+        "Recent SSL sweep at 1.14876 with strong rejection indicates institutional buying interest",
+        "Rate differential +1.62% favors USD but COT shows bullish positioning - fundamental conflict",
+        "Price in discount zone (7% of range) but no valid order block or FVG for precise entry"
+      ],
+      "key_risk": "Timeframe misalignment and conflicting fundamental signals create low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns after liquidity sweeps",
+        "Day Trading And Swing Trading - Inside day breakout setups and range contraction analysis"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold - timeframe misalignment and conflicting fundamental/technical signals create unfavorable risk-reward environment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T13:02:07.390314Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_130207_390314"
+    },
+    {
+      "timestamp": "2026-03-30T13:12:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1562
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00121
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major timeframe misalignment: Weekly/Daily neutral vs 4H bearish creates conflicting signals",
+        "RSI at extreme oversold (18.26) suggests potential bounce, but ADX 47.28 shows strong trending momentum",
+        "Recent SSL sweep at 1.14876 with strong rejection indicates institutional buying interest",
+        "Rate differential +1.62% favors USD but COT shows bullish positioning - fundamental conflict",
+        "Price in discount zone (7% of range) but no valid order block or FVG for precise entry"
+      ],
+      "key_risk": "Timeframe misalignment and conflicting fundamental signals create low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology for range contractions"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Major timeframe misalignment (Weekly/Daily neutral vs 4H bearish) violates alignment rules. Despite being in NY Kill Zone with recent liquidity sweep, lack of valid ICT setup and conflicting fundamental signals create unfavorable risk-reward environment.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T13:12:27.006961Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_131227_006961"
+    },
+    {
+      "timestamp": "2026-03-30T13:22:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1562
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00121
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major timeframe misalignment: Weekly/Daily neutral vs 4H bearish creates conflicting signals",
+        "RSI at extreme oversold (18.26) suggests potential bounce, but ADX 47.28 shows strong trending momentum",
+        "Recent SSL sweep at 1.14876 with strong rejection indicates institutional buying interest",
+        "Rate differential +1.62% favors USD but COT shows bullish positioning - fundamental conflict",
+        "Price in discount zone (7% of range) but no valid order block or FVG for precise entry"
+      ],
+      "key_risk": "Timeframe misalignment and conflicting fundamental signals create low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns after liquidity sweeps",
+        "Day Trading And Swing Trading - Inside day breakout setups and range contraction analysis"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold - timeframe misalignment and conflicting fundamental/technical signals create unfavorable risk-reward environment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T13:22:45.002650Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_132245_002650"
+    },
+    {
+      "timestamp": "2026-03-30T13:32:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": false,
+          "type": "NONE",
+          "level": 0.0,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.2083,
+            1.1929,
+            1.1835
+          ],
+          "support": [
+            1.1411,
+            1.1443,
+            1.1507
+          ]
+        },
+        "atr_1h": 0.00121
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major trend alignment conflict: Weekly/Daily neutral vs 4H bearish structure prevents high-conviction trades",
+        "RSI extremely oversold at 18.26 on 4H suggests potential bounce, contradicting bearish structure",
+        "Recent SSL sweep at 1.14876 with strong rejection indicates institutional buying interest at lows",
+        "Rate differential favors USD but COT shows bullish positioning, creating fundamental conflict",
+        "No valid Order Blocks or FVGs present for precise entry timing"
+      ],
+      "key_risk": "Conflicting timeframe alignment and oversold conditions create unpredictable price action",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology for range-bound markets"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Major timeframe misalignment (Weekly/Daily neutral vs 4H bearish) combined with extremely oversold RSI creates high uncertainty. Wait for either trend alignment or clear reversal structure.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T13:33:05.143670Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_133305_143670"
+    },
+    {
+      "timestamp": "2026-03-30T13:43:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": false,
+          "type": "NONE",
+          "level": 0.0,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.2083,
+            1.1929,
+            1.1835
+          ],
+          "support": [
+            1.1411,
+            1.1443,
+            1.1507
+          ]
+        },
+        "atr_1h": 0.00121
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major trend alignment conflict: Weekly/Daily neutral vs 4H bearish structure prevents high-conviction trades",
+        "RSI extremely oversold at 18.26 on 4H suggests potential bounce, contradicting bearish structure",
+        "Recent SSL sweep at 1.14876 with strong rejection indicates institutional buying interest at lower levels",
+        "Rate differential favors USD (+1.62%) but COT shows bullish EUR positioning creating fundamental conflict",
+        "Price in discount zone (7% of range) typically favors buying, but no valid bullish order blocks present"
+      ],
+      "key_risk": "Conflicting timeframe alignment and oversold conditions in discount zone create unclear directional bias",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology and range contraction analysis"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below minimum threshold of 45. Major timeframe misalignment (Weekly/Daily neutral vs 4H bearish) combined with extremely oversold RSI creates conflicting signals. Wait for either higher timeframe alignment or clear bounce confirmation from current discount levels.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T13:43:25.627267Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_134325_627267"
+    },
+    {
+      "timestamp": "2026-03-30T13:53:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "NY Kill Zone",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": false,
+          "type": "NONE",
+          "level": 0.0,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.2083,
+            1.1929,
+            1.1835
+          ],
+          "support": [
+            1.1411,
+            1.1443,
+            1.1507
+          ]
+        },
+        "atr_1h": 0.00121
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "RISING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 40,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 40,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major trend alignment conflict: Weekly/Daily neutral vs 4H bearish structure prevents high-conviction trades",
+        "RSI at extreme oversold (18.26) on 4H suggests potential bounce, contradicting bearish structure",
+        "Recent SSL sweep at 1.14876 with strong rejection indicates institutional buying interest at lower levels",
+        "Price in discount zone (7% of range) typically favors buying, but conflicts with 4H bearish bias",
+        "No valid Order Blocks or FVGs present for precise entry timing"
+      ],
+      "key_risk": "Conflicting timeframe alignment creates whipsaw potential. RSI oversold condition may trigger bounce against 4H bearish structure.",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology and range contraction analysis"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 40 below 65 threshold. Major timeframe misalignment (Weekly/Daily neutral vs 4H bearish) creates conflicting signals. RSI extreme oversold condition suggests potential bounce contradicting bearish structure. Wait for timeframe alignment or clear MSS confirmation.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (40/100, minimum 65)",
+        "BLOCKED: Confidence too low (40%)"
+      ],
+      "logged_at_utc": "2026-03-30T13:53:46.611777Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_135346_611777"
+    },
+    {
+      "timestamp": "2026-03-30T14:03:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.15,
+            1.1562,
+            1.15864
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00134
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "RISING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major trend alignment conflict: Weekly/Daily neutral vs 4H/1H bearish creates uncertainty",
+        "RSI at extreme oversold (18.26) suggests potential bounce, but ADX 47.28 shows strong trending momentum",
+        "Recent SSL sweep at 1.14876 with rejection indicates institutional buying interest at lower levels",
+        "Rate differential +1.62% favors USD but COT shows Asset Managers net long EUR creating fundamental conflict",
+        "Price in deep discount (7% of range) but no valid bullish order block for precise entry"
+      ],
+      "key_risk": "Conflicting timeframe structure and fundamental divergence between rate differentials and COT positioning creates low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology for range contraction analysis"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Major structural conflict between higher timeframes (Weekly/Daily neutral) and lower timeframes (4H/1H bearish). Fundamental divergence between USD-favoring rate differential and EUR-bullish COT positioning. Wait for clearer alignment.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T14:04:06.727914Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_140406_727914"
+    },
+    {
+      "timestamp": "2026-03-30T14:14:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.15,
+            1.1562,
+            1.15864
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00134
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "RISING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major trend alignment conflict: Weekly/Daily neutral vs 4H/1H bearish creates uncertainty",
+        "RSI at extreme oversold (18.26) suggests potential bounce, but ADX 47.28 shows strong trending momentum",
+        "Recent SSL sweep at 1.14876 with rejection indicates institutional buying interest at lower levels",
+        "Rate differential +1.62% favors USD but COT shows Asset Managers net long EUR creating fundamental conflict",
+        "Price in deep discount (7% of range) but no valid bullish order block for precise entry"
+      ],
+      "key_risk": "Trend alignment conflict between higher and lower timeframes creates whipsaw potential",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and hedge strategies",
+        "Day Trading And Swing Trading - Inside day breakout methodology for range contractions"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Major timeframe misalignment creates high whipsaw risk despite being in London Close kill zone.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T14:14:26.100913Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_141426_100913"
+    },
+    {
+      "timestamp": "2026-03-30T14:24:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1562
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00134
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "RISING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "LOW"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major trend alignment conflict: Weekly/Daily neutral vs 4H/1H bearish creates uncertainty",
+        "RSI at extreme oversold (18.26) suggests potential bounce, but ADX 47.28 shows strong trending momentum",
+        "Recent SSL sweep at 1.14876 with rejection indicates institutional buying interest at lower levels",
+        "Rate differential +1.62% favors USD but COT shows Asset Managers net long EUR creating fundamental conflict",
+        "Price in discount zone (7% of range) but no valid order block or FVG for precise entry timing"
+      ],
+      "key_risk": "Conflicting timeframe structure and fundamental divergence between rate differentials and COT positioning creates low-probability environment",
+      "knowledge_sources_used": [
+        "Day Trading And Swing Trading - Inside days breakout strategy principles applied to range contraction analysis",
+        "The Forex Trading Course - Post-news retracement concepts for understanding current price action after recent volatility"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Major timeframe misalignment (Weekly/Daily neutral vs 4H bearish) combined with fundamental conflicts (USD rate advantage vs EUR COT bullish positioning) creates low-probability setup. Wait for clearer directional alignment or valid ICT setup with proper order block/FVG confluence.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T14:24:52.166934Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_142452_166934"
+    },
+    {
+      "timestamp": "2026-03-30T14:34:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.15,
+            1.1562,
+            1.15864
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00134
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "RISING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "HIGH"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Major trend alignment conflict: Weekly/Daily neutral vs 4H/1H bearish creates uncertainty",
+        "Recent SSL sweep at 1.14876 with strong rejection suggests potential reversal zone, but no clear follow-through",
+        "RSI extremely oversold at 18.26 on 4H suggests potential bounce, but ADX 47.28 shows strong trending conditions",
+        "Rate differential +1.62% favors USD strength, but COT shows Asset Managers net long EUR creating fundamental conflict",
+        "Fed Chair Powell speaking creates high news risk environment unsuitable for position entry"
+      ],
+      "key_risk": "High news risk with Fed Chair Powell speaking plus major trend alignment conflicts across timeframes",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement strategy principles",
+        "Day Trading And Swing Trading - Inside days breakout and range contraction concepts"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 threshold + High news risk with Fed Chair Powell speaking + Major timeframe alignment conflicts create unsuitable trading environment",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: News blackout active (5 minutes ago to event)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T14:35:08.957434Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_143508_957434"
+    },
+    {
+      "timestamp": "2026-03-30T14:45:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": false,
+          "type": "NONE",
+          "level": 0.0,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.2083,
+            1.1929,
+            1.1835
+          ],
+          "support": [
+            1.1411,
+            1.1443,
+            1.1507
+          ]
+        },
+        "atr_1h": 0.00134
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks (5 minutes ago)",
+        "news_risk": "HIGH"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly and Daily timeframes show NEUTRAL/ranging structure while 4H shows bearish - major alignment conflict violates trading rules",
+        "RSI at 18.26 shows extreme oversold conditions suggesting potential bounce rather than continuation",
+        "Recent sell-side liquidity sweep at 1.14876 with strong rejection indicates smart money may have completed accumulation",
+        "High news risk with Fed Chair Powell speaking creates unpredictable volatility environment",
+        "COT data shows bullish bias conflicting with rate differential bearish bias - mixed fundamental picture"
+      ],
+      "key_risk": "Major timeframe misalignment combined with extreme oversold RSI and recent liquidity sweep rejection creates high probability of whipsaw price action",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and volatility management",
+        "Day Trading And Swing Trading - Inside day breakout strategies and range contraction analysis"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 minimum threshold. Major timeframe misalignment (Weekly/Daily neutral vs 4H bearish), extreme oversold RSI suggesting reversal risk, and high news risk from recent Fed Chair Powell speech create unfavorable risk/reward environment.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: News blackout active (5 minutes ago to event)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T14:45:28.662960Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_144528_662960"
+    },
+    {
+      "timestamp": "2026-03-30T14:55:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": false,
+          "type": "NONE",
+          "level": 0.0,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14876,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.2083,
+            1.1929,
+            1.1835
+          ],
+          "support": [
+            1.1411,
+            1.1443,
+            1.1507
+          ]
+        },
+        "atr_1h": 0.00134
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "HIGH"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "RSI at 18.26 shows extreme oversold conditions on 4H, suggesting potential bounce",
+        "Recent SSL sweep at 1.14876 with strong rejection indicates liquidity hunt completed",
+        "Price in deep discount zone (7% of range) - ICT principle suggests looking for buys",
+        "Rate differential +1.62% favors USD but COT shows commercial bullish positioning",
+        "Fed Chair Powell speaking creates high news risk - violates 30min news buffer rule"
+      ],
+      "key_risk": "High-impact Fed Chair Powell speech just occurred 5 minutes ago - market volatility and whipsaws likely",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - news trading hedge strategies",
+        "Day Trading And Swing Trading - inside day breakout patterns"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "High news risk from Fed Chair Powell speech just 5 minutes ago violates 30-minute news buffer rule. Weekly/Daily neutral conflicts with 4H bearish structure. Confluence score 35 below 45 minimum threshold.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: News blackout active (5 minutes ago to event)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T14:55:45.193304Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_145545_193304"
+    },
+    {
+      "timestamp": "2026-03-30T15:05:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": false,
+          "type": "NONE",
+          "level": 0.0,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14622,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.2083,
+            1.1929,
+            1.1835
+          ],
+          "support": [
+            1.1411,
+            1.1443,
+            1.1507
+          ]
+        },
+        "atr_1h": 0.00129
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "FALLING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "HIGH"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Recent SSL sweep at 1.14622 with strong rejection suggests potential reversal setup, but lacks valid order block confirmation",
+        "Extreme RSI oversold (18.26) on 4H with high ADX (47.28) indicates strong bearish momentum but potential exhaustion",
+        "Conflicting signals: Rate differential favors USD strength, but DXY falling and COT shows bullish EUR positioning",
+        "Fed Chair Powell speaking creates high news risk environment - violates 30-minute news buffer rule"
+      ],
+      "key_risk": "High-impact news event (Fed Chair Powell) just occurred 5 minutes ago - market volatility and whipsaws likely",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement strategy principles",
+        "Day Trading And Swing Trading - Inside day breakout concepts for range identification"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "High news risk environment with Fed Chair Powell speaking 5 minutes ago violates 30-minute news buffer rule. Additionally, conflicting macro bias (Weekly/Daily neutral vs 4H bearish) and confluence score below 45 threshold.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: News blackout active (5 minutes ago to event)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T15:06:04.552637Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_150604_552637"
+    },
+    {
+      "timestamp": "2026-03-30T15:16:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": false,
+          "type": "NONE",
+          "level": 0.0,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14622,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.2083,
+            1.1929,
+            1.1835
+          ],
+          "support": [
+            1.1411,
+            1.1443,
+            1.1507
+          ]
+        },
+        "atr_1h": 0.00129
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "HIGH"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "RSI at 18.26 shows extreme oversold conditions on 4H, suggesting potential bounce",
+        "Recent SSL sweep at 1.14622 with strong rejection indicates liquidity hunt completed",
+        "Price in discount zone (7% of range) but conflicting timeframe alignment prevents clear signal",
+        "Rate differential +1.62% favors USD but COT shows bullish EUR positioning creating uncertainty"
+      ],
+      "key_risk": "Fed Chair Powell speaking creates high news risk with potential for volatile moves in either direction",
+      "knowledge_sources_used": [
+        "The Forex Trading Course",
+        "Day Trading And Swing Trading"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 threshold. High news risk with Fed Chair Powell speaking. Conflicting timeframe alignment (Weekly/Daily neutral vs 4H/1H bearish). Despite oversold RSI and SSL sweep, lack of clear directional bias and imminent high-impact news creates unfavorable risk/reward scenario.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: News blackout active (5 minutes ago to event)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T15:16:21.604080Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_151621_604080"
+    },
+    {
+      "timestamp": "2026-03-30T15:26:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14622,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1562
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00129
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "RISING",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks",
+        "news_risk": "HIGH"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly and Daily timeframes show NEUTRAL/mixed structure creating conflicting signals with bearish 4H trend",
+        "Recent sell-side liquidity sweep at 1.14622 with strong rejection suggests potential bullish reversal, but price remains in discount zone",
+        "RSI extremely oversold at 18.26 on 4H with high ADX (47.28) indicating strong trending conditions but potential exhaustion",
+        "Rate differential strongly favors USD (+1.62%) and DXY rising, creating fundamental headwinds for EUR/USD recovery",
+        "Fed Chair Powell speaking creates high news risk environment - violates rule of no trades 30min before/after high-impact events"
+      ],
+      "key_risk": "High-impact news event (Fed Chair Powell) just occurred 5 minutes ago - market volatility and whipsaws likely",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement patterns and volatility management",
+        "Day Trading And Swing Trading - Inside day breakout strategies and range contraction analysis"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Multiple conflicting factors: 1) Timeframe misalignment (Weekly/Daily neutral vs 4H bearish), 2) High news risk with Fed Chair Powell just speaking, 3) Confluence score below 45 threshold, 4) Extreme RSI oversold but no clear reversal structure yet established",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: News blackout active (5 minutes ago to event)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T15:26:40.138444Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_152640_138444"
+    },
+    {
+      "timestamp": "2026-03-30T15:36:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14622,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.1507,
+            1.15,
+            1.1562
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00129
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "Fed Chair Powell Speaks (5 minutes ago)",
+        "news_risk": "HIGH"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Recent sell-side liquidity sweep at 1.14622 with strong rejection suggests potential reversal setup, but bullish OB at 1.15365 is already mitigated",
+        "Extreme RSI oversold (18.26) on 4H with high ADX (47.28) indicates strong bearish momentum but potential for mean reversion",
+        "Rate differential of +1.62% favoring USD provides fundamental bearish bias for EUR/USD, but COT shows bullish positioning creating conflict",
+        "Fed Chair Powell speaking creates high news risk environment - violates rule of no trades 30 min before/after high-impact events"
+      ],
+      "key_risk": "High news risk from Fed Chair Powell speech just occurred, creating unpredictable volatility and potential whipsaws",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement strategy principles",
+        "Day Trading And Swing Trading - Inside days breakout and false breakout protection"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "High news risk from recent Fed Chair Powell speech violates 30-minute news buffer rule. Weekly/Daily neutral conflicts with 4H bearish structure. Confluence score of 35 is below 45 minimum threshold.",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: News blackout active (5 minutes ago to event)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T15:36:57.891297Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_153657_891297"
+    },
+    {
+      "timestamp": "2026-03-30T15:47:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14622,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.2083,
+            1.1929,
+            1.1835
+          ],
+          "support": [
+            1.1411,
+            1.1443,
+            1.1507
+          ]
+        },
+        "atr_1h": 0.00129
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "USD \u2014 Fed Chair Powell Speaks (5 minutes ago)",
+        "news_risk": "HIGH"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Weekly and Daily timeframes show NEUTRAL/mixed structure creating conflicting signals with bearish 4H trend",
+        "Recent sell-side liquidity sweep at 1.14622 with strong rejection suggests potential bullish reversal setup",
+        "RSI extremely oversold at 18.26 on 4H with high ADX 47.28 indicating strong momentum but potential exhaustion",
+        "Rate differential +1.62% favors USD but COT shows bullish positioning creating fundamental conflict",
+        "Fed Chair Powell just spoke creating high news risk environment - violates 30-min news buffer rule"
+      ],
+      "key_risk": "High news risk from recent Fed Chair Powell speech and conflicting timeframe alignment prevents high-conviction setup",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement strategy principles",
+        "Day Trading And Swing Trading - Inside days breakout and range contraction concepts"
+      ],
+      "trade_management": {
+        "tp1_action": "Close 50% at TP1, move SL to entry",
+        "tp2_action": "Trail remaining 50% to TP2",
+        "time_stop": "Close if -0.5R after the session time-stop window; strong aligned setups can earn a deterministic extension"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 threshold + High news risk from recent Fed speech violates 30-min buffer rule + Conflicting timeframe alignment (Weekly/Daily neutral vs 4H bearish) prevents high-conviction setup",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: News blackout active (5 minutes ago to event)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T15:47:14.857826Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_154714_857826"
+    },
+    {
+      "timestamp": "2026-03-30T15:57:00Z",
+      "pair": "EUR/USD",
+      "timeframe": "4H",
+      "session": "London Close",
+      "macro_bias": {
+        "weekly": "NEUTRAL",
+        "daily": "NEUTRAL",
+        "h4": "BEARISH",
+        "alignment": "CONFLICTING"
+      },
+      "ict_analysis": {
+        "order_block": {
+          "present": true,
+          "type": "BULLISH",
+          "level": 1.15365,
+          "valid": false
+        },
+        "fair_value_gap": {
+          "present": false,
+          "type": "NONE",
+          "upper": 0.0,
+          "lower": 0.0
+        },
+        "liquidity": {
+          "recent_sweep": true,
+          "swept_level": 1.14622,
+          "direction": "SELL_SIDE"
+        },
+        "premium_discount": "DISCOUNT",
+        "ote_zone": [
+          1.1562,
+          1.15864
+        ]
+      },
+      "technical_analysis": {
+        "ema_bias": "BEARISH",
+        "rsi_14": 18.26,
+        "rsi_signal": "OVERSOLD",
+        "adx_14": 47.28,
+        "market_regime": "TRENDING",
+        "key_levels": {
+          "resistance": [
+            1.15,
+            1.1562,
+            1.15864
+          ],
+          "support": [
+            1.1443,
+            1.1411,
+            1.14
+          ]
+        },
+        "atr_1h": 0.00129
+      },
+      "fundamental": {
+        "rate_differential": "+1.62% USD favor supports bearish EUR/USD bias",
+        "dxy_direction": "NEUTRAL",
+        "cot_bias": "BULLISH",
+        "next_news_event": "Fed Chair Powell Speaks (5 minutes ago)",
+        "news_risk": "HIGH"
+      },
+      "confluence_score": 35,
+      "signal_strength": "NEUTRAL",
+      "signal": {
+        "direction": "NEUTRAL",
+        "confidence": 35,
+        "entry_zone": [
+          0.0,
+          0.0
+        ],
+        "stop_loss": 0.0,
+        "take_profit_1": 0.0,
+        "take_profit_2": 0.0,
+        "risk_reward": 0.0,
+        "recommended_lot_size": 0.0,
+        "order_type": "LIMIT"
+      },
+      "reasoning": [
+        "Recent sell-side liquidity sweep at 1.14622 with strong rejection suggests potential reversal setup, but lacks valid order block confirmation",
+        "RSI extremely oversold at 18.26 on 4H with ADX at 47.28 indicating strong trending conditions - conflicting signals",
+        "Rate differential of +1.62% in USD favor creates strong fundamental headwind for EUR/USD longs",
+        "Weekly and Daily structure neutral while 4H/1H/15M all bearish - lack of multi-timeframe alignment reduces conviction",
+        "Fed Chair Powell just spoke (5 minutes ago) creating high news risk environment - violates 30-minute news buffer rule"
+      ],
+      "key_risk": "High news risk from recent Fed Chair Powell speech and conflicting timeframe structure creates low-probability environment",
+      "knowledge_sources_used": [
+        "The Forex Trading Course - Post-news retracement strategy principles",
+        "Day Trading And Swing Trading - Inside days breakout and false breakout protection concepts"
+      ],
+      "trade_management": {
+        "tp1_action": "N/A - No trade signal",
+        "tp2_action": "N/A - No trade signal",
+        "time_stop": "N/A - No trade signal"
+      },
+      "do_not_trade_reason": "Confluence score 35 below 45 threshold + High news risk from recent Fed speech + Conflicting timeframe alignment + No valid ICT setup present",
+      "demo_mode": true,
+      "execution_allowed": false,
+      "execution_direction": "NEUTRAL",
+      "validator_overrides": [
+        "BLOCKED: Claude confluence score too low (35/100, minimum 65)",
+        "BLOCKED: News blackout active (5 minutes ago to event)",
+        "BLOCKED: Confidence too low (35%)"
+      ],
+      "logged_at_utc": "2026-03-30T15:57:33.661522Z",
+      "log_filename": "signal_20260330.json",
+      "log_entry_id": "20260330_155733_661522"
+    }
+  ],
+  "entry_count": 25,
+  "last_logged_at_utc": "2026-03-30T15:57:33.661522Z"
+}
